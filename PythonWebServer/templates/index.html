@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드론 산불 진화 관제 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+<h1>드론 산불 진화 관제 시스템</h1>
+
+<div class="status-panel">
+    <h2>드론 실시간 상태</h2>
+    <p>위치 (X,Y,Z): <span id="dronePosition">-</span></p>
+    <p>고도 (절대): <span id="droneAltitude">-</span> m</p>
+    <p>배터리: <span id="droneBattery">-</span> %</p>
+    <p>현재 임무 상태: <span id="droneMissionState">-</span></p>
+    <p>남은 폭탄: <span id="droneBombLoad">-</span> 개</p>
+    <p>서버 메시지: <span id="serverMessage">연결 대기 중...</span></p>
+</div>
+
+<div class="mission-control-panel">
+    <h2>임무 명령</h2>
+    <div class="fire-report">
+        <h4>산불 발생 보고 (임무 시작)</h4>
+        <label for="fireX">X:</label> <input type="number" id="fireX" value="100">
+        <label for="fireY">Y(지면):</label> <input type="number" id="fireY" value="0">
+        <label for="fireZ">Z:</label> <input type="number" id="fireZ" value="100">
+        <label for="fireScale">화재 규모(폭탄 수):</label>
+        <select id="fireScale">
+            <option value="2">소형 (2개)</option>
+            <option value="4">중형 (4개)</option>
+            <option value="6" selected>대형 (6개)</option>
+        </select>
+        <button id="btnReportFire">산불 보고 및 출동</button>
+    </div>
+    <div class="emergency-controls">
+        <h4>긴급 제어</h4>
+        <button id="btnEmergencyStop">긴급 정지 (현위치 AGL 호버)</button>
+        <button id="btnDispatchCancel">출동 취소 (스테이션 복귀)</button>
+        <button id="btnForceReturn">강제 귀환 (스테이션 복귀)</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
