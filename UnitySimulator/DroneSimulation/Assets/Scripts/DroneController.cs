@@ -178,7 +178,7 @@ public class DroneController : MonoBehaviour
         }
 
         rb.useGravity = false;
-        rb.angularDrag = 2.5f; // 회전 안정성을 위해 각도 감쇠 약간 증가 (튜닝 필요)
+        rb.angularDamping = 2.5f; // 회전 안정성을 위해 각도 감쇠 약간 증가 (튜닝 필요)
 
         ConnectWebSocket();
         StartCoroutine(SendDroneDataRoutine());
@@ -418,7 +418,7 @@ public class DroneController : MonoBehaviour
             {
                 float altError = targetAltitude_abs - currentAltitude_abs;
                 float pForce = altError * Kp_altitude * 0.8f; // 이륙 시 P게인 약간 조절
-                float dForce = -rb.velocity.y * Kd_altitude * 0.5f; // 이륙 시 D게인 약간 조절
+                float dForce = -rb.linearVelocity.y * Kd_altitude * 0.5f; // 이륙 시 D게인 약간 조절
                 float upwardForce = Physics.gravity.magnitude + pForce + dForce;
                 rb.AddForce(Vector3.up * Mathf.Clamp(upwardForce, Physics.gravity.magnitude * 0.5f, hoverForce * 1.5f),
                     ForceMode.Acceleration);
@@ -440,7 +440,7 @@ public class DroneController : MonoBehaviour
                 float upwardThrust = Mathf.Max(0, Physics.gravity.magnitude - currentEffectiveDescentRate);
                 rb.AddForce(Vector3.up * upwardThrust, ForceMode.Acceleration);
                 // 착륙 중 수평 이동 및 회전은 거의 없도록 강하게 감쇠
-                rb.velocity = new Vector3(rb.velocity.x * 0.8f, rb.velocity.y, rb.velocity.z * 0.8f);
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.8f, rb.linearVelocity.y, rb.linearVelocity.z * 0.8f);
                 rb.angularVelocity *= 0.8f;
             }
             else
@@ -448,7 +448,7 @@ public class DroneController : MonoBehaviour
                 // 목표 Y 도달 또는 통과 시 (지면에 거의 닿았을 때)
                 isLanding_subState = false;
                 isPhysicallyStopped = true; // 물리적 움직임 멈춤
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
                 // 최종 위치를 droneStationLocation (LandingPad)의 정확한 X, Y, Z로 설정
                 if (droneStationLocation != null)
@@ -471,7 +471,7 @@ public class DroneController : MonoBehaviour
             // AGL 고도 유지 (PD 제어), targetAltitude_abs는 UpdateTerrainSensing에서 계속 업데이트됨
             float altError = targetAltitude_abs - currentAltitude_abs;
             float pForceAlt = altError * Kp_altitude;
-            float dForceAlt = -rb.velocity.y * Kd_altitude;
+            float dForceAlt = -rb.linearVelocity.y * Kd_altitude;
             float vertAdjust = pForceAlt + dForceAlt;
             float totalVertForce = Physics.gravity.magnitude + vertAdjust;
             rb.AddForce(Vector3.up * Mathf.Clamp(totalVertForce, 0.0f, hoverForce * 2.0f), ForceMode.Acceleration);
@@ -506,7 +506,7 @@ public class DroneController : MonoBehaviour
                     desiredVelocityXZ *= 0.2f; // 전진 속도 더 많이 줄임
                 }
 
-                Vector3 currentVelocityXZ = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                Vector3 currentVelocityXZ = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
                 Vector3 forceNeededXZ = (desiredVelocityXZ - currentVelocityXZ) * 3.0f; // 수평 이동 P계수
                 rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
 
@@ -531,7 +531,7 @@ public class DroneController : MonoBehaviour
             else
             {
                 // 목표 XZ 도착
-                rb.velocity = new Vector3(rb.velocity.x * 0.7f, rb.velocity.y, rb.velocity.z * 0.7f); // 더 빠르게 감속
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x * 0.7f, rb.linearVelocity.y, rb.linearVelocity.z * 0.7f); // 더 빠르게 감속
                 rb.angularVelocity =
                     new Vector3(rb.angularVelocity.x, rb.angularVelocity.y * 0.7f, rb.angularVelocity.z);
             }
@@ -541,7 +541,7 @@ public class DroneController : MonoBehaviour
             // targetAltitude_abs는 UpdateTerrainSensing에서 AGL 기준으로 계속 업데이트됨
             float altError = targetAltitude_abs - currentAltitude_abs;
             float pForceAlt = altError * Kp_altitude;
-            float dForceAlt = -rb.velocity.y * Kd_altitude;
+            float dForceAlt = -rb.linearVelocity.y * Kd_altitude;
             float vertAdjust = pForceAlt + dForceAlt;
             float totalVertForce = Physics.gravity.magnitude + vertAdjust;
             rb.AddForce(Vector3.up * Mathf.Clamp(totalVertForce, 0.0f, hoverForce * 2.0f), ForceMode.Acceleration);
@@ -550,13 +550,13 @@ public class DroneController : MonoBehaviour
             // DroppingBombs 상태일 때 이 감쇠가 특히 중요
             float dampingFactor =
                 (currentMissionState == DroneMissionState.DroppingBombs) ? 0.7f : 0.9f; // 폭탄 투하 중에는 더 강하게 감쇠
-            rb.velocity = new Vector3(rb.velocity.x * dampingFactor, rb.velocity.y, rb.velocity.z * dampingFactor);
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x * dampingFactor, rb.linearVelocity.y, rb.linearVelocity.z * dampingFactor);
             rb.angularVelocity = new Vector3(rb.angularVelocity.x, rb.angularVelocity.y * dampingFactor,
                 rb.angularVelocity.z);
         }
         else if (isPhysicallyStopped && currentAltitude_abs < 0.5f) // 지상에서 완전 정지
         {
-            rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, Time.fixedDeltaTime * 10f); // 더 빠르게 정지
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 10f); // 더 빠르게 정지
             rb.angularVelocity = Vector3.Lerp(rb.angularVelocity, Vector3.zero, Time.fixedDeltaTime * 10f);
         }
     }
