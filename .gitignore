@@ -1,7 +1,4 @@
-# Unity 프로젝트를 위한 .gitignore 파일 예시
-# 이 파일은 프로젝트의 루트 디렉토리(Unity 프로젝트 폴더 최상위)에 .gitignore 라는 이름으로 저장하세요.
-
-# Unity가 자동으로 생성하거나 임시로 사용하는 파일/폴더
+# Unity 특정 파일 및 폴더
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -13,7 +10,7 @@
 /[Rr]ecordings/
 /[Aa]ssets/AssetStoreTools*
 
-# Visual Studio/Rider/VS Code 등 IDE 관련 파일
+# Visual Studio / Rider / VS Code 등 IDE 관련 파일
 .vs/
 .vscode/
 *.csproj
@@ -30,72 +27,94 @@
 *.mdb
 *.opendb
 *.VC.db
+*.DotSettings.user
 
 # Rider
 .idea/
+!Library/Rider/
+
+# Unity 콜라이더 베이킹 데이터 (만약 사용한다면)
+# Assets/meshes/*/colliderbake.asset
 
 # macOS 특정 파일
 .DS_Store
 .AppleDouble
 .LSOverride
+._*
 
 # Windows 특정 파일
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Git LFS (Large File Storage) - 대용량 에셋 관리에 사용될 수 있음
-# .gitattributes 파일에서 실제 LFS로 추적할 파일 형식을 지정합니다.
-# 아래는 LFS를 사용할 경우 일반적으로 추가될 수 있는 내용입니다.
-# *.fbxสำเนาข้อความ
-# *.FBX
+# Git LFS 파일 (대용량 에셋을 LFS로 관리할 경우, .gitattributes 파일에서 실제 추적할 파일 정의)
+# *.fbx
+# *.blend
 # *.png
-# *.PNG
 # *.jpg
-# *.JPG
-# *.tif
-# *.TIF
-# *.psd
-# *.PSD
 # *.asset
 # *.unity
 # *.prefab
-# *.mat
-# *.anim
-# *.controller
-# *.physicmaterial
-# *.physicsmaterial
-# *.mp4
-# *.MP4
-# *.mov
-# *.MOV
-# *.avi
-# *.AVI
-# *.wav
-# *.WAV
-# *.mp3
-# *.MP3
-# *.ogg
-# *.OGG
+# *.psd
 
-# 특정 패키지나 에셋 스토어 툴 관련 파일 (필요에 따라 추가)
-# 예시: /Assets/Plugins/SpecificPluginDataFolder/
+# 특정 패키지 매니저 파일
+Packages/manifest.json
+Packages/packages-lock.json
+!Packages/your-custom-package-if-any/ # 만약 로컬 패키지를 버전관리하고 싶다면 예외처리
 
-# Python 가상 환경 폴더 (만약 프로젝트 내에 Python 서버 등을 함께 관리한다면)
+# Python 특정 파일 및 폴더
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python 가상 환경 폴더
+# 만약 PythonWebServer 폴더가 프로젝트 루트에 있다면:
 PythonWebServer/venv/
+# 또는 다른 이름의 가상환경 폴더를 사용한다면 해당 이름으로 변경
+# venv/
+# .venv/
+# env/
+# .env/
 
-# 빌드된 실행 파일
+# Python 노트북 체크포인트
+.ipynb_checkpoints
+
+# 빌드된 실행 파일 및 아카이브 (Unity 빌드와 겹칠 수 있지만, 명시적으로 추가)
 *.exe
-*.dll
+*.dll # Unity Plugins 폴더 내의 DLL은 제외하지 않도록 주의. .gitignore 패턴으로 더 세밀하게 조절 가능
 *.app
 *.apk
 *.aab
 *.ipa
-*.jar
-*.war
+*.deb
+*.dmg
+*.rpm
+*.tar.gz
+*.zip
 
-# 크래시 리포트
-crash_reports/
+# 민감한 정보 파일 (예시)
+# .env # 환경 변수 파일
+# config.ini # 비밀 키 등이 포함된 설정 파일
+# secrets.json
 
 # 특정 로컬 설정 파일
-local_settings.json
+# local_config.*
