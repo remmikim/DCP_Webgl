@@ -135,7 +135,7 @@ public class DroneController : MonoBehaviour
     public float arrivalDistanceThreshold = 2.0f;
     public float bombDropInterval = 0.5f;
     public Vector3 bombSpawnOffset = new Vector3(0f, -2.0f, 0.5f); // 폭탄 생성 위치 오프셋 (로컬 좌표 기준: X, Y(아래), Z(앞))
-    public float preDropStabilizationTime = 1.0f; // 첫 폭탄 투하 전 안정화 대기 시간 (초)
+    public float preDropStabilizationTime = 3.0f; // 첫 폭탄 투하 전 안정화 대기 시간 (초)
 
     // --- 고도 제어 (PD 및 AGL) ---
     [Header("고도 제어 (PD & AGL)")] public float targetAltitude_abs; // PD 제어기의 현재 목표 절대 Y 고도 (AGL에 의해 동적 업데이트됨)
