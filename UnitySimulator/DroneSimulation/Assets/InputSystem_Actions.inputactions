@@ -27,7 +27,7 @@
                     "name": "Attack",
                     "type": "Button",
                     "id": "6c2ab1b8-8984-453a-af3d-a3c78ae1679a",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -87,13 +87,40 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "RightDown",
-                    "type": "Value",
-                    "id": "9354b249-b3f4-4cd0-b529-b0c55188d689",
-                    "expectedControlType": "Axis",
+                    "name": "RightB",
+                    "type": "Button",
+                    "id": "db41ec41-a2cd-4ad9-948a-546b488022a8",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LeftB",
+                    "type": "Button",
+                    "id": "7d55fa9a-d1aa-44e4-8d85-91d0f4c344d9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "M4",
+                    "type": "Button",
+                    "id": "f1eec529-3bf2-4477-97f7-6176ce639813",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "M6",
+                    "type": "Button",
+                    "id": "eb42e319-fe18-4a25-816a-bdb5c726b691",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -484,12 +511,45 @@
                 },
                 {
                     "name": "",
-                    "id": "00787f86-2177-464a-90f4-30b65a8ee338",
+                    "id": "f1cff987-6dac-4228-b17e-cd5e12b0b66f",
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "RightDown",
+                    "action": "RightB",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2e85505d-2c8b-4d84-898f-cbd405d0f7a2",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftB",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "01d6abeb-7626-4b02-9052-1761a7977090",
+                    "path": "<Keyboard>/numpad4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "M4",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "577f4410-8e6e-4f3d-811f-13eb90535319",
+                    "path": "<Keyboard>/numpad6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "M6",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

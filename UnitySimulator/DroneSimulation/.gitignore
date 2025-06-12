@@ -32,6 +32,11 @@
 # Visual Studio cache directory
 .vs/
 
+# Unity Version Control (Plastic SCM)
+.plastic/
+plastic.ignore
+plastic.selector
+
 # Gradle cache directory
 .gradle/
 
