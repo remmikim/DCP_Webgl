@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Rotary_In : MonoBehaviour
 {
-    private float rotationAngle = 60f; // ÇÑ ¹ø È¸ÀüÇÒ °¢µµ
-    private float rotationDuration = 0.5f; // È¸Àü¿¡ °É¸®´Â ½Ã°£
+    private float rotationAngle = 60f; // í•œ ë²ˆ íšŒì „í•  ê°ë„
+    private float rotationDuration = 0.5f; // íšŒì „ì— ê±¸ë¦¬ëŠ” ì‹œê°„
 
     private Quaternion initialRotation;
     private Quaternion targetRotation;
@@ -32,7 +32,7 @@ public class Rotary_In : MonoBehaviour
         }
     }
 
-    public void OnM6() // ¿À¸¥ÂÊ ¹öÆ° Å¬¸¯ ½Ã È£Ãâ
+    public void OnM6() // ì˜¤ë¥¸ìª½ ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œ
     {
         if (!isRotating)
         {
@@ -43,7 +43,7 @@ public class Rotary_In : MonoBehaviour
         }
     }
 
-    public void OnM4() // ¿ŞÂÊ ¹öÆ° Å¬¸¯ ½Ã È£Ãâ
+    public void OnM4() // ì™¼ìª½ ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œ
     {
         if (!isRotating)
         {
