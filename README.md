@@ -12,7 +12,7 @@
     => ex) (venv) PS C:\DroneControlProject\PythonWebServer>
 
 6. 가상환경이 실행된 상태에서 app.py 입력 + Enter
-7. 터미널 창에 http://127.0.0.1:5000"과 같은 메시지가 나타나고, 오류 없이 실행 중인지 확인.
+7. 터미널 창에 http://127.0.0.1:5000" 과 같은 메시지가 나타나고, 오류 없이 실행 중인지 확인.
 
 8-1. 본인 PC에서는 127.0.0.1:(포트번호) 입력해서 접속 가능
 8-2. 다른 PC에서 접속을 원할 시 http://(본인 IP 주소):(포트번호) 이런식으로 주소를 입력해야 연결됨.
@@ -22,6 +22,6 @@
 <detail>
     <summary><b>🚀 깃 참고</b></summary>
 
-h[링크](ttps://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link)
+[링크](https://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link)
 
 </details>
