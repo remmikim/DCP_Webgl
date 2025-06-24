@@ -1,4 +1,14 @@
 #
+# Github 작업 합치기 관련
+1. 작업 시작 전 Main Branch에서 최신화 업데이트
+2. 그 후 본인 Branch에 Main Branch Merge
+3. 작업 완료 후 본인 Branch에서 오류가 있나 없나 확인
+4. 3번 까지의 작업이 완료 되었다면 PR (Pull Request)
+
+__★★★★★ 모든 유니티 작업은 개인 Branch에서 작업할것 !! ★★★★★__
+
+
+#
 # DroneProject 폴더 구분
     1. PythonWebServer => ★ HTTP 웹 서버 전용 폴더 ★
     
