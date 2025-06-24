@@ -1,6 +1,10 @@
 #
 # DroneProject HTTP 통신 서버 실행 방법
 
+</details>
+    <detail> PythonWebServer => ★ HTTP 웹 서버 전용 폴더 ★
+    <detail> UnitySimulation => ★ 유니티 프로젝트 파일 관련 폴더 ★
+    
 
 1. PowerShell ** 관리자 권한으로 실행 **
 2. 다음 명령어 입력 + Enter => Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
