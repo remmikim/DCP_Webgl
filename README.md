@@ -3,7 +3,7 @@
 </details>
     <detail> 1. PythonWebServer => ★ HTTP 웹 서버 전용 폴더 ★
     
-    2. UnitySimulation => ★ 유니티 프로젝트 파일 관련 폴더 ★
+    2.UnitySimulation => ★ 유니티 프로젝트 파일 관련 폴더 ★
 </details>
 
 # DroneProject HTTP 통신 서버 실행 방법
@@ -35,6 +35,6 @@
 <detail>
     <summary><b>🚀 깃 참고</b></summary>
 
-[링크](https://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link)
+[노션 폴더 정리 링크]<https://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link>
 
 </details>
