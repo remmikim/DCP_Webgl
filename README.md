@@ -13,9 +13,7 @@
 
 3. PowerShell 그냥 실행
 4. cd C:\(본인 깃 파일 로컬 저장소 주소 입력)\PythonWebServer 로 이동
-5. 다음 명령어 입력 + Enter
-
-    => .\venv\Scripts\activate
+5. .\venv\Scripts\activate 입력 + Enter
 
     => 성공적으로 활성화가 되면 프롬프트 맨 앞에 (venv) 라고 표시가 됨.
 
@@ -33,6 +31,6 @@
 <detail>
     <summary><b>🚀 깃 참고</b></summary>
 
-[노션 폴더 정리 링크]<https://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link>
+[노션 폴더 정리 링크](https://sable-beard-26b.notion.site/Unity-Python-208fbf84667880368c81d891d256744b?source=copy_link)
 
 </details>
