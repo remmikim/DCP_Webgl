@@ -1,10 +1,8 @@
 #
 # DroneProject 폴더 구분
-</details>
-    <detail> 1. PythonWebServer => ★ HTTP 웹 서버 전용 폴더 ★
+    1. PythonWebServer => ★ HTTP 웹 서버 전용 폴더 ★
     
     2.UnitySimulation => ★ 유니티 프로젝트 파일 관련 폴더 ★
-</details>
 
 # DroneProject HTTP 통신 서버 실행 방법
 1. PowerShell ** 관리자 권한으로 실행 **
