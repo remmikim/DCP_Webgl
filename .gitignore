@@ -1,0 +1,44 @@
+# Unity Generated Files
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+# NOTE: .meta files should generally be tracked by Git!
+
+# Visual Studio / Rider / IDE Specific Files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.vscode/ # Visual Studio Code specific settings
+.idea/   # JetBrains Rider specific settings
+
+# macOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+
+# Python specific (for PythonWebServer)
+__pycache__/ # Python이 생성하는 컴파일된 바이트코드 파일
+*.pyc         # Python이 생성하는 컴파일된 바이트코드 파일
+*.log         # Python 웹 서버에서 생성되는 로그 파일 등 (필요시)
+# If PythonWebServer generates other temporary or sensitive files, add them here.
+
+# Catia/PLC specific (if they generate any temporary or configuration files you don't want to track)
+# Example:
+# *.bak
+# *.tmp
