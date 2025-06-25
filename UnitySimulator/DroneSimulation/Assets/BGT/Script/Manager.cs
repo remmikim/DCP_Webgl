@@ -1,71 +1,69 @@
-using ActUtlType64Lib;
+ï»¿using ActUtlType64Lib;
 using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
-    private ActUtlType64 mxComponent;
-    private bool currentY0State;
-    private bool currentY1State;
+    private ActUtlType64 mxComponent; // PLC í†µì‹ ìš© ê°ì²´
 
-    public Chain1 chainInstance ;
-    public Chain1 chainInstance12;
+    private bool currentY0State; // Y0 ì¥ì¹˜ í˜„ì¬ ìƒíƒœ
+    private bool currentY1State; // Y1 ì¥ì¹˜ í˜„ì¬ ìƒíƒœ
+
+    public Chain1 chainInstance; // Y0 ìƒíƒœì— ë”°ë¼ ì œì–´í•  Chain1 ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡°
+    public Chain1 chainInstance12; // Y1 ìƒíƒœì— ë”°ë¼ ì œì–´í•  Chain1 ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡°
     
+    public int logicalStationNumber = 1; // Unity Editorì—ì„œ ì„¤ì •í•  PLC ë…¼ë¦¬ ìŠ¤í…Œì´ì…˜ ë²ˆí˜¸
+
     void Start()
     {
-        mxComponent = new ActUtlType64Lib.ActUtlType64();
-        mxComponent.ActLogicalStationNumber = 1;
-        int iRet = mxComponent.Open(); // PLC ¿¬°á ½Ãµµ
+        mxComponent = new ActUtlType64();
+        mxComponent.ActLogicalStationNumber = logicalStationNumber;
+        
+        int iRet = mxComponent.Open(); // PLC ì—°ê²° ì‹œë„
         if (iRet == 0)
-        {
-            Debug.Log("Manager.cs: PLC ¿¬°á ¼º°ø!");
-        }
+            Debug.Log("Manager.cs: PLC ì—°ê²° ì„±ê³µ!");
         else
-        {
-            Debug.LogError($"Manager.cs: PLC ¿¬°á ½ÇÆĞ! ¿¡·¯ ÄÚµå: {iRet}");
-        }
+            Debug.LogError($"Manager.cs: PLC ì—°ê²° ì‹¤íŒ¨! ì—ëŸ¬ ì½”ë“œ: {iRet}. ë…¼ë¦¬ ìŠ¤í…Œì´ì…˜ ë²ˆí˜¸ í™•ì¸ ìš”ë§.");
     }
 
     void Update()
     {
-       
-        ReadDevice();
-        
+        ReadDevice(); // ë§¤ í”„ë ˆì„ë§ˆë‹¤ PLC ì¥ì¹˜ ìƒíƒœ ì½ê¸°
     }
     
+    /// <summary>
+    /// PLC 'Y' ë””ë°”ì´ìŠ¤(ë¹„íŠ¸) ìƒíƒœ ì½ì–´ì™€ Unity ê°ì²´ ìƒíƒœ ì—…ë°ì´íŠ¸
+    /// </summary>
     private void ReadDevice()
     {
-        // blockCnt¸¦ 1·Î ÇÏ¸é startDevice(Y0)ºÎÅÍ 16ºñÆ®(1¿öµå)¸¦ ÀĞ¾î¿É´Ï´Ù.
-        // ÀÌ 1¿öµå ¾È¿¡ Y0, Y1, Y2, ..., YF±îÁöÀÇ ºñÆ®°¡ Æ÷ÇÔµË´Ï´Ù.
-        int blockCnt = 1;
-        int[] data = new int[blockCnt]; // Å©±â¸¦ blockCnt¿¡ ¸ÂÃä´Ï´Ù.
+        int blockCnt = 1; // 1ì›Œë“œ(16ë¹„íŠ¸) ì½ê¸°
+        int[] data = new int[blockCnt]; 
 
-        // Y0ºÎÅÍ ½ÃÀÛÇÏ´Â 1¿öµå¸¦ ÀĞ¾î¿É´Ï´Ù.
-        int iRet = mxComponent.ReadDeviceBlock("Y0", blockCnt, out data[0]);
+        int iRet = mxComponent.ReadDeviceBlock("Y0", blockCnt, out data[0]); // Y0ë¶€í„° 1ì›Œë“œ ì½ê¸°
 
-        if (iRet == 0)
+        if (iRet == 0) // ì½ê¸° ì„±ê³µ ì‹œ
         {
-            int y0ToYF = data[0]; // Y0ºÎÅÍ YF±îÁöÀÇ ºñÆ® »óÅÂ¸¦ ´ãÀº ¿öµå °ª
+            int y0ToYF = data[0]; // Y0ë¶€í„° YFê¹Œì§€ì˜ ë¹„íŠ¸ ìƒíƒœë¥¼ ë‹´ì€ ì›Œë“œ ê°’
 
-            // Y0 ºñÆ® ÃßÃâ
-            bool newY0State = ((y0ToYF >> 0) & 1) == 1; // 0¹øÂ° ºñÆ®
-            if (newY0State != currentY0State) // »óÅÂ º¯°æ °¨Áö
+            // Y0 ë¹„íŠ¸ ì¶”ì¶œ ë° ìƒíƒœ ë³€ê²½ ê°ì§€
+            bool newY0State = ((y0ToYF >> 0) & 1) == 1; 
+            if (newY0State != currentY0State) 
             {
-                currentY0State = newY0State;
-                if (chainInstance != null)
+                currentY0State = newY0State; 
+                if (chainInstance) // Chain1 ì¸ìŠ¤í„´ìŠ¤ ìœ íš¨í•œì§€ í™•ì¸
                 {
-                    if (currentY0State)
+                    if (currentY0State) 
                         chainInstance.ActivateChain();
                     else
                         chainInstance.DeactivateChain();
                 }
             }
             
-            // Y1 ºñÆ® ÃßÃâ
-            bool newY1State = ((y0ToYF >> 1) & 1) == 1; // 1¹øÂ° ºñÆ®
-            if (newY1State != currentY1State) // »óÅÂ º¯°æ °¨Áö
+            // Y1 ë¹„íŠ¸ ì¶”ì¶œ ë° ìƒíƒœ ë³€ê²½ ê°ì§€
+            bool newY1State = ((y0ToYF >> 1) & 1) == 1; 
+            if (newY1State != currentY1State) 
             {
-                currentY1State = newY1State;
-                if (chainInstance12 != null) // chainInstance12°¡ Y1À» Á¦¾îÇÑ´Ù°í °¡Á¤
+                currentY1State = newY1State; 
+                if (chainInstance12) // Chain12 ì¸ìŠ¤í„´ìŠ¤ ìœ íš¨í•œì§€ í™•ì¸
                 {
                     if (currentY1State)
                         chainInstance12.ActivateChain();
@@ -74,39 +72,39 @@ public class Manager : MonoBehaviour
                 }
             }
         }
-        else
-        {
-            Debug.LogWarning($"Manager.cs: »óÅÂ ÀĞ±â ½ÇÆĞ! ¿¡·¯ ÄÚµå: {iRet}.");
-        }
+        
+        else // ì½ê¸° ì‹¤íŒ¨ ì‹œ
+            Debug.LogWarning($"Manager.cs: PLC ìƒíƒœ ì½ê¸° ì‹¤íŒ¨! ì—ëŸ¬ ì½”ë“œ: {iRet}.");
     }
-    private void WirteDevice(int X0ToXF)
+
+    /// <summary>
+    /// PLC 'X' ë””ë°”ì´ìŠ¤(ì›Œë“œ)ì— ê°’ ì“°ê¸°
+    /// </summary>
+    /// <param name="valueToWrite">X0ì— ì“¸ 16ë¹„íŠ¸(1ì›Œë“œ) ì •ìˆ˜ ê°’</param>
+    private void WriteDevice(int valueToWrite) 
     {
-        // blockCnt¸¦ 1·Î ÇÏ¸é startDevice(X0)ºÎÅÍ 16ºñÆ®(1¿öµå)¸¦ ÀĞ¾î¿É´Ï´Ù.
-        int blockCnt = 1;
-        int[] data = new int[blockCnt]; // Å©±â¸¦ blockCnt¿¡ ¸ÂÃä´Ï´Ù.
+        int blockCnt = 1; // 1ì›Œë“œ ì“°ê¸°
+        int[] data = new int[blockCnt]; 
+        data[0] = valueToWrite; 
 
-        // X0ºÎÅÍ ½ÃÀÛÇÏ´Â 1¿öµå¸¦ ÀĞ¾î¿É´Ï´Ù.
-        int iRet = mxComponent.WriteDeviceBlock("X0", blockCnt, data[0]);
+        int iRet = mxComponent.WriteDeviceBlock("X0", blockCnt, data[0]); // X0ì— ê°’ ì“°ê¸°
 
-        if(iRet == 0)
-        {
-            X0ToXF = data[0];
-        }
+        if (iRet == 0) // ì“°ê¸° ì„±ê³µ ì‹œ
+            Debug.Log($"Manager.cs: X0 ì¥ì¹˜ì— ê°’ {valueToWrite} ì“°ê¸° ì„±ê³µ.");
+        else // ì“°ê¸° ì‹¤íŒ¨ ì‹œ
+            Debug.LogError($"Manager.cs: X0 ì¥ì¹˜ì— ê°’ {valueToWrite} ì“°ê¸° ì‹¤íŒ¨! ì—ëŸ¬ ì½”ë“œ: {iRet}");
     }
-        void OnApplicationQuit()
+
+    void OnApplicationQuit()
     {
-        // ¾ÖÇÃ¸®ÄÉÀÌ¼Ç Á¾·á ½Ã PLC ¿¬°á ÇØÁ¦
-        if (mxComponent != null)
+        // ì• í”Œë¦¬ì¼€ì´ì…˜ ì¢…ë£Œ ì‹œ PLC ì—°ê²° í•´ì œ
+        if (mxComponent != null) 
         {
             int iRet = mxComponent.Close();
             if (iRet == 0)
-            {
-                Debug.Log("Manager.cs: PLC ¿¬°á ÇØÁ¦ ¼º°ø.");
-            }
+                Debug.Log("Manager.cs: PLC ì—°ê²° í•´ì œ ì„±ê³µ.");
             else
-            {
-                Debug.LogError($"Manager.cs: PLC ¿¬°á ÇØÁ¦ ½ÇÆĞ! ¿¡·¯ ÄÚµå: {iRet}");
-            }
+                Debug.LogError($"Manager.cs: PLC ì—°ê²° í•´ì œ ì‹¤íŒ¨! ì—ëŸ¬ ì½”ë“œ: {iRet}");
         }
     }
 }

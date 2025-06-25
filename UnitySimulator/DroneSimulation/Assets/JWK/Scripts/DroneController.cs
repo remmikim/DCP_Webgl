@@ -6,7 +6,7 @@ using WebSocketSharp;
 using System;
 using SimpleJSON;
 
-// --- 데이터 구조 클래스 (별도 파일로 분리 권장) ---
+// --- 데이터 구조 클래스 ---
 [System.Serializable]
 public class Vector3Data
 {
