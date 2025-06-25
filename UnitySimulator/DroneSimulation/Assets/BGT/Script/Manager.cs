@@ -9,6 +9,7 @@ public class Manager : MonoBehaviour
 
     public Chain1 chainInstance ;
     public Chain1 chainInstance12;
+    
     void Start()
     {
         mxComponent = new ActUtlType64Lib.ActUtlType64();
@@ -30,6 +31,7 @@ public class Manager : MonoBehaviour
         ReadDevice();
         
     }
+    
     private void ReadDevice()
     {
         // blockCnt를 1로 하면 startDevice(Y0)부터 16비트(1워드)를 읽어옵니다.
@@ -57,6 +59,7 @@ public class Manager : MonoBehaviour
                         chainInstance.DeactivateChain();
                 }
             }
+            
             // Y1 비트 추출
             bool newY1State = ((y0ToYF >> 1) & 1) == 1; // 1번째 비트
             if (newY1State != currentY1State) // 상태 변경 감지
