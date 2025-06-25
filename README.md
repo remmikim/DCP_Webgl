@@ -3,7 +3,7 @@
 ---
 
 
-## 파이썬 웹 서버 설정 (Setup Python Web Sever)
+## ⚙️파이썬 웹 서버 설정 (Setup Python Web Sever)
 1. 터미널(PowerShell 또는 cmd)을 열고
 2. 프로젝트 내의 PythonWebServer 폴더로 이동
 
@@ -26,7 +26,7 @@
 <pre> pip install Flask Flask-SockeyIO evnetlet </pre>
 
 
-## 실행 방법
+## ▶️실행 방법
 
 1. 웹 서버 실행
 `터미널을 열고 TeamProject/PythonWebServer 폴더로 이동 후 가상 환경 활성화`
