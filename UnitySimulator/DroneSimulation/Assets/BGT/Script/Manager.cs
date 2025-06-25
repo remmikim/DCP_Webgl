@@ -7,10 +7,13 @@ public class Manager : MonoBehaviour
 
     private bool currentY0State; // Y0 장치 현재 상태
     private bool currentY1State; // Y1 장치 현재 상태
+    private bool currentY2State; // Y2 장치 현재 상태
+    private bool currentY3State; // Y3 장치 현재 상태
 
     public Chain1 chainInstance; // Y0 상태에 따라 제어할 Chain1 스크립트 참조
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
-    
+    public PipeHolders pipeHolders;
+
     public int logicalStationNumber = 1; // Unity Editor에서 설정할 PLC 논리 스테이션 번호
 
     void Start()
@@ -69,6 +72,34 @@ public class Manager : MonoBehaviour
                         chainInstance12.ActivateChain();
                     else
                         chainInstance12.DeactivateChain();
+                }
+            }
+
+            // Y2 비트 추출 및 상태 변경 감지
+            bool newY2State = ((y0ToYF >> 2) & 1) == 1; 
+            if (newY2State != currentY2State) 
+            {
+                currentY2State = newY2State; 
+                if (pipeHolders) 
+                {
+                    if (currentY2State)
+                        pipeHolders.ActivatePipeHoldersCW();
+                    else
+                        pipeHolders.DeactivatePipeHoldersCW();
+                }
+            }
+
+            // Y3 비트 추출 및 상태 변경 감지
+            bool newY3State = ((y0ToYF >> 3) & 1) == 1; 
+            if (newY3State != currentY3State) 
+            {
+                currentY3State = newY3State; 
+                if (pipeHolders) 
+                {
+                    if (currentY3State)
+                        pipeHolders.ActivatePipeHoldersCCW();
+                    else
+                        pipeHolders.DeactivatePipeHoldersCCW();
                 }
             }
         }
