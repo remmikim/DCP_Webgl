@@ -27,7 +27,7 @@ __★★★★★ 모든 유니티 작업은 개인 Branch에서 작업할것 !!
 
     => 성공적으로 활성화가 되면 프롬프트 맨 앞에 (venv) 라고 표시가 됨.
 
-    => ex) (venv) PS C:\DroneControlProject\PythonWebServer>
+    => ex) (venv) PS C:\Unity\TeamProject\PythonWebServer>
 
 
 6. 가상환경이 실행된 상태에서 app.py 입력 + Enter
