@@ -1,20 +1,24 @@
 ﻿using ActUtlType64Lib;
+using System;
 using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
     private ActUtlType64 mxComponent; // PLC 통신용 객체
-
+    private int logicalStationNumber = 1; // Unity Editor에서 설정할 PLC 논리 스테이션 번호
+    //=======(Y)======================
     private bool currentY0State; // Y0 장치 현재 상태
     private bool currentY1State; // Y1 장치 현재 상태
     private bool currentY2State; // Y2 장치 현재 상태
     private bool currentY3State; // Y3 장치 현재 상태
 
+
+    // ======= Class 불러오기 ============
     public Chain1 chainInstance; // Y0 상태에 따라 제어할 Chain1 스크립트 참조
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
     public PipeHolders pipeHolders;
+    public GameObject Cube;
 
-    public int logicalStationNumber = 1; // Unity Editor에서 설정할 PLC 논리 스테이션 번호
 
     void Start()
     {
@@ -31,6 +35,8 @@ public class Manager : MonoBehaviour
     void Update()
     {
         ReadDevice(); // 매 프레임마다 PLC 장치 상태 읽기
+        WriteDevice(); // 10/ 11111
+
     }
     
     /// <summary>
@@ -112,20 +118,24 @@ public class Manager : MonoBehaviour
     /// PLC 'X' 디바이스(워드)에 값 쓰기
     /// </summary>
     /// <param name="valueToWrite">X0에 쓸 16비트(1워드) 정수 값</param>
-    private void WriteDevice(int valueToWrite) 
+    private void WriteDevice() 
     {
-        int blockCnt = 1; // 1워드 쓰기
-        int[] data = new int[blockCnt]; 
-        data[0] = valueToWrite; 
+        short value1 = 1;
+        short value0 = 0;
 
-        int iRet = mxComponent.WriteDeviceBlock("X0", blockCnt, data[0]); // X0에 값 쓰기
+        if (Cube.GetComponent<Trigger>().TriggerSensor)
+        {
+            mxComponent.WriteDeviceRandom2("X1", 1, ref value1);
+        }
+        else
+        {
+            mxComponent.WriteDeviceRandom2("X1", 1, ref value0 );
+        }
 
-        if (iRet == 0) // 쓰기 성공 시
-            Debug.Log($"Manager.cs: X0 장치에 값 {valueToWrite} 쓰기 성공.");
-        else // 쓰기 실패 시
-            Debug.LogError($"Manager.cs: X0 장치에 값 {valueToWrite} 쓰기 실패! 에러 코드: {iRet}");
+
+        
     }
-
+    
     void OnApplicationQuit()
     {
         // 애플리케이션 종료 시 PLC 연결 해제
