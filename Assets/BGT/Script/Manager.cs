@@ -1,5 +1,6 @@
 ﻿using ActUtlType64Lib;
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Manager : MonoBehaviour
@@ -19,6 +20,7 @@ public class Manager : MonoBehaviour
     public PipeHolders pipeHolders;
     public GameObject Cube;
 
+    private bool isX1Active = false;
 
     void Start()
     {
@@ -125,17 +127,34 @@ public class Manager : MonoBehaviour
 
         if (Cube.GetComponent<Trigger>().TriggerSensor)
         {
-            mxComponent.WriteDeviceRandom2("X1", 1, ref value1);
+            mxComponent.WriteDeviceRandom2("X0", 1, ref value1);
+            //isX1Active = true;
+            //StartCoroutine(X1OffAfterDelay(5));
         }
         else
         {
-            mxComponent.WriteDeviceRandom2("X1", 1, ref value0 );
+            mxComponent.WriteDeviceRandom2("X0", 1, ref value0 );
+            //isX1Active = false;
+            //StopAllCoroutines();
         }
 
 
         
     }
-    
+    IEnumerator X1OffAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay); // 지정된 시간(delay)만큼 기다립니다.
+
+        // 시간이 지난 후, X1이 아직 켜져 있는 상태라면 끕니다.
+        // (만약 TriggerSensor가 그 사이에 꺼졌다면 이미 꺼졌을 수도 있으므로 안전 체크)
+        if (isX1Active)
+        {
+            short value0 = 0;
+            mxComponent.WriteDeviceRandom2("X1", 1, ref value0); // X1 OFF
+            isX1Active = false; // X1이 꺼졌음을 표시
+            Debug.Log($"Manager.cs: {delay}초 경과. X1 자동으로 OFF.");
+        }
+    }
     void OnApplicationQuit()
     {
         // 애플리케이션 종료 시 PLC 연결 해제
