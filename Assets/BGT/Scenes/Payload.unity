@@ -1294,7 +1294,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &744876189
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2309,7 +2309,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1289018212}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13c24c5905d1e694ca3e9e04d1e85497, type: 3}
   m_Name: 
@@ -8387,7 +8387,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &2768918563018782969
 GameObject:
   m_ObjectHideFlags: 0
@@ -17887,13 +17887,14 @@ GameObject:
   - component: {fileID: 286399593664424030}
   - component: {fileID: 6274985801040440330}
   - component: {fileID: 7363728316100168285}
+  - component: {fileID: 7363728316100168286}
   m_Layer: 0
   m_Name: ChainALL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &7363728316100168285
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17901,7 +17902,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7363728316100168284}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba989dec4df6fb54184a9a72706e3ae6, type: 3}
   m_Name: 
@@ -17937,6 +17938,21 @@ MonoBehaviour:
   - {fileID: 5113121351758534017}
   - {fileID: 1882738176694996563}
   - {fileID: 3864979344117679286}
+  chainSpeed: 1
+--- !u!114 &7363728316100168286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7363728316100168284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d87eb8b1c642ce848a99aa41e929f6d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chainLinks:
+  - {fileID: 286399593664424030}
   chainSpeed: 1
 --- !u!23 &7364289127826860405
 MeshRenderer:
