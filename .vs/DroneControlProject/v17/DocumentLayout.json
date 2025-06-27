@@ -7,16 +7,8 @@
       "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\models\\kim\\zlift.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\models\\kim\\zlift.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\script\\chainmove.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\chainmove.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\models\\kim\\zliftrotaion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\models\\kim\\zliftrotaion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\assets\\bgt\\script\\managerwrite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\managerwrite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,47 +18,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ZLiftRotaion.cs",
-              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Models\\Kim\\ZLiftRotaion.cs",
-              "RelativeDocumentMoniker": "Assets\\BGT\\Models\\Kim\\ZLiftRotaion.cs",
-              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Models\\Kim\\ZLiftRotaion.cs",
-              "RelativeToolTip": "Assets\\BGT\\Models\\Kim\\ZLiftRotaion.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-27T06:42:30.818Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ZLift.cs",
-              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Models\\Kim\\ZLift.cs",
-              "RelativeDocumentMoniker": "Assets\\BGT\\Models\\Kim\\ZLift.cs",
-              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Models\\Kim\\ZLift.cs",
-              "RelativeToolTip": "Assets\\BGT\\Models\\Kim\\ZLift.cs",
-              "ViewState": "AgIAAGkAAAAAAAAAAAAIwAoAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-27T06:28:44.55Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ChainMove.cs",
-              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\ChainMove.cs",
-              "RelativeDocumentMoniker": "Assets\\BGT\\Script\\ChainMove.cs",
-              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\ChainMove.cs",
-              "RelativeToolTip": "Assets\\BGT\\Script\\ChainMove.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMBAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-27T06:23:08.097Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -75,10 +28,22 @@
               "RelativeDocumentMoniker": "Assets\\BGT\\Script\\Manager.cs",
               "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Manager.cs",
               "RelativeToolTip": "Assets\\BGT\\Script\\Manager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-27T09:26:57.82Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ManagerWrite.cs",
+              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\ManagerWrite.cs",
+              "RelativeDocumentMoniker": "Assets\\BGT\\Script\\ManagerWrite.cs",
+              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\ManagerWrite.cs",
+              "RelativeToolTip": "Assets\\BGT\\Script\\ManagerWrite.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-27T06:50:46.565Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-27T09:26:33.958Z"
             }
           ]
         }

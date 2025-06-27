@@ -368,6 +368,7 @@ MonoBehaviour:
   pipeHolders: {fileID: 0}
   zLift: {fileID: 0}
   Cube: {fileID: 0}
+  managerWrite: {fileID: 0}
 --- !u!4 &1289018214
 Transform:
   m_ObjectHideFlags: 0
