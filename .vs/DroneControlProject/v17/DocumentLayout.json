@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\script\\chain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\chain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\script\\chain1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\chain1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|c:\\users\\pc-17\\desktop\\unity\\dronecontrolproject\\assets\\bgt\\script\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{269E2C06-38C8-3AEA-90DD-87B19F7313BA}|Assembly-CSharp.csproj|solutionrelative:assets\\bgt\\script\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\NewMonoBehaviourScript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\BGT\\Script\\NewMonoBehaviourScript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,67 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Chain.cs",
-              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Chain.cs",
-              "RelativeDocumentMoniker": "Assets\\BGT\\Script\\Chain.cs",
-              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Chain.cs",
-              "RelativeToolTip": "Assets\\BGT\\Script\\Chain.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAAAAwCEAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T07:34:27.158Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Manager.cs",
-              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Manager.cs",
-              "RelativeDocumentMoniker": "Assets\\BGT\\Script\\Manager.cs",
-              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Manager.cs",
-              "RelativeToolTip": "Assets\\BGT\\Script\\Manager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG0AAAA1AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T02:55:12.414Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "Orientation": 0,
-      "VerticalTabListWidth": 256,
-      "FloatingWindowState": {
-        "Id": "f60927b7-c5f5-436d-af94-2bbeb2a2541a",
-        "Display": 0,
-        "X": 266,
-        "Y": 131,
-        "Width": 1517,
-        "Height": 784,
-        "WindowState": 0
-      },
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
           "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Chain1.cs",
               "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Chain1.cs",
               "RelativeDocumentMoniker": "Assets\\BGT\\Script\\Chain1.cs",
               "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\Chain1.cs",
               "RelativeToolTip": "Assets\\BGT\\Script\\Chain1.cs",
-              "ViewState": "AgIAAIoAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T07:42:28.676Z",
+              "WhenOpened": "2025-06-27T03:39:26.112Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NewMonoBehaviourScript.cs",
+              "DocumentMoniker": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\NewMonoBehaviourScript.cs",
+              "RelativeDocumentMoniker": "Assets\\BGT\\Script\\NewMonoBehaviourScript.cs",
+              "ToolTip": "C:\\Users\\pc-17\\Desktop\\Unity\\DroneControlProject\\Assets\\BGT\\Script\\NewMonoBehaviourScript.cs",
+              "RelativeToolTip": "Assets\\BGT\\Script\\NewMonoBehaviourScript.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAswC8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-27T03:35:44.895Z"
             }
           ]
         }

@@ -12,15 +12,17 @@ public class Manager : MonoBehaviour
     private bool currentY1State; // Y1 장치 현재 상태
     private bool currentY2State; // Y2 장치 현재 상태
     private bool currentY3State; // Y3 장치 현재 상태
+    private bool currentY4State; // Y4 장치 현재 상태
+    private bool currentY5State; // Y5 장치 현재 상태
 
 
     // ======= Class 불러오기 ============
     public Chain1 chainInstance; // Y0 상태에 따라 제어할 Chain1 스크립트 참조
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
     public PipeHolders pipeHolders;
+    public ZLift zLift;
     public GameObject Cube;
 
-    private bool isX1Active = false;
 
     void Start()
     {
@@ -110,6 +112,33 @@ public class Manager : MonoBehaviour
                         pipeHolders.DeactivatePipeHoldersCCW();
                 }
             }
+
+            // Y4 비트 추출 및 상태 변경 감지
+            bool newY4State = ((y0ToYF >> 4) & 1) == 1; 
+            if (newY4State != currentY4State) 
+            {
+                currentY4State = newY4State; 
+                if (zLift) 
+                {
+                    if (currentY4State)
+                        zLift.ActivateZLiftUp();
+                    else
+                        zLift.DeactivateZLiftUp();
+                }
+            }
+            // Y5 비트 추출 및 상태 변경 감지
+            bool newY5State = ((y0ToYF >> 5) & 1) == 1; 
+            if (newY5State != currentY5State) 
+            {
+                currentY5State = newY5State; 
+                if (zLift) 
+                {
+                    if (currentY5State)
+                        zLift.ActivateZLiftDown();
+                    else
+                        zLift.DeactivateZLiftDown();
+                }
+            }
         }
         
         else // 읽기 실패 시
@@ -128,31 +157,10 @@ public class Manager : MonoBehaviour
         if (Cube.GetComponent<Trigger>().TriggerSensor)
         {
             mxComponent.WriteDeviceRandom2("X0", 1, ref value1);
-            //isX1Active = true;
-            //StartCoroutine(X1OffAfterDelay(5));
         }
         else
         {
             mxComponent.WriteDeviceRandom2("X0", 1, ref value0 );
-            //isX1Active = false;
-            //StopAllCoroutines();
-        }
-
-
-        
-    }
-    IEnumerator X1OffAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay); // 지정된 시간(delay)만큼 기다립니다.
-
-        // 시간이 지난 후, X1이 아직 켜져 있는 상태라면 끕니다.
-        // (만약 TriggerSensor가 그 사이에 꺼졌다면 이미 꺼졌을 수도 있으므로 안전 체크)
-        if (isX1Active)
-        {
-            short value0 = 0;
-            mxComponent.WriteDeviceRandom2("X1", 1, ref value0); // X1 OFF
-            isX1Active = false; // X1이 꺼졌음을 표시
-            Debug.Log($"Manager.cs: {delay}초 경과. X1 자동으로 OFF.");
         }
     }
     void OnApplicationQuit()

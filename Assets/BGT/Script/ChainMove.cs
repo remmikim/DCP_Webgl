@@ -1,32 +1,32 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Chain : MonoBehaviour
+public class ChainMove : MonoBehaviour
 {
     /// <summary>
     /// element 0 ~ element 29
     /// </summary>
     public List<Transform> chainLinks; // 체인 링크 GameObject들 (Inspector에서 할당)
-    public float chainSpeed = 1.0f; // 체인 움직임 속도
+    public float chainSpeed = 1f; // 체인 움직임 속도 (단위: M/s. 한 바퀴 시간 목표 시 이 값은 무시됨)
+
+    [Header("PLC Simulation (For Testing)")]
+    private bool isChainCw = false; // PLC 정방향 이동 명령 (true: 정방향, false: 정지 또는 역방향)
+    private bool isChainCCw = false; // PLC 역방향 이동 명령 (true: 역방향, false: 정지 또는 정방향)
+
+    [Header("Rotation Settings")]
+    public float targetRotationTime = 50.0f; // 체인 한 바퀴를 도는 목표 시간 (단위: 초)
+    public bool useTargetRotationTime = true; // 목표 회전 시간을 사용할지 여부
 
     private List<Vector3> initialLocalPositions; // 체인 링크들의 초기 로컬 위치 저장
     private float currentChainTraversal = 0f; // 체인 경로 상 현재 오프셋
     private float totalInitialChainLength = 0f; // 초기 체인 총 길이
 
-    private float smoothRotationSpeed = 8.0f; // 회전 보간 속도
+    private float smoothRotationSpeed = 10.0f; // 회전 보간 속도
 
 
     void Awake()
     {
         // 1. 자식 오브젝트들을 자동으로 찾아서 chainLinks 리스트에 할당
-        // GetComponentsInChildren<Transform>()은 자기 자신(부모)도 포함하므로 제외해야 합니다.
-        // 그리고 List<Transform>에 바로 할당합니다.
-        // 순서는 Hierarchy에 있는 순서대로 정렬됩니다 (Transform의 GetChild를 통해 얻은 순서).
-        // 만약 특정 규칙으로 정렬해야 한다면 추가적인 정렬 로직이 필요합니다 (예: 이름으로 정렬).
-
-        // 주의: 모든 자식 오브젝트가 체인 링크라면 아래처럼 간단히 할 수 있습니다.
-        // 만약 자식 중에 체인 링크가 아닌 다른 오브젝트가 있다면, 필터링 로직이 필요합니다.
-
         chainLinks = new List<Transform>();
         foreach (Transform child in transform) // 현재 GameObject의 모든 직계 자식에 대해 반복
         {
@@ -78,48 +78,54 @@ public class Chain : MonoBehaviour
         Debug.Log($"초기 체인 링크 배치에 따른 총 유효 경로 길이: {totalInitialChainLength} 유닛.");
     }
 
-   void Update()
+    void Update()
     {
         if (chainLinks == null || chainLinks.Count == 0 || totalInitialChainLength == 0)
             return;
 
-        currentChainTraversal += chainSpeed * Time.deltaTime; // chainSpeed의 부호에 따라 움직임
-        currentChainTraversal %= totalInitialChainLength;
+        float actualSpeed;
 
+        // 목표 회전 시간을 사용할지 여부에 따라 속도 계산
+        if (useTargetRotationTime && targetRotationTime > 0.001f) // 0으로 나누는 것 방지
+        {
+            actualSpeed = totalInitialChainLength / targetRotationTime; // 한 바퀴 거리 / 목표 시간
+        }
+        else
+        {
+            actualSpeed = chainSpeed; // 기존 chainSpeed 사용
+        }
+
+        // PLC 명령에 따라 실제 체인 속도 결정
+        float effectiveChainSpeed = 0f;
+        if (isChainCw && !isChainCCw) // 정방향 명령만 들어온 경우
+        {
+            effectiveChainSpeed = actualSpeed; // 양수 속도 (정방향)
+        }
+        else if (isChainCCw && !isChainCw) // 역방향 명령만 들어온 경우
+        {
+            effectiveChainSpeed = -actualSpeed; // 음수 속도 (역방향)
+        }
+        // isChainCw와 isChainCCw가 모두 true이거나 모두 false이면 정지
+
+        currentChainTraversal += effectiveChainSpeed * Time.deltaTime; // 실제 속도 적용
+
+        // totalInitialChainLength 범위 내로 currentChainTraversal 유지
+        currentChainTraversal %= totalInitialChainLength;
         if (currentChainTraversal < 0)
             currentChainTraversal += totalInitialChainLength; // 음수 값 보정
 
         for (int i = 0; i < chainLinks.Count; i++)
         {
             float targetDistanceOnPath = currentChainTraversal;
-            
-            // i번째 링크의 위치는 현재 오프셋 + (i * 링크 간격)
-            // 중요한 변경: 역방향으로 갈 때는 링크들이 경로를 따라 '앞'으로 가는 것이 아니라 '뒤'로 가야 합니다.
-            // 따라서 targetDistanceOnPath에 링크 간의 거리를 더하는 대신 빼주거나,
-            // 아니면 전체 currentChainTraversal을 음수화한 후 링크 오프셋을 더하는 방식이 더 직관적일 수 있습니다.
 
-            // 현재 currentChainTraversal은 음수도 될 수 있습니다.
-            // 링크의 상대적인 위치는 항상 경로 상의 거리로 표현됩니다.
-            // 예를 들어, 0번 링크가 5m 위치에 있다면, 1번 링크는 5m + 링크간 거리 에 있어야 합니다.
-            // 그런데 만약 역방향으로 움직인다면, 1번 링크는 5m - 링크간 거리에 있어야 합니다.
-            // 이 부분을 명확히 하기 위해 링크의 상대적 오프셋을 조절해야 합니다.
-
-            // 기존 로직: 순방향으로 각 링크의 오프셋을 더함
-            // for (int j = 0; j < i; j++)
-            // {
-            //     float segmentLength = Vector3.Distance(initialLocalPositions[j], initialLocalPositions[(j + 1) % initialLocalPositions.Count]);
-            //     targetDistanceOnPath += segmentLength;
-            // }
-
-            // 수정된 로직: chainSpeed의 부호에 따라 링크 오프셋을 적용
             float linkOffsetDistance = 0f;
             for (int j = 0; j < i; j++)
             {
                 linkOffsetDistance += Vector3.Distance(initialLocalPositions[j], initialLocalPositions[(j + 1) % initialLocalPositions.Count]);
             }
 
-            // chainSpeed가 양수면 순방향, 음수면 역방향 오프셋
-            if (chainSpeed >= 0) // 순방향
+            // effectiveChainSpeed의 부호에 따라 링크 오프셋을 적용
+            if (effectiveChainSpeed >= 0) // 정방향
             {
                 targetDistanceOnPath += linkOffsetDistance;
             }
@@ -128,22 +134,22 @@ public class Chain : MonoBehaviour
                 targetDistanceOnPath -= linkOffsetDistance;
             }
 
-
             targetDistanceOnPath %= totalInitialChainLength;
             // % 연산자는 음수 결과를 반환할 수 있으므로 항상 0 이상으로 보정
             if (targetDistanceOnPath < 0) targetDistanceOnPath += totalInitialChainLength;
 
             Vector3 targetLocalPosition;
             Quaternion targetLocalRotation;
-            // GetPositionAndRotationOnInitialPath 함수에 chainSpeed의 부호를 전달
-            GetPositionAndRotationOnInitialPath(targetDistanceOnPath, out targetLocalPosition, out targetLocalRotation, chainSpeed);
+
+            // GetPositionAndRotationOnInitialPath 함수에 실제 적용될 속도(effectiveChainSpeed)의 부호를 전달
+            GetPositionAndRotationOnInitialPath(targetDistanceOnPath, out targetLocalPosition, out targetLocalRotation, effectiveChainSpeed);
 
             chainLinks[i].localPosition = targetLocalPosition;
             chainLinks[i].localRotation = Quaternion.Slerp(chainLinks[i].localRotation, targetLocalRotation, Time.deltaTime * smoothRotationSpeed);
         }
     }
 
-    //로컬 위치, 로컬 회전 계산 함수 (chainSpeed 부호를 인자로 추가)
+    // 로컬 위치, 로컬 회전 계산 함수 (effectiveChainSpeed 부호를 인자로 추가)
     private void GetPositionAndRotationOnInitialPath(float distance, out Vector3 pos, out Quaternion rot, float currentSpeed)
     {
         pos = Vector3.zero;
@@ -157,16 +163,13 @@ public class Chain : MonoBehaviour
 
             float segmentLength = Vector3.Distance(currentLocalPoint, nextLocalPoint);
 
-            if (segmentLength < 0.0001f)
+            if (segmentLength < 0.0001f) // 매우 짧은 세그먼트 스킵
             {
                 accumulatedDistance += segmentLength;
                 continue;
             }
 
             // 찾고 있는 'distance'가 현재 세그먼트 안에 있는지 확인
-            // 거리가 음수일 수도 있으므로, totalInitialChainLength로 조정된 distance를 사용합니다.
-            // 여기서는 distance가 항상 [0, totalInitialChainLength) 범위 내에 있다고 가정합니다.
-            // 따라서 accumulatedDistance와 segmentLength는 양수입니다.
             if (distance >= accumulatedDistance && distance < accumulatedDistance + segmentLength)
             {
                 float t = (distance - accumulatedDistance) / segmentLength; // 세그먼트 내의 비율
@@ -174,7 +177,7 @@ public class Chain : MonoBehaviour
 
                 Vector3 segmentDirection = nextLocalPoint - currentLocalPoint;
 
-                if (segmentDirection.sqrMagnitude < 0.000001f)
+                if (segmentDirection.sqrMagnitude < 0.000001f) // 방향 벡터가 너무 작을 경우
                 {
                     // rot는 초기값인 Quaternion.identity를 유지
                 }
@@ -182,8 +185,8 @@ public class Chain : MonoBehaviour
                 {
                     Vector3 forwardDirectionForLink;
 
-                    // 핵심 변경: chainSpeed의 부호에 따라 링크의 forward 방향을 결정합니다.
-                    if (currentSpeed >= 0) // 순방향 움직임
+                    // 링크의 Z축이 항상 '실제 이동하는 방향'을 바라보도록 합니다.
+                    if (currentSpeed >= 0) // 정방향 움직임
                     {
                         forwardDirectionForLink = segmentDirection.normalized;
                     }
@@ -191,29 +194,16 @@ public class Chain : MonoBehaviour
                     {
                         forwardDirectionForLink = -segmentDirection.normalized; // 경로 방향의 반대
                     }
-                    
-                    Vector3 calculatedUpVector;
 
-                    // Up 벡터 결정 로직 (기존과 동일, forwardDirectionForLink를 사용)
-                    Vector3 vectorToLocalOrigin = -pos.normalized; // 체인 중심에서 링크를 바라보는 벡터
-                    Vector3 tempRight = Vector3.Cross(forwardDirectionForLink, vectorToLocalOrigin).normalized;
-                    calculatedUpVector = Vector3.Cross(tempRight, forwardDirectionForLink).normalized;
+                    // Up 벡터를 부모 GameObject의 Up 벡터로 고정하여 뒤집힘 현상 방지
+                    Vector3 calculatedUpVector = transform.up;
 
-                    // 강건성(Robustness) 처리
-                    if (calculatedUpVector.sqrMagnitude < 0.000001f || Mathf.Abs(Vector3.Dot(forwardDirectionForLink, calculatedUpVector)) > 0.99f)
-                    {
-                        calculatedUpVector = transform.up; // Fallback
-                    }
-
-                    rot = Quaternion.LookRotation(forwardDirectionForLink, calculatedUpVector.normalized);
+                    rot = Quaternion.LookRotation(forwardDirectionForLink, calculatedUpVector);
 
                     // 체인 모델의 초기 회전 오프셋 보정 (필요시 조정)
                     // 만약 체인 링크 모델 자체가 (0,0,0) 회전일 때 Unity의 Z축(Forward)이 아닌 다른 축이 모델의 "앞"을 가리킨다면 여기에 값을 넣어야 합니다.
-                    // 예를 들어, 모델이 Y축이 Forward라면 rot *= Quaternion.Euler(0, 90, 0); 또는 rot *= Quaternion.Euler(0, -90, 0); 등이 필요합니다.
-                    // 이전에 이 부분을 시도해 보셨을 수도 있습니다.
-                    // 만약 모델의 '앞'이 경로 방향과 반대 (예: 모델의 -Z가 앞)라면,
-                    // 여기에 Quaternion.Euler(0, 180, 0)를 곱해야 할 수도 있습니다. (또는 모델링 툴에서 조정)
-                    // rot *= Quaternion.Euler(0, 0, 0); 
+                    // 예: 모델의 '앞'이 Y축이라면 rot *= Quaternion.Euler(90, 0, 0);
+                    // 예: 모델의 '앞'이 -Z축이라면 rot *= Quaternion.Euler(0, 180, 0);
                 }
                 return;
             }
@@ -228,51 +218,71 @@ public class Chain : MonoBehaviour
         rot = Quaternion.LookRotation(defaultForward, transform.up);
     }
 
-    // 체인 경로, 각 링크의 축을 시각화
-    void OnDrawGizmos()
+    // 체인 경로, 각 링크의 축을 시각화 (디버깅용)
+    //void OnDrawGizmos()
+    //{
+    //    // initialLocalPositions가 초기화되지 않았거나 링크가 부족할 경우, 현재 chainLinks를 기반으로 대략적인 경로를 그림.
+    //    if (initialLocalPositions == null || initialLocalPositions.Count < 2)
+    //    {
+    //        if (chainLinks != null && chainLinks.Count >= 2)
+    //        {
+    //            Gizmos.color = Color.cyan;
+    //            for (int i = 0; i < chainLinks.Count; i++)
+    //            {
+    //                Vector3 currentWorldPos = chainLinks[i].transform.position;
+    //                Vector3 nextWorldPos = chainLinks[(i + 1) % chainLinks.Count].transform.position;
+    //                Gizmos.DrawLine(currentWorldPos, nextWorldPos);
+    //            }
+    //        }
+    //        return;
+    //    }
+
+    //    // 초기 체인 경로를 녹색으로 그림.
+    //    Gizmos.color = Color.green;
+    //    for (int i = 0; i < initialLocalPositions.Count; i++)
+    //    {
+    //        Vector3 currentWorldPoint = transform.TransformPoint(initialLocalPositions[i]);
+    //        Vector3 nextWorldPoint = transform.TransformPoint(initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
+    //        Gizmos.DrawLine(currentWorldPoint, nextWorldPoint);
+    //    }
+
+    //    // 플레이 모드에서 각 체인 링크의 계산된 Look/Right/Up 축을 그림 (디버깅용)
+    //    if (Application.isPlaying && chainLinks != null && chainLinks.Count > 0)
+    //    {
+    //        for (int i = 0; i < chainLinks.Count; i++)
+    //        {
+    //            Vector3 currentWorldPos = chainLinks[i].position;
+    //            Quaternion currentWorldRot = chainLinks[i].rotation;
+
+    //            Gizmos.color = Color.blue; // Z축 (Forward)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.forward * 0.3f);
+
+    //            Gizmos.color = Color.red; // X축 (Right)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.right * 0.2f);
+
+    //            Gizmos.color = Color.green; // Y축 (Up)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.up * 0.2f);
+    //        }
+    //    }
+    //}
+
+    // PLC 연동을 위한 함수들
+    public void ActiveChainCW()
     {
-        // initialLocalPositions가 초기화되지 않았거나 링크가 부족할 경우, 현재 chainLinks를 기반으로 대략적인 경로를 그림.
-        if (initialLocalPositions == null || initialLocalPositions.Count < 2)
-        {
-            if (chainLinks != null && chainLinks.Count >= 2)
-            {
-                Gizmos.color = Color.cyan;
-                for (int i = 0; i < chainLinks.Count; i++)
-                {
-                    Vector3 currentWorldPos = chainLinks[i].transform.position;
-                    Vector3 nextWorldPos = chainLinks[(i + 1) % chainLinks.Count].transform.position;
-                    Gizmos.DrawLine(currentWorldPos, nextWorldPos);
-                }
-            }
-            return;
-        }
-
-        // 초기 체인 경로를 녹색으로 그림.
-        Gizmos.color = Color.green;
-        for (int i = 0; i < initialLocalPositions.Count; i++)
-        {
-            Vector3 currentWorldPoint = transform.TransformPoint(initialLocalPositions[i]);
-            Vector3 nextWorldPoint = transform.TransformPoint(initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
-            Gizmos.DrawLine(currentWorldPoint, nextWorldPoint);
-        }
-
-        // 플레이 모드에서 각 체인 링크의 계산된 Look/Right/Up 축을 그림 (디버깅용)
-        if (Application.isPlaying && chainLinks != null && chainLinks.Count > 0)
-        {
-            for (int i = 0; i < chainLinks.Count; i++)
-            {
-                Vector3 currentWorldPos = chainLinks[i].position;
-                Quaternion currentWorldRot = chainLinks[i].rotation;
-
-                Gizmos.color = Color.blue; // Z축 (Forward)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.forward * 0.3f);
-
-                Gizmos.color = Color.red; // X축 (Right)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.right * 0.2f);
-
-                Gizmos.color = Color.green; // Y축 (Up)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.up * 0.2f);
-            }
-        }
+        isChainCw = true;
+        isChainCCw = false;
+    }
+    public void DeActiveChainCW()
+    {
+        isChainCw = false;
+    }
+    public void ActiveChainCCW()
+    {
+        isChainCCw = true;
+        isChainCw = false;
+    }
+    public void DeActiveChainCCW()
+    {
+        isChainCCw = false;
     }
 }
