@@ -8,6 +8,7 @@ public class ZLift : MonoBehaviour
    
     public ZLiftRotation ROT;
     public ChainMove CHM;
+    public ChainMove CHM1;
 
     private float MoveTime = 5f; // 모든 파이프 홀더가 이동하는 데 걸리는 시간 (초)
 
@@ -15,7 +16,6 @@ public class ZLift : MonoBehaviour
     private float MoveAmount1 = 1.0f;
     private float MoveAmount2 = 1.0f;
     
-
     // 각 Lift 시작 위치와 목표 위치 변수들
     private Vector3 LWStartPosition;   // LiftWeight
     private Vector3 LWTargetPosition;  // LiftWeight
@@ -23,27 +23,19 @@ public class ZLift : MonoBehaviour
     private Vector3 CFStartPosition;   // CarriageFrame
     private Vector3 CFTargetPosition;  // CarriageFrame
 
-
-
     private float elapsedTime = 0f;
-    private bool isMoving = true; // 이동이 진행 중인지 여부
 
     private bool isZLiftCW = false;
     private bool isZLiftCCW = false;
 
     void Start()
     {
-        // 각 PipeHolder GameObject의 현재 위치를 시작 위치로 설정
-        // 그리고 그 위치에서 MoveAmount만큼 더한 위치를 목표 위치로 설정
-
         // LiftWeight 설정
         LWStartPosition = LiftWeight.transform.position;
         LWTargetPosition = LWStartPosition + new Vector3(0, -MoveAmount1, 0);
         // CarriageFrame 설정
         CFStartPosition = CarriageFrame.transform.position;
         CFTargetPosition = CFStartPosition + new Vector3(0, MoveAmount2, 0);
-        
-
     }
 
     // Update is called once per frame
@@ -54,6 +46,7 @@ public class ZLift : MonoBehaviour
            
             ROT.ActivateZLiftRotationCW();
             CHM.ActiveChainCW();
+            CHM1.ActiveChainCW();
             // 시간 누적
             elapsedTime += Time.deltaTime;
 
@@ -78,6 +71,7 @@ public class ZLift : MonoBehaviour
                 elapsedTime = 0f;
                 ROT.DeactivateZLiftRotationCW(); // 나사 회전 멈춤
                 CHM.DeActiveChainCW();
+                CHM1.DeActiveChainCW();
             }
         }
 
@@ -85,6 +79,7 @@ public class ZLift : MonoBehaviour
         {
             ROT.ActivateZLiftRotationCCW(); // 나사 회전 시작
             CHM.ActiveChainCCW();
+            CHM1.ActiveChainCCW();
             // 시간 누적
             elapsedTime += Time.deltaTime;
 
@@ -109,6 +104,7 @@ public class ZLift : MonoBehaviour
                 elapsedTime = 0f;
                 ROT.DeactivateZLiftRotationCCW(); // 나사 회전 멈춤
                 CHM.DeActiveChainCCW();
+                CHM1.DeActiveChainCCW();
             }
         }
     }
@@ -123,6 +119,7 @@ public class ZLift : MonoBehaviour
         isZLiftCW = false;
         ROT.DeactivateZLiftRotationCW(); // 나사 회전 멈춤
         CHM.DeActiveChainCW();
+        CHM1.DeActiveChainCW();
     }
 
     public void ActivateZLiftDown()
@@ -135,5 +132,6 @@ public class ZLift : MonoBehaviour
         isZLiftCCW = false;
         ROT.DeactivateZLiftRotationCCW(); // 나사 회전 멈춤
         CHM.DeActiveChainCCW();
+        CHM1.DeActiveChainCCW();
     }
 }

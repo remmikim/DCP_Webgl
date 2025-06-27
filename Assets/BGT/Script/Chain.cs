@@ -8,7 +8,8 @@ public class Chain : MonoBehaviour
     /// </summary>
     public List<Transform> chainLinks; // 체인 링크 GameObject들 (Inspector에서 할당)
     public float chainSpeed = 1.0f; // 체인 움직임 속도
-
+    private bool isChainCw = false; // PLC 정방향 이동 명령 (true: 정방향, false: 정지 또는 역방향)
+    private bool isChainCCw = false; // PLC 역방향 이동 명령 (true: 역방향, false: 정지 또는 정방향)
     private List<Vector3> initialLocalPositions; // 체인 링크들의 초기 로컬 위치 저장
     private float currentChainTraversal = 0f; // 체인 경로 상 현재 오프셋
     private float totalInitialChainLength = 0f; // 초기 체인 총 길이
@@ -65,7 +66,7 @@ public class Chain : MonoBehaviour
         {
             for (int i = 0; i < initialLocalPositions.Count - 1; i++)
                 totalInitialChainLength += Vector3.Distance(initialLocalPositions[i], initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
-            totalInitialChainLength += Vector3.Distance(initialLocalPositions[initialLocalPositions.Count - 1], initialLocalPositions[0]); // 마지막 링크와 첫 링크 연결
+                totalInitialChainLength += Vector3.Distance(initialLocalPositions[initialLocalPositions.Count - 1], initialLocalPositions[0]); // 마지막 링크와 첫 링크 연결
         }
         else
         {
@@ -229,50 +230,69 @@ public class Chain : MonoBehaviour
     }
 
     // 체인 경로, 각 링크의 축을 시각화
-    void OnDrawGizmos()
+    //void OnDrawGizmos()
+    //{
+    //    // initialLocalPositions가 초기화되지 않았거나 링크가 부족할 경우, 현재 chainLinks를 기반으로 대략적인 경로를 그림.
+    //    if (initialLocalPositions == null || initialLocalPositions.Count < 2)
+    //    {
+    //        if (chainLinks != null && chainLinks.Count >= 2)
+    //        {
+    //            Gizmos.color = Color.cyan;
+    //            for (int i = 0; i < chainLinks.Count; i++)
+    //            {
+    //                Vector3 currentWorldPos = chainLinks[i].transform.position;
+    //                Vector3 nextWorldPos = chainLinks[(i + 1) % chainLinks.Count].transform.position;
+    //                Gizmos.DrawLine(currentWorldPos, nextWorldPos);
+    //            }
+    //        }
+    //        return;
+    //    }
+
+    //    // 초기 체인 경로를 녹색으로 그림.
+    //    Gizmos.color = Color.green;
+    //    for (int i = 0; i < initialLocalPositions.Count; i++)
+    //    {
+    //        Vector3 currentWorldPoint = transform.TransformPoint(initialLocalPositions[i]);
+    //        Vector3 nextWorldPoint = transform.TransformPoint(initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
+    //        Gizmos.DrawLine(currentWorldPoint, nextWorldPoint);
+    //    }
+
+    //    // 플레이 모드에서 각 체인 링크의 계산된 Look/Right/Up 축을 그림 (디버깅용)
+    //    if (Application.isPlaying && chainLinks != null && chainLinks.Count > 0)
+    //    {
+    //        for (int i = 0; i < chainLinks.Count; i++)
+    //        {
+    //            Vector3 currentWorldPos = chainLinks[i].position;
+    //            Quaternion currentWorldRot = chainLinks[i].rotation;
+
+    //            Gizmos.color = Color.blue; // Z축 (Forward)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.forward * 0.3f);
+
+    //            Gizmos.color = Color.red; // X축 (Right)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.right * 0.2f);
+
+    //            Gizmos.color = Color.green; // Y축 (Up)
+    //            Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.up * 0.2f);
+    //        }
+    //    }
+    //}
+
+    public void ActiveChainCW()
     {
-        // initialLocalPositions가 초기화되지 않았거나 링크가 부족할 경우, 현재 chainLinks를 기반으로 대략적인 경로를 그림.
-        if (initialLocalPositions == null || initialLocalPositions.Count < 2)
-        {
-            if (chainLinks != null && chainLinks.Count >= 2)
-            {
-                Gizmos.color = Color.cyan;
-                for (int i = 0; i < chainLinks.Count; i++)
-                {
-                    Vector3 currentWorldPos = chainLinks[i].transform.position;
-                    Vector3 nextWorldPos = chainLinks[(i + 1) % chainLinks.Count].transform.position;
-                    Gizmos.DrawLine(currentWorldPos, nextWorldPos);
-                }
-            }
-            return;
-        }
-
-        // 초기 체인 경로를 녹색으로 그림.
-        Gizmos.color = Color.green;
-        for (int i = 0; i < initialLocalPositions.Count; i++)
-        {
-            Vector3 currentWorldPoint = transform.TransformPoint(initialLocalPositions[i]);
-            Vector3 nextWorldPoint = transform.TransformPoint(initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
-            Gizmos.DrawLine(currentWorldPoint, nextWorldPoint);
-        }
-
-        // 플레이 모드에서 각 체인 링크의 계산된 Look/Right/Up 축을 그림 (디버깅용)
-        if (Application.isPlaying && chainLinks != null && chainLinks.Count > 0)
-        {
-            for (int i = 0; i < chainLinks.Count; i++)
-            {
-                Vector3 currentWorldPos = chainLinks[i].position;
-                Quaternion currentWorldRot = chainLinks[i].rotation;
-
-                Gizmos.color = Color.blue; // Z축 (Forward)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.forward * 0.3f);
-
-                Gizmos.color = Color.red; // X축 (Right)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.right * 0.2f);
-
-                Gizmos.color = Color.green; // Y축 (Up)
-                Gizmos.DrawRay(currentWorldPos, currentWorldRot * Vector3.up * 0.2f);
-            }
-        }
+        isChainCw = true;
+        isChainCCw = false;
+    }
+    public void DeActiveChainCW()
+    {
+        isChainCw = false;
+    }
+    public void ActiveChainCCW()
+    {
+        isChainCCw = true;
+        isChainCw = false;
+    }
+    public void DeActiveChainCCW()
+    {
+        isChainCCw = false;
     }
 }
