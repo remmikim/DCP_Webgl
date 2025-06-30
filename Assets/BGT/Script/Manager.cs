@@ -21,8 +21,8 @@ public class Manager : MonoBehaviour
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
     public PipeHolders pipeHolders;
     public ZLiftTigger zLift;
-    public GameObject Carriage;
     public GameObject Cube;
+    public GameObject Carriage;
 
     // ====== ManagerWrite Class 불러오기 ======
     //public ManagerWrite managerWrite;
@@ -159,24 +159,23 @@ public class Manager : MonoBehaviour
         short value1 = 1;
         short value0 = 0;
 
-        if (Carriage.GetComponent<Trigger>().TriggerSensor)
-        {
-            mxComponent.WriteDeviceRandom2("X0", 1, ref value1);
-        }
-        else if (! Carriage.GetComponent<Trigger>().TriggerSensor)
-        {
-            mxComponent.WriteDeviceRandom2("X0", 1, ref value0);
-        }
-
         if (Cube.GetComponent<Trigger>().TriggerSensor)
         {
-            mxComponent.WriteDeviceRandom2("X1", 1, ref value1);
+            mxComponent.SetDevice("X0", value1);
         }
         else if (!Cube.GetComponent<Trigger>().TriggerSensor)
         {
-            mxComponent.WriteDeviceRandom2("X1", 1, ref value0);
+            mxComponent.SetDevice("X0", value0);
         }
 
+        if (Carriage.GetComponent<Trigger>().TriggerSensor)
+        {
+            mxComponent.SetDevice("X1", value1);
+        }
+        else if (! Carriage.GetComponent<Trigger>().TriggerSensor)
+        {
+            mxComponent.SetDevice("X1", value0);
+        }
     }
     void OnApplicationQuit()
     {
