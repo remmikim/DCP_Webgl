@@ -30,30 +30,55 @@ public class ZLift : MonoBehaviour
 
     void Start()
     {
-        // LiftWeight 설정
-        LWStartPosition = LiftWeight.transform.position;
-        LWTargetPosition = LWStartPosition + new Vector3(0, -MoveAmount1, 0);
-        // CarriageFrame 설정
-        CFStartPosition = CarriageFrame.transform.position;
-        CFTargetPosition = CFStartPosition + new Vector3(0, MoveAmount2, 0);
     }
 
     // Update is called once per frame
+    private void InitializeZLiftCW()
+    {
+        // 이미 다른 방향으로 움직이거나 같은 방향으로 움직이고 있다면 재시작하지 않음
+        if (isZLiftCW || isZLiftCCW) return;
+
+        isZLiftCW = true;
+        elapsedTime = 0f; // 여기서만 초기화!
+
+        LWStartPosition = LiftWeight.transform.position;
+        LWTargetPosition = LWStartPosition + new Vector3(0, -MoveAmount1, 0);
+
+        CFStartPosition = CarriageFrame.transform.position;
+        CFTargetPosition = CFStartPosition + new Vector3(0, MoveAmount2, 0);
+
+        ROT.ActivateZLiftRotationCW();
+        CHM.ActiveChainCW();
+        CHM1.ActiveChainCW();
+    }
+
+    private void InitializeZLiftCCW() // 이름을 private로 변경하여 Update에서 직접 호출되지 않게 합니다.
+    {
+        // 이미 다른 방향으로 움직이거나 같은 방향으로 움직이고 있다면 재시작하지 않음
+        if (isZLiftCW || isZLiftCCW) return;
+
+        isZLiftCCW = true;
+        elapsedTime = 0f; // 여기서만 초기화!
+
+        LWStartPosition = LiftWeight.transform.position;
+        LWTargetPosition = LWStartPosition + new Vector3(0, MoveAmount1, 0); 
+
+        CFStartPosition = CarriageFrame.transform.position;
+        CFTargetPosition = CFStartPosition + new Vector3(0, -MoveAmount2, 0);
+
+        ROT.ActivateZLiftRotationCCW();
+        CHM.ActiveChainCCW();
+        CHM1.ActiveChainCCW();
+    }
+
+    // Update는 매 프레임 실행될 이동 로직만 담당
     void Update()
     {
         if (isZLiftCW && !isZLiftCCW)
         {
-           
-            ROT.ActivateZLiftRotationCW();
-            CHM.ActiveChainCW();
-            CHM1.ActiveChainCW();
-            // 시간 누적
-            elapsedTime += Time.deltaTime;
-
-            // 0~1 사이로 보간 비율 계산
+            elapsedTime += Time.deltaTime; // 시간 누적
             float t = Mathf.Clamp01(elapsedTime / MoveTime);
 
-            // 각 PipeHolder의 위치를 보간
             if (LiftWeight != null)
             {
                 LiftWeight.transform.position = Vector3.Lerp(LWStartPosition, LWTargetPosition, t);
@@ -62,75 +87,66 @@ public class ZLift : MonoBehaviour
             {
                 CarriageFrame.transform.position = Vector3.Lerp(CFStartPosition, CFTargetPosition, t);
             }
-            
-
-            // 이동이 완료되었으면 멈추기
-            if (t >= 1f)
+            bool reachedLWTarget = Vector3.Distance(LiftWeight.transform.position, LWTargetPosition) < 0.01f; // 허용 오차
+            bool reachedCFTarget = Vector3.Distance(CarriageFrame.transform.position, CFTargetPosition) < 0.01f; // 허용 오차
+            if (t >= 1f || (reachedLWTarget && reachedCFTarget))
             {
                 isZLiftCW = false;
-                elapsedTime = 0f;
-                ROT.DeactivateZLiftRotationCW(); // 나사 회전 멈춤
+                elapsedTime = 0f; // 다음 이동을 위해 초기화
+                ROT.DeactivateZLiftRotationCW();
                 CHM.DeActiveChainCW();
                 CHM1.DeActiveChainCW();
             }
         }
-
-        if (!isZLiftCW && isZLiftCCW)
+        else if (isZLiftCCW && !isZLiftCW)
         {
-            ROT.ActivateZLiftRotationCCW(); // 나사 회전 시작
-            CHM.ActiveChainCCW();
-            CHM1.ActiveChainCCW();
-            // 시간 누적
-            elapsedTime += Time.deltaTime;
-
-            // 0~1 사이로 보간 비율 계산
+            elapsedTime += Time.deltaTime; // 시간 누적
             float t = Mathf.Clamp01(elapsedTime / MoveTime);
 
-            // 각 PipeHolder의 위치를 보간
             if (LiftWeight != null)
             {
-                LiftWeight.transform.position = Vector3.Lerp(LWTargetPosition, LWStartPosition, t);
+                LiftWeight.transform.position = Vector3.Lerp(LWStartPosition, LWTargetPosition, t);
             }
             if (CarriageFrame != null)
             {
-                CarriageFrame.transform.position = Vector3.Lerp(CFTargetPosition, CFStartPosition, t);
+                CarriageFrame.transform.position = Vector3.Lerp(CFStartPosition, CFTargetPosition, t);
             }
-            
+            bool reachedLWTarget = Vector3.Distance(LiftWeight.transform.position, LWTargetPosition) < 0.01f;
+            bool reachedCFTarget = Vector3.Distance(CarriageFrame.transform.position, CFTargetPosition) < 0.01f;
 
-            // 이동이 완료되었으면 멈추기
-            if (t >= 1f)
+            
+            if (t >= 1f || (reachedLWTarget && reachedCFTarget)) 
             {
                 isZLiftCCW = false;
                 elapsedTime = 0f;
-                ROT.DeactivateZLiftRotationCCW(); // 나사 회전 멈춤
+                ROT.DeactivateZLiftRotationCCW();
                 CHM.DeActiveChainCCW();
                 CHM1.DeActiveChainCCW();
             }
         }
     }
-
     public void ActivateZLiftUp()
     {
-        isZLiftCW = true;
+        InitializeZLiftCW(); // 이 함수가 호출될 때 이동 초기화 및 시작
     }
 
     public void DeactivateZLiftUp()
     {
         isZLiftCW = false;
-        ROT.DeactivateZLiftRotationCW(); // 나사 회전 멈춤
+        ROT.DeactivateZLiftRotationCW();
         CHM.DeActiveChainCW();
         CHM1.DeActiveChainCW();
     }
 
     public void ActivateZLiftDown()
     {
-        isZLiftCCW = true;
+        InitializeZLiftCCW(); // 이 함수가 호출될 때 이동 초기화 및 시작
     }
 
     public void DeactivateZLiftDown()
     {
         isZLiftCCW = false;
-        ROT.DeactivateZLiftRotationCCW(); // 나사 회전 멈춤
+        ROT.DeactivateZLiftRotationCCW();
         CHM.DeActiveChainCCW();
         CHM1.DeActiveChainCCW();
     }
