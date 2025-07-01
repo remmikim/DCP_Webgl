@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class ManagerWrite : Manager
 {
-    /// <summary>
-    /// PLC 'X' 디바이스(워드)에 값 쓰기
-    /// </summary>
-    /// <param name="valueToWrite">X0에 쓸 16비트(1워드) 정수 값</param>
+    // ======= Gameobject 불러오기======
+    public GameObject Cube;
+    public GameObject Carriage;
+   
+
     public void WriteDevice()
     {
         short value1 = 1;
@@ -13,14 +14,23 @@ public class ManagerWrite : Manager
 
         if (Cube.GetComponent<Trigger>().TriggerSensor)
         {
-            mxComponent.WriteDeviceRandom2("X0", 1, ref value1);
+            mxComponent.SetDevice("X0", value1);
         }
-        else
+        else if (!Cube.GetComponent<Trigger>().TriggerSensor)
         {
-            mxComponent.WriteDeviceRandom2("X0", 1, ref value0);
+            mxComponent.SetDevice("X0", value0);
+        }
+
+        if (Carriage.GetComponent<Trigger>().TriggerSensor)
+        {
+            mxComponent.SetDevice("X1", value1);
+        }
+        else if (!Carriage.GetComponent<Trigger>().TriggerSensor)
+        {
+            mxComponent.SetDevice("X1", value0);
         }
     }
-    public void OnApplicationQuit()
+    void OnApplicationQuit()
     {
         // 애플리케이션 종료 시 PLC 연결 해제
         if (mxComponent != null)
