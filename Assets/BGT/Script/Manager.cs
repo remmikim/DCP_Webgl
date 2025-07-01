@@ -20,8 +20,8 @@ public class Manager : MonoBehaviour
     public Chain1 chainInstance; // Y0 상태에 따라 제어할 Chain1 스크립트 참조
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
     public PipeHolders pipeHolders;
-    public ZLift zLift;
-    public GameObject Cube;
+    public ZLiftTigger zLift;
+    
 
     // ====== ManagerWrite Class 불러오기 ======
     public ManagerWrite managerWrite;
@@ -42,9 +42,6 @@ public class Manager : MonoBehaviour
     {
         ReadDevice(); // 매 프레임마다 PLC 장치 상태 읽기
         managerWrite.WriteDevice();
-
-        //WriteDevice(); // 10/ 11111
-
     }
 
     /// <summary>
@@ -148,36 +145,38 @@ public class Manager : MonoBehaviour
             Debug.LogWarning($"Manager.cs: PLC 상태 읽기 실패! 에러 코드: {iRet}.");
     }
 
-
-
-
-
-
-
-
-    /*------------------- ManagerRead.cs에 구현해놓음-------------------*/
+    /*------------------- ManagerWrite.cs에 구현해놓음-------------------*/
     /// <summary>
     /// PLC 'X' 디바이스(워드)에 값 쓰기
     /// </summary>
     /// <param name="valueToWrite">X0에 쓸 16비트(1워드) 정수 값</param>
-    //private void WriteDevice() 
+    //private void WriteDevice()
     //{
     //    short value1 = 1;
     //    short value0 = 0;
 
     //    if (Cube.GetComponent<Trigger>().TriggerSensor)
     //    {
-    //        mxComponent.WriteDeviceRandom2("X0", 1, ref value1);
+    //        mxComponent.SetDevice("X0", value1);
     //    }
-    //    else
+    //    else if (!Cube.GetComponent<Trigger>().TriggerSensor)
     //    {
-    //        mxComponent.WriteDeviceRandom2("X0", 1, ref value0 );
+    //        mxComponent.SetDevice("X0", value0);
+    //    }
+
+    //    if (Carriage.GetComponent<Trigger>().TriggerSensor)
+    //    {
+    //        mxComponent.SetDevice("X1", value1);
+    //    }
+    //    else if (!Carriage.GetComponent<Trigger>().TriggerSensor)
+    //    {
+    //        mxComponent.SetDevice("X1", value0);
     //    }
     //}
     //void OnApplicationQuit()
     //{
     //    // 애플리케이션 종료 시 PLC 연결 해제
-    //    if (mxComponent != null) 
+    //    if (mxComponent != null)
     //    {
     //        int iRet = mxComponent.Close();
     //        if (iRet == 0)
