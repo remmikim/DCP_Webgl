@@ -38,7 +38,9 @@
 >
 >**3. Pull Request (PR) 생성**
 >푸시가 완료되면 GitHub Desktop에 나타나는 `"Create Pull Request" 버튼`을 클릭
+>
 >내 브랜치(JWK)의 변경 사항을 기본 브랜치(main)로 병합해달라는 `요청(PR)을 작성`.
+>
 >제목과 내용을 잘 작성한 후` "Create Pull Request" 버튼`을 클릭하여 PR을 생성하고, 관리자(주인장)에게 `리뷰 요청`
 ---
 
