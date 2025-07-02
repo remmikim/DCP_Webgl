@@ -1,20 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Chain : MonoBehaviour
+public class ChainMove : MonoBehaviour
 {
     /// <summary>
     /// element 0 ~ element 29
     /// </summary>
     public List<Transform> chainLinks; // 체인 링크 GameObject들 (Inspector에서 할당)
-    public float chainSpeed = 1.0f; // 체인 움직임 속도
+    public float chainSpeed = 0.22f; // 체인 움직임 속도
     private bool isChainCw = false; // PLC 정방향 이동 명령 (true: 정방향, false: 정지 또는 역방향)
     private bool isChainCCw = false; // PLC 역방향 이동 명령 (true: 역방향, false: 정지 또는 정방향)
     private List<Vector3> initialLocalPositions; // 체인 링크들의 초기 로컬 위치 저장
     private float currentChainTraversal = 0f; // 체인 경로 상 현재 오프셋
     private float totalInitialChainLength = 0f; // 초기 체인 총 길이
 
-    private float smoothRotationSpeed = 8.0f; // 회전 보간 속도
+    private float smoothRotationSpeed = 10.0f; // 회전 보간 속도
 
 
     void Awake()
@@ -66,7 +66,7 @@ public class Chain : MonoBehaviour
         {
             for (int i = 0; i < initialLocalPositions.Count - 1; i++)
                 totalInitialChainLength += Vector3.Distance(initialLocalPositions[i], initialLocalPositions[(i + 1) % initialLocalPositions.Count]);
-                totalInitialChainLength += Vector3.Distance(initialLocalPositions[initialLocalPositions.Count - 1], initialLocalPositions[0]); // 마지막 링크와 첫 링크 연결
+            totalInitialChainLength += Vector3.Distance(initialLocalPositions[initialLocalPositions.Count - 1], initialLocalPositions[0]); // 마지막 링크와 첫 링크 연결
         }
         else
         {
@@ -79,13 +79,21 @@ public class Chain : MonoBehaviour
         Debug.Log($"초기 체인 링크 배치에 따른 총 유효 경로 길이: {totalInitialChainLength} 유닛.");
     }
 
-   void Update()
+    void Update()
     {
         if (chainLinks == null || chainLinks.Count == 0 || totalInitialChainLength == 0)
             return;
 
-        currentChainTraversal += chainSpeed * Time.deltaTime; // chainSpeed의 부호에 따라 움직임
-        currentChainTraversal %= totalInitialChainLength;
+        if(isChainCw && !isChainCCw)
+        {
+            currentChainTraversal += chainSpeed * Time.deltaTime; // chainSpeed의 부호에 따라 움직임
+            currentChainTraversal %= totalInitialChainLength;
+        }
+        else if (!isChainCw && isChainCCw)
+        {
+            currentChainTraversal += -chainSpeed * Time.deltaTime; // chainSpeed의 부호에 따라 움직임
+            currentChainTraversal %= totalInitialChainLength;
+        }
 
         if (currentChainTraversal < 0)
             currentChainTraversal += totalInitialChainLength; // 음수 값 보정
@@ -93,7 +101,7 @@ public class Chain : MonoBehaviour
         for (int i = 0; i < chainLinks.Count; i++)
         {
             float targetDistanceOnPath = currentChainTraversal;
-            
+
             // i번째 링크의 위치는 현재 오프셋 + (i * 링크 간격)
             // 중요한 변경: 역방향으로 갈 때는 링크들이 경로를 따라 '앞'으로 가는 것이 아니라 '뒤'로 가야 합니다.
             // 따라서 targetDistanceOnPath에 링크 간의 거리를 더하는 대신 빼주거나,
@@ -192,7 +200,7 @@ public class Chain : MonoBehaviour
                     {
                         forwardDirectionForLink = -segmentDirection.normalized; // 경로 방향의 반대
                     }
-                    
+
                     Vector3 calculatedUpVector;
 
                     // Up 벡터 결정 로직 (기존과 동일, forwardDirectionForLink를 사용)
