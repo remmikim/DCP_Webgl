@@ -44,6 +44,26 @@
 >제목과 내용을 잘 작성한 후` "Create Pull Request" 버튼`을 클릭하여 PR을 생성하고, 관리자(주인장)에게 `리뷰 요청`
 ---
 
+## ⚙️ 사전 준비 (Windows 사용자 / 최초 1회)
+
+> 프로젝트를 처음 시작하기 전, PowerShell 스크립트를 실행할 수 있도록 아래 설정을 딱 한 번만 진행해주세요.
+> 
+> 
+> ### **PowerShell 실행 정책 변경**
+> 
+> 1. **PowerShell을 "관리자 권한으로 실행"**:
+>     - Windows 검색창에 `powershell`을 입력한 후, **'Windows PowerShell'** 에 마우스 오른쪽 버튼을 클릭하여 **'관리자 권한으로 실행'**을 선택합니다.
+> 2. **명령어 입력**:
+>     - 관리자 권한으로 열린 PowerShell 창에 아래 명령어를 그대로 복사하여 붙여넣고 `Enter` 키를 누릅니다.
+>
+>       ```
+>       Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+>       ```
+> 
+> 3. **변경 수락**:
+>     - 실행 정책을 변경할지 묻는 메시지가 나타나면 `Y`를 입력하고 `Enter` 키를 누릅니다.
+>     - 창을 닫으면 설정이 완료됩니다.
+
 ## ⚙️ 파이썬 웹 서버 설정 (Setup Python Web Sever)
 
 >**1. 터미널(PowerShell 또는 cmd)을 열고**
