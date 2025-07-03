@@ -1,72 +1,80 @@
-/*
---- ´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­ÀÇ »ç¿ë ¿¹½Ã (¿¹: DroneController.cs) ---
+ï»¿/*
+--- ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œì˜ ì‚¬ìš© ì˜ˆì‹œ (ì˜ˆ: DroneController.cs) ---
 
-// 1. DroneController°¡ Æ¯Á¤ Á¶°ÇÀ» ¸¸Á·ÇßÀ» ¶§ (¿¹: ÀÓ¹« ¿Ï·á ÈÄ ½ºÅ×ÀÌ¼Ç µµÂø)
+// 1. DroneControllerê°€ íŠ¹ì • ì¡°ê±´ì„ ë§Œì¡±í–ˆì„ ë•Œ (ì˜ˆ: ì„ë¬´ ì™„ë£Œ í›„ ìŠ¤í…Œì´ì…˜ ë„ì°©)
 void OnLandingCompleteAtStation()
 {
-    // WildfireManagerÀÇ ¼ÒÈ­ Á¶°Ç µ¨¸®°ÔÀÌÆ®¿¡ true¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö(¶Ç´Â ¶÷´Ù½Ä)¸¦ ÇÒ´çÇÕ´Ï´Ù.
-    // ÀÌ·¸°Ô ÇÏ¸é ´ÙÀ½ Update ÇÁ·¹ÀÓ¿¡¼­ WildfireManager°¡ ºÒÀ» ²ô°Ô µË´Ï´Ù.
-    if (WildfireManager.Instance != null)
+    // WildfireManagerì˜ ì†Œí™” ì¡°ê±´ ë¸ë¦¬ê²Œì´íŠ¸ì— trueë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜(ë˜ëŠ” ëŒë‹¤ì‹)ë¥¼ í• ë‹¹í•©ë‹ˆë‹¤.
+    // ì´ë ‡ê²Œ í•˜ë©´ ë‹¤ìŒ Update í”„ë ˆì„ì—ì„œ WildfireManagerê°€ ë¶ˆì„ ë„ê²Œ ë©ë‹ˆë‹¤.
+    if (!WildfireManager.Instance)
     {
-        Debug.Log("¼ÒÈ­ Á¶°Ç ÃæÁ·! WildfireManager¿¡ Áø¾Ğ ½ÅÈ£¸¦ º¸³À´Ï´Ù.");
+        Debug.Log("ì†Œí™” ì¡°ê±´ ì¶©ì¡±! WildfireManagerì— ì§„ì•• ì‹ í˜¸ë¥¼ ë³´ëƒ…ë‹ˆë‹¤.");
         WildfireManager.Instance.ExtinguishConditionCheck = () => true;
     }
 }
 
-// 2. ´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­ È­Àç ¹ß»ıÀ» Á÷Á¢ Æ®¸®°ÅÇÏ°í ½ÍÀ» ¶§
+// 2. ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ í™”ì¬ ë°œìƒì„ ì§ì ‘ íŠ¸ë¦¬ê±°í•˜ê³  ì‹¶ì„ ë•Œ
 void StartSomeEvent()
 {
-    if (WildfireManager.Instance != null)
-    {
+    if (!WildfireManager.Instance)
         WildfireManager.Instance.GenerateFires();
-    }
 }
 */
 
 using UnityEngine;
 using System.Collections.Generic;
-using System; // Action, Func »ç¿ëÀ» À§ÇØ Ãß°¡
+using System;
+using Random = UnityEngine.Random; // Action, Func ì‚¬ìš©ì„ ìœ„í•´ ì¶”ê°€
 
 public class WildfireManager : MonoBehaviour
 {
-    // --- ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ---
-    // ´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­ WildfireManager.Instance ·Î ½±°Ô Á¢±ÙÇÒ ¼ö ÀÖµµ·Ï ÇÕ´Ï´Ù.
+    // --- ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ---
+    // ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ WildfireManager.Instance ë¡œ ì‰½ê²Œ ì ‘ê·¼í•  ìˆ˜ ìˆë„ë¡ í•¨.
     public static WildfireManager Instance { get; private set; }
 
 
-    [Header("È­Àç ¼³Á¤")]
-    [Tooltip("È­Àç ÆÄÆ¼Å¬À» »ı¼ºÇÒ Terrain Object")]
+    [Header("í™”ì¬ ì„¤ì •")]
+    [Tooltip("í™”ì¬ íŒŒí‹°í´ì„ ìƒì„±í•  Terrain ì˜¤ë¸Œì íŠ¸ì…ë‹ˆë‹¤.")]
     public Terrain targetTerrain;
-    [Tooltip("È­Àç È¿°ú·Î Particle System Object")]
+    
+    [Tooltip("í™”ì¬ íš¨ê³¼ë¡œ ì‚¬ìš©í•  íŒŒí‹°í´ ì‹œìŠ¤í…œ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     public GameObject fireParticlePrefab;
-    [Tooltip("¹Ì¸® »ı¼ºÇØ µÑ È­Àç ÆÄÆ¼Å¬ÀÇ ÃÖ´ë °³¼öÀÔ´Ï´Ù (¿ÀºêÁ§Æ® Ç® Å©±â).")]
-    public int poolSize = 20;
-    [Tooltip("ÇÑ ¹ø¿¡ »ı¼ºÇÒ È­ÀçÀÇ °³¼öÀÔ´Ï´Ù.")]
+    
+    [Tooltip("ë¯¸ë¦¬ ìƒì„±í•´ ë‘˜ í™”ì¬ íŒŒí‹°í´ì˜ ìµœëŒ€ ê°œìˆ˜ì…ë‹ˆë‹¤ (ì˜¤ë¸Œì íŠ¸ í’€ í¬ê¸°).")]
+    public int poolSize = 10;
+    
+    [Tooltip("í•œ ë²ˆì— ìƒì„±í•  í™”ì¬ì˜ ê°œìˆ˜ì…ë‹ˆë‹¤.")]
     public int numberOfFiresToSpawn = 10;
     
-    [Header("È­Àç ¹ß»ı ¿µ¿ª ¼³Á¤")]
-    [Tooltip("È­Àç°¡ ¹ß»ıÇÒ ¿µ¿ªÀÇ Áß½É ÁÂÇ¥(¿ùµå ÁÂÇ¥).")]
-    public Vector3 spawnCenter = new Vector3(500, 0, 500);
-    [Tooltip("È­Àç°¡ ¹ß»ıÇÒ ¿µ¿ªÀÇ °¡·Î, ¼¼·Î Å©±â")]
-    public Vector2 spawnAreaSize = new Vector2(1000, 1000);
+    
+    [Header("í™”ì¬ ë°œìƒ ì˜ì—­ ì„¤ì •")]
+    [Tooltip("í™”ì¬ê°€ ë°œìƒí•  'í›„ë³´' ì˜ì—­ì˜ ì¤‘ì‹¬ ì¢Œí‘œì…ë‹ˆë‹¤ (ì›”ë“œ ì¢Œí‘œ).")]
+    public Vector3 spawnAreaCenter = new Vector3(500, 0, 500);
+    
+    [Tooltip("í™”ì¬ê°€ ë°œìƒí•  'í›„ë³´' ì˜ì—­ì˜ ê°€ë¡œ, ì„¸ë¡œ í¬ê¸°ì…ë‹ˆë‹¤.")]
+    public Vector2 spawnAreaSize = new Vector2(200, 200);
+    
+    [Tooltip("í™”ì¬ íŒŒí‹°í´ë“¤ì´ ìƒì„±ë  ë•Œ ì„œë¡œ ì–¼ë§ˆë‚˜ ë­‰ì³ìˆì„ì§€ë¥¼ ê²°ì •í•©ë‹ˆë‹¤ (ë°˜ì§€ë¦„).")]
+    public float fireClusterRadius = 3.0f; // <<< í™”ì¬ êµ°ì§‘ ë°˜ê²½ ì¶”ê°€
 
-    [Header("È­Àç ¹ß»ı Á¦¾î")]
-    [Tooltip("¿¡µğÅÍ¿¡¼­ ÀÌ °ªÀ» Ã¼Å©ÇÏ¸é È­Àç°¡ Áï½Ã ¹ß»ı (Å×½ºÆ®¿ë)")]
+    
+    [Header("í™”ì¬ ë°œìƒ ì œì–´")]
+    [Tooltip("ì—ë””í„°ì—ì„œ ì´ ê°’ì„ ì²´í¬í•˜ë©´ í™”ì¬ê°€ ì¦‰ì‹œ ë°œìƒí•©ë‹ˆë‹¤. (í…ŒìŠ¤íŠ¸ìš©)")]
     public bool generateFireNow = false;
 
-    // --- °ø°³ µ¨¸®°ÔÀÌÆ® ¹× ÀÌº¥Æ® ---
-    [Tooltip("´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­ ÀÌ µ¨¸®°ÔÀÌÆ®¿¡ 'true'¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö¸¦ ÇÒ´çÇÏ¸é È­Àç°¡ Áø¾ĞµÊ")]
-    public Func<bool> ExtinguishConditionCheck; // È­Àç Áø¾Ğ Á¶°ÇÀ» Ã¼Å©ÇÒ µ¨¸®°ÔÀÌÆ®
+    // --- ê³µê°œ ë¸ë¦¬ê²Œì´íŠ¸ ë° ì´ë²¤íŠ¸ ---
+    [Tooltip("ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ ì´ ë¸ë¦¬ê²Œì´íŠ¸ì— 'true'ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ë¥¼ í• ë‹¹í•˜ë©´ í™”ì¬ê°€ ì§„ì••ë©ë‹ˆë‹¤.")]
+    public Func<bool> ExtinguishConditionCheck; // í™”ì¬ ì§„ì•• ì¡°ê±´ì„ ì²´í¬í•  ë¸ë¦¬ê²Œì´íŠ¸
 
 
-    // --- ³»ºÎ º¯¼ö ---
-    private List<GameObject> fireParticlePool; // ¹Ì¸® »ı¼ºµÈ ÆÄÆ¼Å¬ ¿ÀºêÁ§Æ®¸¦ ´ã¾ÆµÎ´Â Ç®(Pool)
-    private List<GameObject> activeFires;      // ÇöÀç È°¼ºÈ­µÈ(º¸¿©Áö´Â) È­Àç ¿ÀºêÁ§Æ® ¸ñ·Ï
+    // --- ë‚´ë¶€ ë³€ìˆ˜ ---
+    private List<GameObject> fireParticlePool; // ë¯¸ë¦¬ ìƒì„±ëœ íŒŒí‹°í´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë‹´ì•„ë‘ëŠ” í’€(Pool)
+    private List<GameObject> activeFires;      // í˜„ì¬ í™œì„±í™”ëœ(ë³´ì—¬ì§€ëŠ”) í™”ì¬ ì˜¤ë¸Œì íŠ¸ ëª©ë¡
     private bool hasFireBeenGenerated = false;
 
     void Awake()
     {
-        // ½Ì±ÛÅÏ ÆĞÅÏ ¼³Á¤
+        // ì‹±ê¸€í„´ íŒ¨í„´ ì„¤ì •
         if (Instance != null && Instance != this)
             Destroy(gameObject);
         
@@ -76,27 +84,27 @@ public class WildfireManager : MonoBehaviour
 
     void Start()
     {
-        InitializeObjectPool(); // °ÔÀÓ ½ÃÀÛ ½Ã ¿ÀºêÁ§Æ® Ç® ÃÊ±âÈ­
+        InitializeObjectPool(); // ê²Œì„ ì‹œì‘ ì‹œ ì˜¤ë¸Œì íŠ¸ í’€ ì´ˆê¸°í™”
     }
 
     /// <summary>
-    /// ÁöÁ¤µÈ Å©±â(poolSize)¸¸Å­ È­Àç ÆÄÆ¼Å¬ ¿ÀºêÁ§Æ®¸¦ ¹Ì¸® »ı¼ºÇÏ¿© Ç®¿¡ ³Ö¾îµÒ
+    /// ì§€ì •ëœ í¬ê¸°(poolSize)ë§Œí¼ í™”ì¬ íŒŒí‹°í´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë¯¸ë¦¬ ìƒì„±í•˜ì—¬ í’€ì— ë„£ì–´ë‘¡ë‹ˆë‹¤.
     /// </summary>
     void InitializeObjectPool()
     {
         fireParticlePool = new List<GameObject>();
         activeFires = new List<GameObject>();
 
-        if (fireParticlePrefab == null)
+        if (!fireParticlePrefab)
         {
-            Debug.LogError("Fire Particle PrefabÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("Fire Particle Prefabì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
         for (int i = 0; i < poolSize; i++)
         {
             GameObject fireInstance = Instantiate(fireParticlePrefab, Vector3.zero, Quaternion.identity, this.transform);
-            fireInstance.SetActive(false); // ºñÈ°¼ºÈ­ »óÅÂ·Î »ı¼º
+            fireInstance.SetActive(false); // ë¹„í™œì„±í™” ìƒíƒœë¡œ ìƒì„±
             fireParticlePool.Add(fireInstance);
         }
     }
@@ -104,114 +112,126 @@ public class WildfireManager : MonoBehaviour
 
     void Update()
     {
-        // --- 1. È­Àç ¹ß»ı Á¶°Ç ---
+        // --- 1. í™”ì¬ ë°œìƒ ì¡°ê±´ ---
         if (generateFireNow && !hasFireBeenGenerated)
         {
             GenerateFires();
             generateFireNow = false;
         }
 
-        // --- 2. È­Àç Áø¾Ğ Á¶°Ç (µ¨¸®°ÔÀÌÆ® È£Ãâ) ---
-        // ExtinguishConditionCheck µ¨¸®°ÔÀÌÆ®¿¡ ÇÔ¼ö°¡ ÇÒ´çµÇ¾î ÀÖ°í, ±× ÇÔ¼öÀÇ ½ÇÇà °á°ú°¡ trueÀÌ¸é È­Àç¸¦ Áø¾ĞÇÕ´Ï´Ù.
+        // --- 2. í™”ì¬ ì§„ì•• ì¡°ê±´ (ë¸ë¦¬ê²Œì´íŠ¸ í˜¸ì¶œ) ---
+        // ExtinguishConditionCheck ë¸ë¦¬ê²Œì´íŠ¸ì— í•¨ìˆ˜ê°€ í• ë‹¹ë˜ì–´ ìˆê³ , ê·¸ í•¨ìˆ˜ì˜ ì‹¤í–‰ ê²°ê³¼ê°€ trueì´ë©´ í™”ì¬ë¥¼ ì§„ì••í•©ë‹ˆë‹¤.
         if (ExtinguishConditionCheck != null && ExtinguishConditionCheck())
         {
-            Debug.Log("¼ÒÈ­ Á¶°ÇÀ» ¸¸Á·ÇÏ¿© ¸ğµç ºÒÀ» ²ü´Ï´Ù.");
+            Debug.Log("ì†Œí™” ì¡°ê±´ì„ ë§Œì¡±í•˜ì—¬ ëª¨ë“  ë¶ˆì„ ë•ë‹ˆë‹¤.");
             ExtinguishAllFires();
-            ExtinguishConditionCheck = null; // Á¶°ÇÀ» ÇÑ ¹ø ¸¸Á·ÇÏ¸é µ¨¸®°ÔÀÌÆ®¸¦ ÃÊ±âÈ­ÇÏ¿© ¹İº¹ ½ÇÇà ¹æÁö
+            ExtinguishConditionCheck = null; // ì¡°ê±´ì„ í•œ ë²ˆ ë§Œì¡±í•˜ë©´ ë¸ë¦¬ê²Œì´íŠ¸ë¥¼ ì´ˆê¸°í™”í•˜ì—¬ ë°˜ë³µ ì‹¤í–‰ ë°©ì§€
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     /// <summary>
-    /// ÁöÁ¤µÈ ¿µ¿ª¿¡ È­Àç¸¦ »ı¼ºÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù. (¿ÀºêÁ§Æ® Ç®¸µ »ç¿ë)
+    /// ì§€ì •ëœ ì˜ì—­ì— í™”ì¬ë¥¼ 'êµ°ì§‘' í˜•íƒœë¡œ ìƒì„±í•˜ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤. (ì˜¤ë¸Œì íŠ¸ í’€ë§ ì‚¬ìš©)
     /// </summary>
     public void GenerateFires()
     {
         if (hasFireBeenGenerated)
         {
-            Debug.LogWarning("È­Àç°¡ ÀÌ¹Ì ¹ß»ıÇß½À´Ï´Ù. ±âÁ¸ È­Àç¸¦ ¸ÕÀú Áø¾ĞÇÏ¼¼¿ä.");
+            Debug.LogWarning("í™”ì¬ê°€ ì´ë¯¸ ë°œìƒí–ˆìŠµë‹ˆë‹¤. ê¸°ì¡´ í™”ì¬ë¥¼ ë¨¼ì € ì§„ì••í•˜ì„¸ìš”.");
             return;
         }
+        
         if (!targetTerrain)
         {
-            Debug.LogError("TerrainÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("Terrainì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
+        
         if (numberOfFiresToSpawn > poolSize)
-            Debug.LogWarning($"»ı¼ºÇÏ·Á´Â È­Àç °³¼ö({numberOfFiresToSpawn})°¡ Ç® Å©±â({poolSize})º¸´Ù Å®´Ï´Ù. Ç® Å©±â¸¦ ´Ã¸®´Â °ÍÀ» ±ÇÀåÇÕ´Ï´Ù.");
+            Debug.LogWarning($"ìƒì„±í•˜ë ¤ëŠ” í™”ì¬ ê°œìˆ˜({numberOfFiresToSpawn})ê°€ í’€ í¬ê¸°({poolSize})ë³´ë‹¤ í½ë‹ˆë‹¤. í’€ í¬ê¸°ë¥¼ ëŠ˜ë¦¬ëŠ” ê²ƒì„ ê¶Œì¥í•©ë‹ˆë‹¤.");
 
-        Debug.Log($"ÁöÁ¤µÈ ¿µ¿ª¿¡ {numberOfFiresToSpawn}°³ÀÇ È­Àç¸¦ »ı¼ºÇÕ´Ï´Ù...");
+        Debug.Log($"ì§€ì •ëœ ì˜ì—­ ë‚´ í•œ ì§€ì ì— {numberOfFiresToSpawn}ê°œì˜ í™”ì¬ë¥¼ ìƒì„±í•©ë‹ˆë‹¤...");
 
-        Vector3 areaStartCorner = spawnCenter - new Vector3(spawnAreaSize.x / 2, 0, spawnAreaSize.y / 2);
+        // 1. í™”ì¬ê°€ ë°œìƒí•  ì¤‘ì‹¬ì (Epicenter)ì„ spawnArea ë‚´ì—ì„œ ëœë¤í•˜ê²Œ ê²°ì •
+        Vector3 areaStartCorner = spawnAreaCenter - new Vector3(spawnAreaSize.x / 2, 0, spawnAreaSize.y / 2);
+        float randomEpicenterX = Random.Range(0, spawnAreaSize.x);
+        float randomEpicenterZ = Random.Range(0, spawnAreaSize.y);
+        Vector3 fireEpicenter = areaStartCorner + new Vector3(randomEpicenterX, 0, randomEpicenterZ);
+
 
         for (int i = 0; i < numberOfFiresToSpawn; i++)
         {
-            GameObject fireInstance = GetPooledFireObject(); // Ç®¿¡¼­ ºñÈ°¼ºÈ­µÈ ¿ÀºêÁ§Æ® °¡Á®¿À±â
+            GameObject fireInstance = GetPooledFireObject();
             if (!fireInstance)
             {
-                Debug.LogWarning("»ç¿ë °¡´ÉÇÑ È­Àç ÆÄÆ¼Å¬ÀÌ Ç®¿¡ ¾ø½À´Ï´Ù. È­Àç »ı¼ºÀ» Áß´ÜÇÕ´Ï´Ù.");
-                break; // Ç®ÀÌ °¡µæ Ã¡À¸¸é ´õ ÀÌ»ó »ı¼ºÇÏÁö ¾ÊÀ½
+                Debug.LogWarning("ì‚¬ìš© ê°€ëŠ¥í•œ í™”ì¬ íŒŒí‹°í´ì´ í’€ì— ì—†ìŠµë‹ˆë‹¤. í™”ì¬ ìƒì„±ì„ ì¤‘ë‹¨í•©ë‹ˆë‹¤.");
+                break;
             }
 
-            // ·£´ı À§Ä¡ °è»ê
-            float randomX = UnityEngine.Random.Range(0, spawnAreaSize.x);
-            float randomZ = UnityEngine.Random.Range(0, spawnAreaSize.y);
-            Vector3 spawnPos = areaStartCorner + new Vector3(randomX, 0, randomZ);
+            // 2. ê²°ì •ëœ ì¤‘ì‹¬ì  ì£¼ë³€ìœ¼ë¡œ fireClusterRadius ë°˜ê²½ ë‚´ì— ëœë¤í•œ ìœ„ì¹˜ ê³„ì‚°
+            Vector2 randomCirclePoint = Random.insideUnitCircle * fireClusterRadius;
+            Vector3 spawnPos = fireEpicenter + new Vector3(randomCirclePoint.x, 0, randomCirclePoint.y);
+
+            // 3. Terrainì˜ í•´ë‹¹ ìœ„ì¹˜ì˜ ë†’ì´(Y ì¢Œí‘œ)ë¥¼ ê°€ì ¸ì™€ ìµœì¢… ìƒì„± ìœ„ì¹˜ ê²°ì •
             float terrainHeight = targetTerrain.SampleHeight(spawnPos);
             Vector3 finalSpawnPosition = new Vector3(spawnPos.x, terrainHeight, spawnPos.z);
 
-            // °¡Á®¿Â ¿ÀºêÁ§Æ®ÀÇ À§Ä¡¿Í È¸ÀüÀ» ¼³Á¤ÇÏ°í È°¼ºÈ­
+            // ê°€ì ¸ì˜¨ ì˜¤ë¸Œì íŠ¸ì˜ ìœ„ì¹˜ì™€ íšŒì „ì„ ì„¤ì •í•˜ê³  í™œì„±í™”
             fireInstance.transform.position = finalSpawnPosition;
             fireInstance.transform.rotation = Quaternion.identity;
             fireInstance.SetActive(true);
 
-            activeFires.Add(fireInstance); // È°¼ºÈ­µÈ ¸ñ·Ï¿¡ Ãß°¡
+            activeFires.Add(fireInstance);
         }
 
         hasFireBeenGenerated = true;
     }
 
     /// <summary>
-    /// ÇöÀç ¹ß»ıÇÑ ¸ğµç È­Àç¸¦ ºñÈ°¼ºÈ­ÇÏ¿© Ç®·Î µÇµ¹¸³´Ï´Ù.
+    /// í˜„ì¬ ë°œìƒí•œ ëª¨ë“  í™”ì¬ë¥¼ ë¹„í™œì„±í™”í•˜ì—¬ í’€ë¡œ ë˜ëŒë¦½ë‹ˆë‹¤.
     /// </summary>
     public void ExtinguishAllFires()
     {
         if (activeFires.Count == 0) return;
 
-        Debug.Log("¸ğµç È­Àç¸¦ Áø¾ĞÇÕ´Ï´Ù...");
+        Debug.Log("ëª¨ë“  í™”ì¬ë¥¼ ì§„ì••í•©ë‹ˆë‹¤...");
         foreach (GameObject fire in activeFires)
-            fire.SetActive(false); // Destroy ´ë½Å ºñÈ°¼ºÈ­ÇÏ¿© Ç®·Î ¹İ³³
+            fire.SetActive(false); // Destroy ëŒ€ì‹  ë¹„í™œì„±í™”í•˜ì—¬ í’€ë¡œ ë°˜ë‚©
         
-        activeFires.Clear(); // È°¼ºÈ­ ¸ñ·Ï¸¸ ºñ¿ò (Ç®¿¡´Â ¿ÀºêÁ§Æ®°¡ ±×´ë·Î ³²¾ÆÀÖÀ½)
-        hasFireBeenGenerated = false; // ´Ù½Ã È­Àç¸¦ ¹ß»ı½ÃÅ³ ¼ö ÀÖµµ·Ï ÇÃ·¡±× ÃÊ±âÈ­
+        activeFires.Clear(); // í™œì„±í™” ëª©ë¡ë§Œ ë¹„ì›€ (í’€ì—ëŠ” ì˜¤ë¸Œì íŠ¸ê°€ ê·¸ëŒ€ë¡œ ë‚¨ì•„ìˆìŒ)
+        hasFireBeenGenerated = false; // ë‹¤ì‹œ í™”ì¬ë¥¼ ë°œìƒì‹œí‚¬ ìˆ˜ ìˆë„ë¡ í”Œë˜ê·¸ ì´ˆê¸°í™”
     }
 
     /// <summary>
-    /// ¿ÀºêÁ§Æ® Ç®¿¡¼­ ºñÈ°¼ºÈ­ »óÅÂÀÎ È­Àç ¿ÀºêÁ§Æ®¸¦ Ã£¾Æ ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ë¹„í™œì„±í™” ìƒíƒœì¸ í™”ì¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ì°¾ì•„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <returns>»ç¿ë °¡´ÉÇÑ °ÔÀÓ ¿ÀºêÁ§Æ® ¶Ç´Â null</returns>
+    /// <returns>ì‚¬ìš© ê°€ëŠ¥í•œ ê²Œì„ ì˜¤ë¸Œì íŠ¸ ë˜ëŠ” null</returns>
     private GameObject GetPooledFireObject()
     {
-        // Ç®¿¡ ÀÖ´Â ¸ğµç ¿ÀºêÁ§Æ®¸¦ È®ÀÎ
         foreach (GameObject fire in fireParticlePool)
         {
-            if (!fire.activeInHierarchy) // ºñÈ°¼ºÈ­µÈ ¿ÀºêÁ§Æ®¸¦ Ã£À¸¸é
-                return fire; // ¹İÈ¯
+            if (!fire.activeInHierarchy)
+                return fire;
         }
         
-        // ¸¸¾à ¸ğµç ¿ÀºêÁ§Æ®°¡ »ç¿ë ÁßÀÌ¶ó¸é nullÀ» ¹İÈ¯ (¶Ç´Â ¿©±â¼­ Ç®À» µ¿ÀûÀ¸·Î È®ÀåÇÒ ¼öµµ ÀÖÀ½)
-        Debug.LogWarning("¿ÀºêÁ§Æ® Ç®ÀÌ °¡µæ Ã¡½À´Ï´Ù! ¸ğµç ÆÄÆ¼Å¬ÀÌ »ç¿ë ÁßÀÔ´Ï´Ù.");
+        Debug.LogWarning("ì˜¤ë¸Œì íŠ¸ í’€ì´ ê°€ë“ ì°¼ìŠµë‹ˆë‹¤! ëª¨ë“  íŒŒí‹°í´ì´ ì‚¬ìš© ì¤‘ì…ë‹ˆë‹¤.");
         return null;
     }
 
-    // ¿¡µğÅÍÀÇ Scene ºä¿¡¼­ È­Àç ¹ß»ı ¿µ¿ªÀ» ½Ã°¢ÀûÀ¸·Î º¸¿©ÁÖ´Â Gizmo
+    // ì—ë””í„°ì˜ Scene ë·°ì—ì„œ í™”ì¬ ë°œìƒ ì˜ì—­ì„ ì‹œê°ì ìœ¼ë¡œ ë³´ì—¬ì£¼ëŠ” Gizmo
     void OnDrawGizmosSelected()
     {
+        // ì „ì²´ í™”ì¬ ë°œìƒ 'í›„ë³´' ì˜ì—­ì„ ë°˜íˆ¬ëª… ì£¼í™©ìƒ‰ìœ¼ë¡œ í‘œì‹œ
         Gizmos.color = new Color(1, 0.5f, 0, 0.4f);
-        Vector3 gizmoCenter = spawnCenter;
+        Vector3 gizmoCenter = spawnAreaCenter;
         
-        if(targetTerrain != null)
-            gizmoCenter.y = targetTerrain.SampleHeight(spawnCenter) + 1f;
+        if(targetTerrain)
+            gizmoCenter.y = targetTerrain.SampleHeight(spawnAreaCenter) + 1f;
         
         Gizmos.DrawCube(gizmoCenter, new Vector3(spawnAreaSize.x, 2, spawnAreaSize.y));
+
+        // í™”ì¬ 'êµ°ì§‘' ë°˜ê²½ì„ ë¹¨ê°„ìƒ‰ ì›ìœ¼ë¡œ í‘œì‹œ
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(gizmoCenter, fireClusterRadius);
     }
 }
