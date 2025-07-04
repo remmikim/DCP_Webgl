@@ -1,5 +1,4 @@
-﻿/*
---- 다른 스크립트에서의 사용 예시 (예: DroneController.cs) ---
+﻿/* --- 다른 스크립트에서의 사용 예시 (예: DroneController.cs) ---
 
 // 1. DroneController가 특정 조건을 만족했을 때 (예: 임무 완료 후 스테이션 도착)
 void OnLandingCompleteAtStation()
@@ -18,8 +17,7 @@ void StartSomeEvent()
 {
     if (!WildfireManager.Instance)
         WildfireManager.Instance.GenerateFires();
-}
-*/
+} */
 
 using UnityEngine;
 using System.Collections.Generic;
