@@ -893,7 +893,6 @@ GameObject:
   - component: {fileID: 3595756298144946249}
   - component: {fileID: 888416015053652591}
   - component: {fileID: 1937150621917444351}
-  - component: {fileID: 713799258355273229}
   m_Layer: 0
   m_Name: DroneBody 1
   m_TagString: Untagged
@@ -1025,43 +1024,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &713799258355273229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8996799608808724691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a4118144839dd94789b6da07ee22d2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hoverForce: 70
-  moveForce: 15
-  rotateSpeed: 80
-  currentMissionState: 0
-  droneStationLocation: {fileID: 0}
-  bombPrefab: {fileID: 0}
-  totalBombs: 6
-  missionCruisingAGL: 50
-  arrivalDistanceThreshold: 2
-  bombDropInterval: 0.5
-  bombSpawnOffset: {x: 0, y: -2, z: 0.5}
-  preDropStabilizationTime: 1
-  targetAltitude_abs: 0
-  Kp_altitude: 2
-  Kd_altitude: 2.5
-  landingDescentRate: 0.4
-  terrainCheckDistance: 200
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  Kp_rotation: 0.8
-  Kd_rotation: 0.3
-  turnBeforeMoveAngleThreshold: 15
-  decelerationStartDistanceXZ: 15
-  maxRotationTorque: 15
-  currentAltitude_abs: 0
-  currentPosition_abs: {x: 0, y: 0, z: 0}
-  batteryLevel: 100

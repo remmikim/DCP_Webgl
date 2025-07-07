@@ -2,45 +2,47 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>드론 실시간 관제 시스템 (메인)</title>
+    <title>드론 이동 테스트</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <div class="main-container">
-    <h1>드론 실시간 관제 시스템 (메인)</h1>
+    <h1>드론 이동 테스트</h1>
     <div class="left-column">
         <div id="status-container" class="card">
-            <h2>실시간 드론 상태</h2>
+            <h2>실시간 테스트 드론 상태</h2>
             <p><strong>연결 상태:</strong> <span id="connection-status">연결 중...</span></p>
             <p><strong>위치 (X,Y,Z):</strong> <span id="drone-position">N/A</span></p>
-            <p><strong>절대 고도 (Y):</strong> <span id="drone-altitude">N/A</span></p>
-            <p><strong>배터리:</strong> <span id="drone-battery">N/A</span></p>
-            <p><strong>임무 상태:</strong> <span id="mission-state">N/A</span></p>
             <p><strong>현재 페이로드:</strong> <span id="payload-type">N/A</span></p>
-            <p><strong>포탄 잔여량:</strong> <span id="bomb-load">N/A</span></p>
+        </div>
+        <div id="mission-control" class="card">
+            <h2>좌표 이동 명령</h2>
+            <form id="test-move-form" onsubmit="return false;">
+                <label>목표 좌표 (X, Y, Z):</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="targetX" value="50" required>
+                    <input type="number" id="targetY" value="30" required>
+                    <input type="number" id="targetZ" value="50" required>
+                </div>
+                <button type="button" id="dispatch-test-drone-btn">테스트 드론 출동</button>
+            </form>
         </div>
     </div>
     <div class="right-column">
         <div id="payload-control" class="card">
-            <h2>페이로드 상태</h2>
+            <h2>페이로드 제어</h2>
             <div class="button-grid" id="payload-buttons">
                 <button data-payload="FireExtinguishingBomb">소화탄</button>
                 <button data-payload="RescueEquipment">구조 장비</button>
-                <button data-payload="DisasterReliefBag">재난 구호품</button>
-                <button data-payload="AluminumSplint">알루미늄 부목</button>
-                <button data-payload="Gripper">그리퍼</button>
             </div>
         </div>
         <div id="emergency-control" class="card">
             <h2>긴급 제어</h2>
-            <div class="button-grid">
-                <button id="force-return">강제 귀환</button>
-            </div>
+            <button id="force-return">강제 귀환</button>
         </div>
     </div>
 </div>
-<script src="{{ url_for('static', filename='main_script.js') }}"></script> <!-- 스크립트 파일 이름 변경 -->
+<script src="{{ url_for('static', filename='test_script.js') }}"></script>
 </body>
 </html>
