@@ -1,14 +1,18 @@
-# Unity Generated Files
-Library/
-Temp/
-Obj/
-Build/
-Builds/
-Logs/
-UserSettings/
-# NOTE: .meta files should generally be tracked by Git!
+# Unity 특정 파일 및 폴더 (경로 수정됨)
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Aa]ssets/AssetStoreTools*
 
-# Visual Studio / Rider / IDE Specific Files
+# Visual Studio / Rider / VS Code 등 IDE 관련 파일
+.vs/
+.vscode/
 *.csproj
 *.unityproj
 *.sln
@@ -23,22 +27,34 @@ UserSettings/
 *.mdb
 *.opendb
 *.VC.db
-.vscode/ # Visual Studio Code specific settings
-.idea/   # JetBrains Rider specific settings
+*.DotSettings.user
 
-# macOS specific
+# Rider
+.idea/
+!Library/Rider/
+
+# macOS 특정 파일
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 
-# Windows specific
+# Windows 특정 파일
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Python specific (for PythonWebServer)
-__pycache__/ # Python이 생성하는 컴파일된 바이트코드 파일
-*.pyc         # Python이 생성하는 컴파일된 바이트코드 파일
-*.log         # Python 웹 서버에서 생성되는 로그 파일 등 (필요시)
-# If PythonWebServer generates other temporary or sensitive files, add them here.
+# Python 특정 파일 및 폴더
+# PythonWebServer 폴더는 루트에 있으므로 이 경로는 그대로 유지됩니다.
+PythonWebServer/venv/
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Catia/PLC specific (if they generate any temporary or configuration files you don't want to track)
-# Example:
-# *.bak
-# *.tmp
+# 빌드된 실행 파일 및 아카이브
+*.exe
+*.dll
+*.app
+*.apk
+*.aab
+*.ipa
