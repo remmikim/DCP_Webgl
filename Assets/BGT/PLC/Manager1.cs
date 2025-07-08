@@ -13,13 +13,15 @@ public class Manager1 : MonoBehaviour
     private bool currentY3State;
     private bool currentY4State;
     private bool currentY5State;
+    private bool currentY6State;
+    private bool currentY7State;
 
     // 제어할 Unity 오브젝트 스크립트 참조 (인스펙터에서 할당)
     public Chain1 chainInstance;
     public Chain1 chainInstance12;
     public PipeHolders pipeHolders;
     public ZLiftTigger zLift;
-
+    public Base2Down base2down;
     // ManagerWrite 스크립트 참조 (인스펙터에서 할당)
     public ManagerWrite1 managerWrite;
 
@@ -74,6 +76,10 @@ public class Manager1 : MonoBehaviour
                 UpdateYStateBit(ref currentY4State, y0ToYFValue, 4, zLift != null ? zLift.ActivateZLiftUp : null, zLift != null ? zLift.DeactivateZLiftUp : null);
                 // Y5 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY5State, y0ToYFValue, 5, zLift != null ? zLift.ActivateZLiftDown : null, zLift != null ? zLift.DeactivateZLiftDown : null);
+                // Y6 비트 추출 및 상태 변경 감지
+                //UpdateYStateBit(ref currentY6State, y0ToYFValue, 6, base2down != null ? base2down.ActiveUp : null, base2down != null ? base2down.DeactiveUp : null);
+                // Y7 비트 추출 및 상태 변경 감지
+                //UpdateYStateBit(ref currentY7State, y0ToYFValue, 7, base2down != null ? base2down.ActiveDown : null, base2down != null ? base2down.DeactiveDown : null);
             }
         }
         // 다른 유형의 PLC 데이터가 있다면 여기에 추가 파싱 로직 구현
