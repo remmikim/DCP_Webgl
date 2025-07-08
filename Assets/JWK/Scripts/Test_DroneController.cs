@@ -2,6 +2,7 @@
 using System.Collections;
 using WebSocketSharp;
 using System;
+using JWK.Scripts;
 using SimpleJSON;
 
 // --- 데이터 구조 클래스 (이 파일 내에서만 사용) ---
