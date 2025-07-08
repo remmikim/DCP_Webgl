@@ -6,62 +6,6 @@ using WebSocketSharp;
 using System;
 using SimpleJSON;
 
-// --- 데이터 구조 클래스 ---
-[System.Serializable]
-public class Vector3Data
-{
-    public float x;
-    public float y;
-    public float z;
-    public Vector3Data(float xVal, float yVal, float zVal) { x = xVal; y = yVal; z = zVal; }
-}
-
-[System.Serializable]
-public class DroneStatusData
-{
-    public Vector3Data position;
-    public float altitude;
-    public float battery;
-    public string mission_state;
-    public string payload_type; // 페이로드 종류
-    public int bomb_load;
-
-    public DroneStatusData(Vector3 pos, float alt, float bat, string state, string payload, int bombs)
-    {
-        position = new Vector3Data(pos.x, pos.y, pos.z);
-        altitude = alt;
-        battery = bat;
-        mission_state = state;
-        payload_type = payload;
-        bomb_load = bombs;
-    }
-}
-
-[System.Serializable]
-public class DispatchData
-{
-    public string mission_type;
-    public Vector3Data target_coordinates;
-
-    public DispatchData(string type, Vector3 target)
-    {
-        mission_type = type;
-        target_coordinates = new Vector3Data(target.x, target.y, target.z);
-    }
-}
-
-
-// --- 메인 스레드 디스패처 클래스 ---
-public class UnityMainThreadDispatcher : MonoBehaviour
-{
-    private static readonly System.Collections.Generic.Queue<Action> _executionQueue = new System.Collections.Generic.Queue<Action>();
-    private static UnityMainThreadDispatcher _instance = null;
-    public static UnityMainThreadDispatcher Instance() { if (_instance == null) { _instance = FindObjectOfType<UnityMainThreadDispatcher>(); if (_instance == null) { GameObject go = new GameObject("MainThreadDispatcher_Instance"); _instance = go.AddComponent<UnityMainThreadDispatcher>(); DontDestroyOnLoad(go); } } return _instance; }
-    void Awake() { if (_instance == null) { _instance = this; DontDestroyOnLoad(gameObject); } else if (_instance != this) { Destroy(gameObject); } }
-    void Update() { lock (_executionQueue) { while (_executionQueue.Count > 0) { _executionQueue.Dequeue().Invoke(); } } }
-    public void Enqueue(Action action) { lock (_executionQueue) { _executionQueue.Enqueue(action); } }
-}
-
 // --- 드론 컨트롤러 주 클래스 ---
 public class DroneController : MonoBehaviour
 {
