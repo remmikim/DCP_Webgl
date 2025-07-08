@@ -77,9 +77,9 @@ public class Manager1 : MonoBehaviour
                 // Y5 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY5State, y0ToYFValue, 5, zLift != null ? zLift.ActivateZLiftDown : null, zLift != null ? zLift.DeactivateZLiftDown : null);
                 // Y6 비트 추출 및 상태 변경 감지
-                //UpdateYStateBit(ref currentY6State, y0ToYFValue, 6, base2down != null ? base2down.ActiveUp : null, base2down != null ? base2down.DeactiveUp : null);
+                UpdateYStateBit(ref currentY6State, y0ToYFValue, 6, base2down != null ? base2down.ActiveDown : null, base2down != null ? base2down.DeactiveDown : null);
                 // Y7 비트 추출 및 상태 변경 감지
-                //UpdateYStateBit(ref currentY7State, y0ToYFValue, 7, base2down != null ? base2down.ActiveDown : null, base2down != null ? base2down.DeactiveDown : null);
+                UpdateYStateBit(ref currentY7State, y0ToYFValue, 7, base2down != null ? base2down.ActiveUp : null, base2down != null ? base2down.DeactiveUp : null);
             }
         }
         // 다른 유형의 PLC 데이터가 있다면 여기에 추가 파싱 로직 구현
