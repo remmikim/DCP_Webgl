@@ -3,13 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>드론 실시간 관제 시스템 (메인)</title>
+    <title>드론 관제 시스템</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1c23;
+            --primary-color: #2c2f3b;
+            --secondary-color: #3f4354;
+            --accent-color: #0095ff;
+            --text-color: #e0e0e0;
+            --text-secondary-color: #a0a0a0;
+            --red-color: #e53935;
+            --green-color: #43a047;
+            --orange-color: #ff8f00;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .card {
+            background-color: var(--primary-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--secondary-color);
+        }
+        h1, h2 {
+            color: #ffffff;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h1 {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h2 { font-size: 1.5em; margin-bottom: 20px; }
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        p strong { color: var(--text-secondary-color); min-width: 120px; }
+        span { font-weight: 500; color: #ffffff; text-align: right; }
+        #connection-status.connected { color: var(--green-color); font-weight: 700; }
+        #connection-status.disconnected { color: var(--red-color); font-weight: 700; }
+        #server-mission-info {
+            font-weight: 700;
+            padding: 12px;
+            background-color: var(--secondary-color);
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1em;
+        }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: 700; color: var(--text-secondary-color); }
+        input, select {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--secondary-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 149, 255, 0.2);
+        }
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .button-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        #emergency-buttons { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+        #emergency-stop { background-color: var(--red-color); }
+        #force-return { background-color: var(--orange-color); }
+        #dispatch-cancel { background-color: #546e7a; }
+    </style>
 </head>
 <body>
 <div class="main-container">
-    <h1>드론 실시간 관제 시스템 (메인)</h1>
+    <h1>드론 실시간 관제 시스템</h1>
+
     <div class="left-column">
         <div id="status-container" class="card">
             <h2>실시간 드론 상태</h2>
@@ -19,28 +136,120 @@
             <p><strong>배터리:</strong> <span id="drone-battery">N/A</span></p>
             <p><strong>임무 상태:</strong> <span id="mission-state">N/A</span></p>
             <p><strong>현재 페이로드:</strong> <span id="payload-type">N/A</span></p>
-            <p><strong>포탄 잔여량:</strong> <span id="bomb-load">N/A</span></p>
+        </div>
+
+        <div id="mission-control" class="card">
+            <h2>임무 제어 (산불 진압)</h2>
+            <form id="wildfire-form" onsubmit="return false;">
+                <label for="coords">산불 발생 좌표 (X,Y,Z):</label>
+                <input type="text" id="coords" name="coords" placeholder="예: 150,0,200" required>
+                <label for="fire-scale">화재 규모 (1-6):</label>
+                <input type="number" id="fire-scale" name="fire-scale" min="1" max="6" value="3" required>
+                <button type="button" id="dispatch-drone-btn">소화탄 드론 출동</button>
+            </form>
+            <div id="server-mission-info">대기 중</div>
         </div>
     </div>
+
     <div class="right-column">
         <div id="payload-control" class="card">
-            <h2>페이로드 상태</h2>
+            <h2>페이로드 제어</h2>
             <div class="button-grid" id="payload-buttons">
-                <button data-payload="FireExtinguishingBomb">소화탄</button>
-                <button data-payload="RescueEquipment">구조 장비</button>
-                <button data-payload="DisasterReliefBag">재난 구호품</button>
-                <button data-payload="AluminumSplint">알루미늄 부목</button>
-                <button data-payload="Gripper">그리퍼</button>
+                <button data-payload="FireExtinguishingBomb">소화탄 장착</button>
+                <button data-payload="RescueEquipment">구조 장비 장착</button>
+                <button data-payload="DisasterReliefBag">재난 구호품 장착</button>
+                <button data-payload="AluminumSplint">알루미늄 부목 장착</button>
             </div>
         </div>
+
         <div id="emergency-control" class="card">
             <h2>긴급 제어</h2>
-            <div class="button-grid">
+            <div class="button-grid" id="emergency-buttons">
+                <button id="emergency-stop">긴급 정지</button>
                 <button id="force-return">강제 귀환</button>
+                <button id="dispatch-cancel">출동 취소</button>
             </div>
         </div>
     </div>
 </div>
-<script src="{{ url_for('static', filename='main_script.js') }}"></script> <!-- 스크립트 파일 이름 변경 -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port, { query: "type=web" });
+
+        const connStatus = document.getElementById('connection-status');
+        const dronePos = document.getElementById('drone-position');
+        const droneAlt = document.getElementById('drone-altitude');
+        const droneBat = document.getElementById('drone-battery');
+        const missionState = document.getElementById('mission-state');
+        const payloadType = document.getElementById('payload-type');
+        const serverMissionInfo = document.getElementById('server-mission-info');
+
+        const allStatusSpans = document.querySelectorAll('#status-container span:not(#connection-status)');
+
+        function resetAllStatus() {
+            allStatusSpans.forEach(span => span.textContent = 'N/A');
+            serverMissionInfo.textContent = '대기 중';
+        }
+
+        socket.on('connect', () => {
+            connStatus.textContent = '연결됨';
+            connStatus.className = 'connected';
+        });
+        socket.on('disconnect', () => {
+            connStatus.textContent = '연결 끊김';
+            connStatus.className = 'disconnected';
+            resetAllStatus();
+        });
+        socket.on('server_message', (msg) => console.log('Server:', msg));
+
+        // ----- 수정된 부분 시작 -----
+        // 'drone_status_update' 이벤트 핸들러를 완전한 코드로 복구합니다.
+        socket.on('drone_status_update', (data) => {
+            console.log("Received drone_status_update:", data); // 디버깅용 로그 추가
+            if (!data || Object.keys(data).length === 0) {
+                resetAllStatus();
+                return;
+            }
+            dronePos.textContent = `X: ${data.position.x.toFixed(2)}, Y: ${data.position.y.toFixed(2)}, Z: ${data.position.z.toFixed(2)}`;
+            droneAlt.textContent = `${data.altitude.toFixed(2)} m`;
+            droneBat.textContent = `${data.battery.toFixed(1)} %`;
+            missionState.textContent = data.mission_state;
+            payloadType.textContent = data.payload_type || 'N/A';
+        });
+        // ----- 수정된 부분 끝 -----
+
+        socket.on('mission_dispatch_notification', (data) => {
+            serverMissionInfo.textContent = `"${data.mission_type}" 임무 시작! 목표: (X: ${data.target_coordinates.x.toFixed(0)}, Z: ${data.target_coordinates.z.toFixed(0)})`;
+        });
+
+        document.getElementById('dispatch-drone-btn').addEventListener('click', function() {
+            const coordsInput = document.getElementById('coords').value;
+            const fireScaleInput = document.getElementById('fire-scale').value;
+            const coordsArray = coordsInput.split(',').map(Number);
+
+            if(coordsArray.length === 3 && !coordsArray.some(isNaN)) {
+                const data = {
+                    coordinates: { x: coordsArray[0], y: coordsArray[1], z: coordsArray[2] },
+                    fire_scale: parseInt(fireScaleInput)
+                };
+                socket.emit('report_wildfire', data);
+            } else {
+                alert('좌표 형식이 올바르지 않습니다. "X,Y,Z" 형식으로 입력해주세요. (예: 150,0,200)');
+            }
+        });
+
+        document.getElementById('payload-buttons').addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                const payload = e.target.dataset.payload;
+                socket.emit('change_payload', { payload: payload });
+            }
+        });
+
+        document.getElementById('emergency-stop').addEventListener('click', () => socket.emit('emergency_stop_pressed'));
+        document.getElementById('force-return').addEventListener('click', () => socket.emit('force_return_pressed'));
+        document.getElementById('dispatch-cancel').addEventListener('click', () => socket.emit('dispatch_cancel_pressed'));
+    });
+</script>
 </body>
 </html>
