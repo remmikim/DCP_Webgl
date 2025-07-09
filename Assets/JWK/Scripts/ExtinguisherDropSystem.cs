@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Serialization;
 using System.Collections;
 
@@ -6,12 +6,15 @@ namespace JWK.Scripts
 {
     public class ExtinguisherDropSystem : MonoBehaviour
     {
-        [Header("È¸Àü ´ë»ó ¿ÀºêÁ§Æ® ÇÒ´ç")] [Tooltip("¾ÈÂÊ ·ÎÅÍ¸¦ ÇÒ´çÇØÁÖ¼¼¿ä.")]
+        [Header("íšŒì „ ëŒ€ìƒ ì˜¤ë¸Œì íŠ¸ í• ë‹¹")]
+        [Tooltip("ì•ˆìª½ ë¡œí„°ë¥¼ í• ë‹¹í•´ì£¼ì„¸ìš”.")]
         public Transform rotaryIn;
-        [Tooltip("¹Ù±ùÂÊ ·ÎÅÍ¸¦ ÇÒ´çÇØÁÖ¼¼¿ä.")]
+        
+        [Tooltip("ë°”ê¹¥ìª½ ë¡œí„°ë¥¼ í• ë‹¹í•´ì£¼ì„¸ìš”.")]
         public Transform rotaryOut;
-        [Tooltip("È¸Àü ¾Ö´Ï¸ŞÀÌ¼ÇÀÇ ¼ÓµµÀÔ´Ï´Ù.")]
-        public float rotationSpeed = 90.0f; // ÃÊ´ç 90µµ È¸Àü
+        
+        [Tooltip("íšŒì „ ì• ë‹ˆë©”ì´ì…˜ì˜ ì†ë„ì…ë‹ˆë‹¤.")]
+        public float rotationSpeed = 90.0f; // ì´ˆë‹¹ 90ë„ íšŒì „
         
         private DroneController _droneController;
         private bool isActionInProgress = false;
@@ -25,26 +28,26 @@ namespace JWK.Scripts
 
             if (!_droneController)
             {
-                Debug.LogError("ºÎ¸ğ ¿ÀºêÁ§Æ®¿¡¼­ DroneController¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogError("ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì—ì„œ DroneControllerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
                 StartCoroutine(DropSequenceCouroutine());
             }
 
             else
             {
                 if (!_droneController)
-                    Debug.LogWarning("DroneController°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+                    Debug.LogWarning("DroneControllerê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
 
                 if (_droneController && !_droneController.isArrived)
-                    Debug.LogWarning("µå·ĞÀÌ ¾ÆÁ÷ È­Àç Æ÷ÀÎÆ®¿¡ µµÂøÇÏÁö ¾Ê¾Ò½À´Ï´Ù.");
+                    Debug.LogWarning("ë“œë¡ ì´ ì•„ì§ í™”ì¬ í¬ì¸íŠ¸ì— ë„ì°©í•˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
 
                 if (isActionInProgress)
-                    Debug.LogWarning("ÀÌ¹Ì ´Ù¸¥ ÅõÇÏ ½ÃÄö½º°¡ ÁøÇà ÁßÀÔ´Ï´Ù.");
+                    Debug.LogWarning("ì´ë¯¸ ë‹¤ë¥¸ íˆ¬í•˜ ì‹œí€€ìŠ¤ê°€ ì§„í–‰ ì¤‘ì…ë‹ˆë‹¤.");
             }
         }
 
         /// <summary>
-        /// DroneController¿¡¼­ È£ÃâÇÒ ÇÔ¼ö
-        /// µå·ĞÀÌ È­Àç Æ÷ÀÎÆ®¿¡ µµÂøÇÏ¸é, È¸Àü ¹× ÅõÇÏ ÄÚ·çÆ¾À» ½ÃÀÛÇÔ.
+        /// DroneControllerì—ì„œ í˜¸ì¶œí•  í•¨ìˆ˜
+        /// ë“œë¡ ì´ í™”ì¬ í¬ì¸íŠ¸ì— ë„ì°©í•˜ë©´, íšŒì „ ë° íˆ¬í•˜ ì½”ë£¨í‹´ì„ ì‹œì‘í•¨.
         /// </summary>
         public void PlayDropExtinguishBomb()
         {
@@ -53,48 +56,48 @@ namespace JWK.Scripts
         }
 
         /// <summary>
-        /// ·ÎÅÍ È¸Àü ¹× ÆøÅº ÅõÇÏ¸¦ ¼øÂ÷ÀûÀ¸·Î ÁøÇàÇÏ´Â ÄÚ·çÆ¾
+        /// ë¡œí„° íšŒì „ ë° í­íƒ„ íˆ¬í•˜ë¥¼ ìˆœì°¨ì ìœ¼ë¡œ ì§„í–‰í•˜ëŠ” ì½”ë£¨í‹´
         /// </summary>
         private IEnumerator DropSequenceCouroutine()
         {
             isActionInProgress = true;
-            Debug.Log("·ÎÅÍ¸¦ È¸Àü½ÃÅµ´Ï´Ù....");
+            Debug.Log("ë¡œí„°ë¥¼ íšŒì „ì‹œí‚µë‹ˆë‹¤....");
             
             Quaternion initialRotIn = rotaryIn.localRotation;
             Quaternion initialRotOut = rotaryOut.localRotation;
             
-            // ¸ñÇ¥ È¸Àü°ª °è»ê (¼­·Î ¹İ´ë ¹æÇâÀ¸·Î È¸Àü)
-            Quaternion targetRotIn = initialRotIn * Quaternion.Euler(0, innerRotateAngle, 0); // YÃà ±âÁØ
-            Quaternion targetRotOut = initialRotOut * Quaternion.Euler(0, -outerRotateAngle, 0); // YÃà ±âÁØ, ¹İ´ë ¹æÇâ
+            // ëª©í‘œ íšŒì „ê°’ ê³„ì‚° (ì„œë¡œ ë°˜ëŒ€ ë°©í–¥ìœ¼ë¡œ íšŒì „)
+            Quaternion targetRotIn = initialRotIn * Quaternion.Euler(0, innerRotateAngle, 0); // Yì¶• ê¸°ì¤€
+            Quaternion targetRotOut = initialRotOut * Quaternion.Euler(0, -outerRotateAngle, 0); // Yì¶• ê¸°ì¤€, ë°˜ëŒ€ ë°©í–¥
 
             float elapsedTime = 0f;
-            // ´õ Å« °¢µµ¸¦ ±âÁØÀ¸·Î È¸Àü ½Ã°£À» °è»êÇÏ¿© µ¿½Ã¿¡ ³¡³ªµµ·Ï ÇÔ
+            // ë” í° ê°ë„ë¥¼ ê¸°ì¤€ìœ¼ë¡œ íšŒì „ ì‹œê°„ì„ ê³„ì‚°í•˜ì—¬ ë™ì‹œì— ëë‚˜ë„ë¡ í•¨
             float rotationDuration = Mathf.Max(Mathf.Abs(innerRotateAngle), Mathf.Abs(outerRotateAngle)) / rotationSpeed;
 
             while (elapsedTime < rotationDuration)
             {
-                // ½Ã°£¿¡ µû¶ó ºÎµå·´°Ô È¸Àü (Slerp »ç¿ë)
+                // ì‹œê°„ì— ë”°ë¼ ë¶€ë“œëŸ½ê²Œ íšŒì „ (Slerp ì‚¬ìš©)
                 rotaryIn.localRotation = Quaternion.Slerp(initialRotIn, targetRotIn, elapsedTime / rotationDuration);
                 rotaryOut.localRotation = Quaternion.Slerp(initialRotOut, targetRotOut, elapsedTime / rotationDuration);
 
                 elapsedTime += Time.deltaTime;
-                yield return null; // ´ÙÀ½ ÇÁ·¹ÀÓ±îÁö ´ë±â
+                yield return null; // ë‹¤ìŒ í”„ë ˆì„ê¹Œì§€ ëŒ€ê¸°
             }
 
-            // ¿ÀÂ÷ º¸Á¤À» À§ÇØ ÃÖÁ¾ È¸Àü°ªÀ» Á¤È®ÇÏ°Ô ¼³Á¤
+            // ì˜¤ì°¨ ë³´ì •ì„ ìœ„í•´ ìµœì¢… íšŒì „ê°’ì„ ì •í™•í•˜ê²Œ ì„¤ì •
             rotaryIn.localRotation = targetRotIn;
             rotaryOut.localRotation = targetRotOut;
-            Debug.Log("·ÎÅÍ È¸Àü ¿Ï·á.");
+            Debug.Log("ë¡œí„° íšŒì „ ì™„ë£Œ.");
             
-            // --- 2. (¿©±â¿¡ ÆøÅº ÅõÇÏ ·ÎÁ÷ Ãß°¡) ---
-            // ¿¹: yield return new WaitForSeconds(0.5f); // È¸Àü ÈÄ Àá½Ã ´ë±â
-            //     _droneController.InstantiateBomb(); // DroneController¿¡ ÆøÅº »ı¼º ÇÔ¼ö¸¦ ¸¸µé°í È£Ãâ
+            // --- 2. (ì—¬ê¸°ì— í­íƒ„ íˆ¬í•˜ ë¡œì§ ì¶”ê°€) ---
+            // ì˜ˆ: yield return new WaitForSeconds(0.5f); // íšŒì „ í›„ ì ì‹œ ëŒ€ê¸°
+            //     _droneController.InstantiateBomb(); // DroneControllerì— í­íƒ„ ìƒì„± í•¨ìˆ˜ë¥¼ ë§Œë“¤ê³  í˜¸ì¶œ
 
-            // --- 3. (¼±ÅÃÀû) ·ÎÅÍ ¿øÀ§Ä¡ º¹±Í ---
-            yield return new WaitForSeconds(1.0f); // ÅõÇÏ ÈÄ Àá½Ã ´ë±â
-            Debug.Log("·ÎÅÍ¸¦ ¿øÀ§Ä¡·Î º¹±Í½ÃÅµ´Ï´Ù.");
+            // --- 3. (ì„ íƒì ) ë¡œí„° ì›ìœ„ì¹˜ ë³µê·€ ---
+            yield return new WaitForSeconds(1.0f); // íˆ¬í•˜ í›„ ì ì‹œ ëŒ€ê¸°
+            Debug.Log("ë¡œí„°ë¥¼ ì›ìœ„ì¹˜ë¡œ ë³µê·€ì‹œí‚µë‹ˆë‹¤.");
             
-            elapsedTime = 0f; // ½Ã°£ ÃÊ±âÈ­
+            elapsedTime = 0f; // ì‹œê°„ ì´ˆê¸°í™”
             while (elapsedTime < rotationDuration)
             {
                 rotaryIn.localRotation = Quaternion.Slerp(targetRotIn, initialRotIn, elapsedTime / rotationDuration);
@@ -106,8 +109,8 @@ namespace JWK.Scripts
             rotaryIn.localRotation = initialRotIn;
             rotaryOut.localRotation = initialRotOut;
 
-            isActionInProgress = false; // ¾×¼Ç ¿Ï·á
-            Debug.Log("¼ÒÈ­Åº ÅõÇÏ ½ÃÄö½º ÀüÃ¼ ¿Ï·á.");
+            isActionInProgress = false; // ì•¡ì…˜ ì™„ë£Œ
+            Debug.Log("ì†Œí™”íƒ„ íˆ¬í•˜ ì‹œí€€ìŠ¤ ì „ì²´ ì™„ë£Œ.");
         }
     }
 }

@@ -13,6 +13,7 @@ namespace JWK.Scripts
         private static UnityMainThreadDispatcher _instance = null;
 
         // 싱글턴 인스턴스에 접근하기 위한 프로퍼티
+        [Obsolete("Obsolete")]
         public static UnityMainThreadDispatcher Instance()
         {
             if (!_instance)
