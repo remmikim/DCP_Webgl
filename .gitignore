@@ -1,4 +1,4 @@
-# Unity 특정 파일 및 폴더 (경로 수정됨)
+# Unity가 자동으로 생성하는 임시 파일 및 캐시 폴더
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -8,6 +8,8 @@
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
+
+# Unity 에셋 스토어 관련 폴
 /[Aa]ssets/AssetStoreTools*
 
 # Visual Studio / Rider / VS Code 등 IDE 관련 파일
@@ -45,15 +47,17 @@ ehthumbs.db
 Desktop.ini
 
 # Python 특정 파일 및 폴더
-# PythonWebServer 폴더는 루트에 있으므로 이 경로는 그대로 유지됩니다.
+# Python 가상 환경 폴더는 용량이 크고, 각자 컴퓨터에서 생성해야 합니다.
 PythonWebServer/venv/
+
+# Python 캐시 폴더 및 컴파일된 파일
 __pycache__/
 *.py[cod]
 *$py.class
 
-# 빌드된 실행 파일 및 아카이브
+# 빌드된 실행 파일 및 아카이브 (직접 빌드한 결과물)
 *.exe
-*.dll
+# *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
 *.app
 *.apk
 *.aab
