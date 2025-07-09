@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ZLiftRotation : MonoBehaviour
+public class XGantryRotaion : MonoBehaviour
 {
     private float rotationSpeed = 50f;
 
@@ -19,9 +19,9 @@ public class ZLiftRotation : MonoBehaviour
             // Time.deltaTime을 곱하여 프레임 속도에 독립적인 회전을 보장합니다.
             // Space.Self는 오브젝트 자신의 로컬 Y축을 기준으로 회전시킵니다.
             // Space.World는 월드 좌표계의 Y축을 기준으로 회전시킵니다.
-            Pulley1.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0, Space.Self);
-            Pulley2.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0, Space.Self);
-            Shaft.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0, Space.Self);
+            Pulley1.transform.Rotate(-rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
+            Pulley2.transform.Rotate(-rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
+            Shaft.transform.Rotate(-rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
         }
 
         else if(!isZLiftRotationCW && isZLiftRotationCCW)
@@ -30,9 +30,9 @@ public class ZLiftRotation : MonoBehaviour
             // Time.deltaTime을 곱하여 프레임 속도에 독립적인 회전을 보장합니다.
             // Space.Self는 오브젝트 자신의 로컬 Y축을 기준으로 회전시킵니다.
             // Space.World는 월드 좌표계의 Y축을 기준으로 회전시킵니다.
-            Pulley1.transform.Rotate(0, -rotationSpeed * Time.deltaTime, 0, Space.Self);
-            Pulley2.transform.Rotate(0, -rotationSpeed * Time.deltaTime, 0, Space.Self);
-            Shaft.transform.Rotate(0, -rotationSpeed * Time.deltaTime, 0, Space.Self);
+            Pulley1.transform.Rotate(rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
+            Pulley2.transform.Rotate(rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
+            Shaft.transform.Rotate(rotationSpeed * Time.deltaTime, 0, 0, Space.Self);
         }
 
         

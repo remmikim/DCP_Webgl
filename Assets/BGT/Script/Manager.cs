@@ -59,32 +59,32 @@ public class Manager : MonoBehaviour
             int y0ToYF = data[0]; // Y0부터 YF까지의 비트 상태를 담은 워드 값
 
             // Y0 비트 추출 및 상태 변경 감지
-            bool newY0State = ((y0ToYF >> 0) & 1) == 1;
-            if (newY0State != currentY0State)
-            {
-                currentY0State = newY0State;
-                if (chainInstance) // Chain1 인스턴스 유효한지 확인
-                {
-                    if (currentY0State)
-                        chainInstance.ActivateChain();
-                    else
-                        chainInstance.DeactivateChain();
-                }
-            }
+            //bool newY0State = ((y0ToYF >> 0) & 1) == 1;
+            //if (newY0State != currentY0State)
+            //{
+            //    currentY0State = newY0State;
+            //    if (chainInstance) // Chain1 인스턴스 유효한지 확인
+            //    {
+            //        if (currentY0State)
+            //            chainInstance.ActivateChain();
+            //        else
+            //            chainInstance.DeactivateChain();
+            //    }
+            //}
 
             // Y1 비트 추출 및 상태 변경 감지
-            bool newY1State = ((y0ToYF >> 1) & 1) == 1;
-            if (newY1State != currentY1State)
-            {
-                currentY1State = newY1State;
-                if (chainInstance12) // Chain12 인스턴스 유효한지 확인
-                {
-                    if (currentY1State)
-                        chainInstance12.ActivateChain();
-                    else
-                        chainInstance12.DeactivateChain();
-                }
-            }
+            //bool newY1State = ((y0ToYF >> 1) & 1) == 1;
+            //if (newY1State != currentY1State)
+            //{
+            //    currentY1State = newY1State;
+            //    if (chainInstance12) // Chain12 인스턴스 유효한지 확인
+            //    {
+            //        if (currentY1State)
+            //            chainInstance12.ActivateChain();
+            //        else
+            //            chainInstance12.DeactivateChain();
+            //    }
+            //}
 
             // Y2 비트 추출 및 상태 변경 감지
             bool newY2State = ((y0ToYF >> 2) & 1) == 1;

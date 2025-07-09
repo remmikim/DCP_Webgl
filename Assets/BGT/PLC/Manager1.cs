@@ -15,6 +15,8 @@ public class Manager1 : MonoBehaviour
     private bool currentY5State;
     private bool currentY6State;
     private bool currentY7State;
+    private bool currentY8State;
+    private bool currentY9State;
 
     // 제어할 Unity 오브젝트 스크립트 참조 (인스펙터에서 할당)
     public Chain1 chainInstance;
@@ -22,6 +24,11 @@ public class Manager1 : MonoBehaviour
     public PipeHolders pipeHolders;
     public ZLiftTigger zLift;
     public Base2Down base2down;
+    public XGantry xGantry;
+
+
+
+
     // ManagerWrite 스크립트 참조 (인스펙터에서 할당)
     public ManagerWrite1 managerWrite;
 
@@ -65,9 +72,9 @@ public class Manager1 : MonoBehaviour
             if (parts.Length == 2 && int.TryParse(parts[1], out int y0ToYFValue))
             {
                 // Y0 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY0State, y0ToYFValue, 0, chainInstance != null ? chainInstance.ActivateChain : null, chainInstance != null ? chainInstance.DeactivateChain : null);
+                UpdateYStateBit(ref currentY0State, y0ToYFValue, 0, chainInstance12 != null ? chainInstance12.ActiveChainCW : null, chainInstance12 != null ? chainInstance12.DeActiveChainCW : null);
                 // Y1 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY1State, y0ToYFValue, 1, chainInstance12 != null ? chainInstance12.ActivateChain : null, chainInstance12 != null ? chainInstance12.DeactivateChain : null);
+                UpdateYStateBit(ref currentY1State, y0ToYFValue, 1, chainInstance12 != null ? chainInstance12.ActiveChainCCW : null, chainInstance12 != null ? chainInstance12.DeActiveChainCCW : null);
                 // Y2 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY2State, y0ToYFValue, 2, pipeHolders != null ? pipeHolders.ActivatePipeHoldersCW : null, pipeHolders != null ? pipeHolders.DeactivatePipeHoldersCW : null);
                 // Y3 비트 추출 및 상태 변경 감지
@@ -80,6 +87,10 @@ public class Manager1 : MonoBehaviour
                 UpdateYStateBit(ref currentY6State, y0ToYFValue, 6, base2down != null ? base2down.ActiveDown : null, base2down != null ? base2down.DeactiveDown : null);
                 // Y7 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY7State, y0ToYFValue, 7, base2down != null ? base2down.ActiveUp : null, base2down != null ? base2down.DeactiveUp : null);
+                // Y8 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentY8State, y0ToYFValue, 8, xGantry != null ? xGantry.ActivateXGantryMovingRight : null, xGantry != null ? xGantry.DeactivateXGantryMovingRight : null);
+                // Y9 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentY9State, y0ToYFValue, 9, xGantry != null ? xGantry.ActivateXGantryMovingLeft : null, xGantry != null ? xGantry.DeactivateXGantryMovingLeft : null);
             }
         }
         // 다른 유형의 PLC 데이터가 있다면 여기에 추가 파싱 로직 구현
