@@ -80,7 +80,7 @@
 >=> 성공하면 프롬프트의 맨 앞에 _(venv)_ 가 표시됨
 >
 >**5. 필요한 라이브러리 설치**
->`pip install Flask Flask-SockeyIO evnetlet`
+>`pip install Flask Flask-SocketIO evnetlet`
 
 
 ## ▶️ 실행 방법

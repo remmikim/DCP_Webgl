@@ -1,113 +1,236 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace JWK.Scripts
 {
     public class ExtinguisherDropSystem : MonoBehaviour
     {
-        [Header("È¸Àü ´ë»ó ¿ÀºêÁ§Æ® ÇÒ´ç")] [Tooltip("¾ÈÂÊ ·ÎÅÍ¸¦ ÇÒ´çÇØÁÖ¼¼¿ä.")]
+        [Header("íšŒì „ ë° íˆ¬í•˜ ëŒ€ìƒ")] [Tooltip("ì•ˆìª½ ë¡œí„°ì˜ Transformì„ í• ë‹¹í•˜ì„¸ìš”.")]
         public Transform rotaryIn;
-        [Tooltip("¹Ù±ùÂÊ ·ÎÅÍ¸¦ ÇÒ´çÇØÁÖ¼¼¿ä.")]
-        public Transform rotaryOut;
-        [Tooltip("È¸Àü ¾Ö´Ï¸ŞÀÌ¼ÇÀÇ ¼ÓµµÀÔ´Ï´Ù.")]
-        public float rotationSpeed = 90.0f; // ÃÊ´ç 90µµ È¸Àü
-        
-        private DroneController _droneController;
-        private bool isActionInProgress = false;
 
-        public float innerRotateAngle = 30.0f;
-        public float outerRotateAngle = 30.0f;
+        [Tooltip("ë°”ê¹¥ìª½ ë¡œí„°ì˜ Transformì„ í• ë‹¹í•˜ì„¸ìš”.")] public Transform rotaryOut;
+
+        [Tooltip("ë¶„ë¦¬í•  ëª¨ë“  í­íƒ„ ê²Œì„ ì˜¤ë¸Œì íŠ¸ë“¤ì„ ìˆœì„œëŒ€ë¡œ í• ë‹¹í•˜ì„¸ìš”.")]
+        public List<GameObject> bombList; // Bomb_1, Bomb_2, ... ìˆœì„œë¡œ í• ë‹¹
+
+        [Header("ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •")] [Tooltip("ë¡œí„°ê°€ íšŒì „í•˜ëŠ” ì†ë„ì…ë‹ˆë‹¤ (ë„/ì´ˆ).")]
+        public float rotationSpeed = 180.0f;
+
+        [Tooltip("ê° í–‰ë™ ì‚¬ì´ì˜ ëŒ€ê¸° ì‹œê°„ì…ë‹ˆë‹¤ (ì´ˆ).")] public float delayBetweenActions = 2.0f;
+
+        // --- ë‚´ë¶€ ë³€ìˆ˜ ---
+        private DroneController _droneController;
+        private bool isActionInProgress = false; // í˜„ì¬ ì•¡ì…˜ì´ ì§„í–‰ ì¤‘ì¸ì§€ í™•ì¸í•˜ëŠ” í”Œë˜ê·¸
 
         void Start()
         {
-            _droneController = GetComponent<DroneController>();
+            // ì´ ìŠ¤í¬ë¦½íŠ¸ì˜ ë¶€ëª¨ ê³„ì¸µì—ì„œ DroneController ì»´í¬ë„ŒíŠ¸ë¥¼ ìë™ìœ¼ë¡œ ì°¾ì•„ í• ë‹¹í•©ë‹ˆë‹¤.
+            _droneController = GetComponentInParent<DroneController>();
 
             if (!_droneController)
-            {
-                Debug.LogError("ºÎ¸ğ ¿ÀºêÁ§Æ®¿¡¼­ DroneController¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
-                StartCoroutine(DropSequenceCouroutine());
-            }
+                Debug.LogError("ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì—ì„œ DroneControllerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+        }
 
+        /// <summary>
+        /// DroneControllerì—ì„œ í˜¸ì¶œí•  ë©”ì¸ í•¨ìˆ˜ì…ë‹ˆë‹¤.
+        /// ë“œë¡ ì´ ë„ì°©í–ˆëŠ”ì§€ í™•ì¸í•˜ê³ , ì „ì²´ íˆ¬í•˜ ì‹œí€€ìŠ¤ ì½”ë£¨í‹´ì„ ì‹œì‘í•©ë‹ˆë‹¤.
+        /// </summary>
+        public IEnumerator PlayDropExtinguishBomb()
+        {
+            // DroneControllerê°€ ì—°ê²°ë˜ì–´ ìˆê³ , ë“œë¡ ì´ ëª©í‘œì— ë„ì°©í–ˆìœ¼ë©°, ë‹¤ë¥¸ ì•¡ì…˜ì´ ì§„í–‰ ì¤‘ì´ ì•„ë‹ ë•Œë§Œ ì‹¤í–‰
+            if (_droneController && _droneController.isArrived && !isActionInProgress)
+            {
+                Debug.Log("ë“œë¡  ë„ì°© í™•ì¸! ì†Œí™”íƒ„ íˆ¬í•˜ ì‹œí€€ìŠ¤ë¥¼ ì‹œì‘í•©ë‹ˆë‹¤.");
+                yield return StartCoroutine(FullDropSequenceCoroutine());
+            }
             else
             {
-                if (!_droneController)
-                    Debug.LogWarning("DroneController°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
-
-                if (_droneController && !_droneController.isArrived)
-                    Debug.LogWarning("µå·ĞÀÌ ¾ÆÁ÷ È­Àç Æ÷ÀÎÆ®¿¡ µµÂøÇÏÁö ¾Ê¾Ò½À´Ï´Ù.");
-
-                if (isActionInProgress)
-                    Debug.LogWarning("ÀÌ¹Ì ´Ù¸¥ ÅõÇÏ ½ÃÄö½º°¡ ÁøÇà ÁßÀÔ´Ï´Ù.");
+                if (!_droneController) Debug.LogWarning("DroneControllerê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
+                if (_droneController && !_droneController.isArrived) Debug.LogWarning("ë“œë¡ ì´ ì•„ì§ ëª©í‘œ ì§€ì ì— ë„ì°©í•˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
+                if (isActionInProgress) Debug.LogWarning("ì´ë¯¸ ë‹¤ë¥¸ íˆ¬í•˜ ì•¡ì…˜ì´ ì§„í–‰ ì¤‘ì…ë‹ˆë‹¤.");
             }
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
-        /// DroneController¿¡¼­ È£ÃâÇÒ ÇÔ¼ö
-        /// µå·ĞÀÌ È­Àç Æ÷ÀÎÆ®¿¡ µµÂøÇÏ¸é, È¸Àü ¹× ÅõÇÏ ÄÚ·çÆ¾À» ½ÃÀÛÇÔ.
+        /// ìš”ì²­í•˜ì‹  ëª¨ë“  íˆ¬í•˜ ë° íšŒì „ ìˆœì„œë¥¼ ê´€ë¦¬í•˜ëŠ” ë©”ì¸ ì½”ë£¨í‹´ì…ë‹ˆë‹¤.
         /// </summary>
-        public void PlayDropExtinguishBomb()
+        private IEnumerator FullDropSequenceCoroutine()
         {
-            if (!_droneController && _droneController.isArrived && !isActionInProgress)
-                _droneController.isArrived = false;
+            isActionInProgress = true; // ì•¡ì…˜ ì‹œì‘ í”Œë˜ê·¸
+
+            // --- 1. Bomb_1 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            Debug.Log("Step 1: Bomb_1 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f)); // Rotary_Out ì‹œê³„ ë°©í–¥ 45ë„ íšŒì „
+            DetachBombByIndex(0); // ì²« ë²ˆì§¸ í­íƒ„ (Bomb_1) íˆ¬í•˜
+
+            // --- 2. Bomb_2 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 2: Bomb_2 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f)); // Rotary_Out ì‹œê³„ ë°©í–¥ -45ë„ íšŒì „ (ì›ìœ„ì¹˜ ë³µê·€ì™€ ìœ ì‚¬)
+            DetachBombByIndex(1); // ë‘ ë²ˆì§¸ í­íƒ„ (Bomb_2) íˆ¬í•˜
+
+            // --- 3. ì¬ì¥ì „ íšŒì „ 1 ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 3: ì¬ì¥ì „ íšŒì „ 1.");
+            yield return
+                StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f)); // Out ë°˜ì‹œê³„ 90ë„, In ì‹œê³„ 30ë„
+
+            // --- 4. Bomb_3 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 4: Bomb_3 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
+            DetachBombByIndex(2);
+
+            // --- 5. Bomb_4 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 5: Bomb_4 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
+            DetachBombByIndex(3);
+
+            // --- 6. ì¬ì¥ì „ íšŒì „ 2 ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 6: ì¬ì¥ì „ íšŒì „ 2.");
+            yield return StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f));
+
+            // --- 7. Bomb_5 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 7: Bomb_5 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
+            DetachBombByIndex(4);
+
+            // --- 8. Bomb_6 íˆ¬í•˜ ì‹œí€€ìŠ¤ ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 8: Bomb_6 íˆ¬í•˜ ì¤€ë¹„.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
+            DetachBombByIndex(5);
+
+            // --- 9. ì¬ì¥ì „ íšŒì „ 3 (ë§ˆì§€ë§‰) ---
+            yield return new WaitForSeconds(delayBetweenActions);
+            Debug.Log("Step 9: ë§ˆì§€ë§‰ ì¬ì¥ì „ íšŒì „.");
+            yield return StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f));
+
+            // --- 10. ì„ë¬´ ì™„ë£Œ ---
+            Debug.Log("ëª¨ë“  ì†Œí™”íƒ„ íˆ¬í•˜ ë° ì¬ì¥ì „ ì‹œí€€ìŠ¤ ì™„ë£Œ.");
+            isActionInProgress = false; // ì•¡ì…˜ ì™„ë£Œ í”Œë˜ê·¸
         }
 
         /// <summary>
-        /// ·ÎÅÍ È¸Àü ¹× ÆøÅº ÅõÇÏ¸¦ ¼øÂ÷ÀûÀ¸·Î ÁøÇàÇÏ´Â ÄÚ·çÆ¾
+        /// ì§€ì •ëœ ì¸ë±ìŠ¤ì˜ í­íƒ„ì„ ì°¾ì•„ ë¶„ë¦¬(Joint í•´ì œ)í•©ë‹ˆë‹¤.
         /// </summary>
-        private IEnumerator DropSequenceCouroutine()
+        private void DetachBombByIndex(int index)
         {
-            isActionInProgress = true;
-            Debug.Log("·ÎÅÍ¸¦ È¸Àü½ÃÅµ´Ï´Ù....");
-            
-            Quaternion initialRotIn = rotaryIn.localRotation;
-            Quaternion initialRotOut = rotaryOut.localRotation;
-            
-            // ¸ñÇ¥ È¸Àü°ª °è»ê (¼­·Î ¹İ´ë ¹æÇâÀ¸·Î È¸Àü)
-            Quaternion targetRotIn = initialRotIn * Quaternion.Euler(0, innerRotateAngle, 0); // YÃà ±âÁØ
-            Quaternion targetRotOut = initialRotOut * Quaternion.Euler(0, -outerRotateAngle, 0); // YÃà ±âÁØ, ¹İ´ë ¹æÇâ
+            if (bombList == null || index < 0 || index >= bombList.Count)
+            {
+                Debug.LogError($"ì˜ëª»ëœ í­íƒ„ ì¸ë±ìŠ¤({index})ì…ë‹ˆë‹¤.");
+                return;
+            }
 
+            GameObject bombToDrop = bombList[index];
+
+            if (bombToDrop)
+            {
+                FixedJoint joint = bombToDrop.GetComponent<FixedJoint>();
+
+                if (joint)
+                {
+                    Destroy(joint);
+                    Debug.Log($"'{bombToDrop.name}' í­íƒ„ì˜ FixedJointê°€ ì„±ê³µì ìœ¼ë¡œ í•´ì œë˜ì—ˆìŠµë‹ˆë‹¤.");
+
+                    bombToDrop.transform.SetParent(null);
+
+                    StartCoroutine(RotateBombToGround(bombToDrop));
+                }
+
+                else
+                    Debug.LogWarning($"'{bombToDrop.name}' í­íƒ„ì— FixedJoint ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤.");
+            }
+            else
+                Debug.LogWarning($"bombListì˜ {index}ë²ˆì§¸ ìš”ì†Œê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤.");
+        }
+
+        #region ë‹¨ì¼ ë¡œí„°ë¥¼ ì§€ì •ëœ ê°ë„ë§Œí¼ íšŒì „ì‹œí‚¤ëŠ” ì½”ë£¨í‹´
+
+        private IEnumerator RotateRotor(Transform rotor, float angle)
+        {
+            Quaternion startRot = rotor.localRotation;
+            Quaternion targetRot = startRot * Quaternion.Euler(angle, 0, 0); // Zì¶• ê¸°ì¤€ íšŒì „
+            float duration = Mathf.Abs(angle) / rotationSpeed;
             float elapsedTime = 0f;
-            // ´õ Å« °¢µµ¸¦ ±âÁØÀ¸·Î È¸Àü ½Ã°£À» °è»êÇÏ¿© µ¿½Ã¿¡ ³¡³ªµµ·Ï ÇÔ
-            float rotationDuration = Mathf.Max(Mathf.Abs(innerRotateAngle), Mathf.Abs(outerRotateAngle)) / rotationSpeed;
 
-            while (elapsedTime < rotationDuration)
+            while (elapsedTime < duration)
             {
-                // ½Ã°£¿¡ µû¶ó ºÎµå·´°Ô È¸Àü (Slerp »ç¿ë)
-                rotaryIn.localRotation = Quaternion.Slerp(initialRotIn, targetRotIn, elapsedTime / rotationDuration);
-                rotaryOut.localRotation = Quaternion.Slerp(initialRotOut, targetRotOut, elapsedTime / rotationDuration);
-
-                elapsedTime += Time.deltaTime;
-                yield return null; // ´ÙÀ½ ÇÁ·¹ÀÓ±îÁö ´ë±â
-            }
-
-            // ¿ÀÂ÷ º¸Á¤À» À§ÇØ ÃÖÁ¾ È¸Àü°ªÀ» Á¤È®ÇÏ°Ô ¼³Á¤
-            rotaryIn.localRotation = targetRotIn;
-            rotaryOut.localRotation = targetRotOut;
-            Debug.Log("·ÎÅÍ È¸Àü ¿Ï·á.");
-            
-            // --- 2. (¿©±â¿¡ ÆøÅº ÅõÇÏ ·ÎÁ÷ Ãß°¡) ---
-            // ¿¹: yield return new WaitForSeconds(0.5f); // È¸Àü ÈÄ Àá½Ã ´ë±â
-            //     _droneController.InstantiateBomb(); // DroneController¿¡ ÆøÅº »ı¼º ÇÔ¼ö¸¦ ¸¸µé°í È£Ãâ
-
-            // --- 3. (¼±ÅÃÀû) ·ÎÅÍ ¿øÀ§Ä¡ º¹±Í ---
-            yield return new WaitForSeconds(1.0f); // ÅõÇÏ ÈÄ Àá½Ã ´ë±â
-            Debug.Log("·ÎÅÍ¸¦ ¿øÀ§Ä¡·Î º¹±Í½ÃÅµ´Ï´Ù.");
-            
-            elapsedTime = 0f; // ½Ã°£ ÃÊ±âÈ­
-            while (elapsedTime < rotationDuration)
-            {
-                rotaryIn.localRotation = Quaternion.Slerp(targetRotIn, initialRotIn, elapsedTime / rotationDuration);
-                rotaryOut.localRotation = Quaternion.Slerp(targetRotOut, initialRotOut, elapsedTime / rotationDuration);
-
+                rotor.localRotation = Quaternion.Slerp(startRot, targetRot, elapsedTime / duration);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            rotaryIn.localRotation = initialRotIn;
-            rotaryOut.localRotation = initialRotOut;
 
-            isActionInProgress = false; // ¾×¼Ç ¿Ï·á
-            Debug.Log("¼ÒÈ­Åº ÅõÇÏ ½ÃÄö½º ÀüÃ¼ ¿Ï·á.");
+            rotor.localRotation = targetRot; // ìµœì¢… ìœ„ì¹˜ ë³´ì •
         }
+
+        #endregion
+
+        #region ë‘ ê°œì˜ ë¡œí„°ë¥¼ ë™ì‹œì— ë‹¤ë¥¸ ê°ë„ë¡œ íšŒì „ì‹œí‚¤ëŠ” ì½”ë£¨í‹´
+
+        private IEnumerator RotateRotorsSimultaneously(Transform rotor1, float angle1, Transform rotor2, float angle2)
+        {
+            Quaternion startRot1 = rotor1.localRotation;
+            Quaternion targetRot1 = startRot1 * Quaternion.Euler(angle1, 0, 0);
+
+            Quaternion startRot2 = rotor2.localRotation;
+            Quaternion targetRot2 = startRot2 * Quaternion.Euler(angle2, 0, 0);
+
+            // ë‘ íšŒì „ ì¤‘ ë” ì˜¤ë˜ ê±¸ë¦¬ëŠ” ì‹œê°„ì„ ê¸°ì¤€ìœ¼ë¡œ duration ì„¤ì •
+            float duration1 = Mathf.Abs(angle1) / rotationSpeed;
+            float duration2 = Mathf.Abs(angle2) / rotationSpeed;
+            float maxDuration = Mathf.Max(duration1, duration2);
+            float elapsedTime = 0f;
+
+            while (elapsedTime < maxDuration)
+            {
+                rotor1.localRotation = Quaternion.Slerp(startRot1, targetRot1, elapsedTime / maxDuration);
+                rotor2.localRotation = Quaternion.Slerp(startRot2, targetRot2, elapsedTime / maxDuration);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            rotor1.localRotation = targetRot1;
+            rotor2.localRotation = targetRot2;
+        }
+
+        #endregion
+
+        #region í­íƒ„ì´ ë–¨ì–´ì§€ë©° íƒ„ë‘ê°€ ì„œì„œíˆ ë°”ë‹¥ì„ ë°”ë¼ë³´ê²Œ íšŒì „ ì‹œí‚¤ëŠ” ì½”ë£¨í‹´
+
+        private IEnumerator RotateBombToGround(GameObject bomb)
+        {
+            if (!bomb)
+                yield break;
+
+            
+            yield return new WaitForSeconds(1.0f);
+            float rotationDuration = 2.0f; // íšŒì „ì— ê±¸ë¦¬ëŠ” ì‹œê°„
+            float elapsedTime = 0f;
+
+            Quaternion startRotation = bomb.transform.rotation;
+            Quaternion targetRotation = Quaternion.LookRotation(Vector3.down);
+
+            while (elapsedTime < rotationDuration)
+            {
+                if (!bomb)
+                    yield break;
+
+                bomb.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsedTime / rotationDuration);
+                
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            bomb.transform.rotation = targetRotation;
+        }
+
+        #endregion
     }
 }
