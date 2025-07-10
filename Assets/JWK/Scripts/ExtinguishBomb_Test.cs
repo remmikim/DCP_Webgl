@@ -8,12 +8,9 @@ public class ExtinguishBomb : MonoBehaviour
     [Tooltip("분리할 모든 폭탄 게임 오브젝트들을 여기에 할당하세요.")]
     public List<GameObject> bombList; // Inspector에서 모든 폭탄 오브젝트를 할당
 
-    // ReSharper disable Unity.PerformanceAnalysis
-    /// <summary>
-    /// 지정된 이름의 폭탄을 찾아 분리(Joint 해제)합니다.
-    /// 이 함수는 DroneController 같은 다른 스크립트에서 호출됩니다.
-    /// </summary>
-    /// <param name="bombName">분리할 폭탄 게임 오브젝트의 이름</param>
+    #region
+    // 지정된 이름의 폭탄을 찾아 분리(Joint 해제)합니다.
+    // 이 함수는 DroneController 같은 다른 스크립트에서 호출됩니다.
     public void DetachBombByName(string bombName)
     {
         // bombList에서 이름이 일치하는 첫 번째 GameObject를 찾습니다.
@@ -41,11 +38,13 @@ public class ExtinguishBomb : MonoBehaviour
         else
             Debug.LogWarning($"리스트에서 '{bombName}' 이름의 폭탄을 찾을 수 없습니다.");
     }
+    #endregion
 
     // --- 테스트용 예시 ---
     // 실제로는 DroneController의 PerformActionCoroutine에서 호출하게 됩니다.
     void Update()
     {
+        /*
         #region 1, 2, 3, 4, 5, 6 을 눌러서 폭탄 드랍
         // '1' 키를 누르면 "Bomb_1-1"을 투하 시도
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -71,9 +70,15 @@ public class ExtinguishBomb : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha6))
             DetachBombByName("Bomb_6");
         #endregion
+        */
     }
 
     public void DestroyFIxedJoint()
     {
+        for (var i = 1; i < 6; i++)
+        {
+            DetachBombByName($"Bomb_{i}");
+            
+        }
     }
 }

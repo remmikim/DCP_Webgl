@@ -154,6 +154,7 @@ namespace JWK.Scripts
         #endregion
 
         #region 드론 임무 및 상태 관리 (Drone Mission & State Logic)
+        // ReSharper disable Unity.PerformanceAnalysis
         void RunStateMachine()
         {
             switch (currentMissionState)
@@ -227,6 +228,7 @@ namespace JWK.Scripts
         #region 화재 포인트 도착 후 행동 로직
     
         // 화재 포인트 도착 후 행동 로직
+        // ReSharper disable Unity.PerformanceAnalysis
         IEnumerator PerformActionCoroutine()
         {
             yield return new WaitForSeconds(preActionStabilizationTime);
@@ -235,25 +237,32 @@ namespace JWK.Scripts
             if (currentPayload == PayloadType.FireExtinguishingBomb)
             {
                 isArrived = true;
-                if(!extinguisherDropSystem)
-                    extinguisherDropSystem.PlayDropExtinguishBomb();
-            
-                /*
-            테스트용 소화탄 생성 및 투하
-            int bombsToDrop = Mathf.Min(fireScaleBombCount, currentBombLoad);
-            for (int i = 0; i < bombsToDrop; i++)
-            {
-                if (bombPrefab)
-                {
-                    Instantiate(bombPrefab, transform.TransformPoint(bombSpawnOffset), Quaternion.identity);
-                    currentBombLoad--;
-                }
                 
-                if (i < bombsToDrop - 1) 
-                    yield return new WaitForSeconds(bombDropInterval);
-            }
-            */
-                Debug.Log($"[Mission] Performing action for payload: {currentPayload}.");
+                if(!extinguisherDropSystem)
+                    Debug.LogWarning("extinguisherDropSystem is NULL!!!!!!!");
+
+                /*
+                테스트용 소화탄 생성 및 투하
+                int bombsToDrop = Mathf.Min(fireScaleBombCount, currentBombLoad);
+                for (int i = 0; i < bombsToDrop; i++)
+                {
+                    if (bombPrefab)
+                    {
+                        Instantiate(bombPrefab, transform.TransformPoint(bombSpawnOffset), Quaternion.identity);
+                        currentBombLoad--;
+                    }
+
+                    if (i < bombsToDrop - 1)
+                        yield return new WaitForSeconds(bombDropInterval);
+                }
+                */
+
+                else
+                {
+                    yield return StartCoroutine(extinguisherDropSystem.PlayDropExtinguishBomb());
+                    Debug.Log($"[Mission] Performing action for payload: {currentPayload}.");
+                    
+                }
             
             }
         
