@@ -12,6 +12,7 @@ public class Base2Down : MonoBehaviour
     public PinMove8 pinmove2;
     public PinMove8 pinmove8;
     public PinMove8 Movingempty;
+    
 
     private Vector3 StartPosition;  
     private Vector3 TargetPosition;
@@ -43,6 +44,7 @@ public class Base2Down : MonoBehaviour
         beamup1.ActiveDown(); beamup2.ActiveDown();
         pinmove2.ActiveForward(); pinmove8.ActiveForward();
         Movingempty.ActiveForward();
+     
     }
     public void DeactiveDown()
     {
@@ -51,6 +53,7 @@ public class Base2Down : MonoBehaviour
         beamup1.DeactiveDown(); beamup2.DeactiveDown();
         pinmove2.DeactiveForward(); pinmove8.DeactiveForward();
         Movingempty.DeactiveForward();
+     
     }
     public void ActiveUp()
     {
@@ -62,6 +65,7 @@ public class Base2Down : MonoBehaviour
         beamup1.ActiveUp(); beamup2.ActiveUp();
         pinmove2.ActiveForward(); pinmove8.ActiveForward();
         Movingempty.ActiveForward();
+      
     }
     public void DeactiveUp()
     {
@@ -70,5 +74,6 @@ public class Base2Down : MonoBehaviour
         beamup1.DeactiveUp(); beamup2.DeactiveUp();
         pinmove2.DeactiveForward(); pinmove8.DeactiveForward();
         Movingempty.DeactiveForward();
+    
     }
 }

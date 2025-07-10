@@ -7,7 +7,6 @@ public class PipeHolders : MonoBehaviour
     public GameObject PipeHolder2;
     public GameObject PipeHolder3;
     public GameObject PipeHolder4;
-    public Transform base2Down;
 
     public Screw screwControl;
 
@@ -30,6 +29,10 @@ public class PipeHolders : MonoBehaviour
     private bool isPipeHoldersCW = false;
     private bool isPipeHoldersCCW = false;
 
+    private float initialLocalY1;
+    private float initialLocalY2;
+    private float initialLocalY3;
+    private float initialLocalY4;
     void Start()
     {
         //if (PipeHolder1 != null && PipeHolder1.GetComponent<Rigidbody>() != null)
@@ -103,16 +106,16 @@ public class PipeHolders : MonoBehaviour
         screwControl.ActivateScrewCW();
         // PipeHolder1 설정
         PH1StartPosition = PipeHolder1.transform.position;
-        PH1TargetPosition = PH1StartPosition + new Vector3(0, -base2Down.transform.position.y, -MoveAmountY);
+        PH1TargetPosition = PH1StartPosition + new Vector3(0, 0, -MoveAmountY);
         // PipeHolder2 설정
         PH2StartPosition = PipeHolder2.transform.position;
-        PH2TargetPosition = PH2StartPosition + new Vector3(0, -base2Down.transform.position.y, MoveAmountY);
+        PH2TargetPosition = PH2StartPosition + new Vector3(0, 0, MoveAmountY);
         // PipeHolder3 설정
         PH3StartPosition = PipeHolder3.transform.position;
-        PH3TargetPosition = PH3StartPosition + new Vector3(MoveAmountY, -base2Down.transform.position.y, 0);
+        PH3TargetPosition = PH3StartPosition + new Vector3(MoveAmountY, 0, 0);
         // PipeHolder4 설정
         PH4StartPosition = PipeHolder4.transform.position;
-        PH4TargetPosition = PH4StartPosition + new Vector3(-MoveAmountY, -base2Down.transform.position.y, 0);
+        PH4TargetPosition = PH4StartPosition + new Vector3(-MoveAmountY, 0, 0);
     }
 
     public void DeactivatePipeHoldersCW()
