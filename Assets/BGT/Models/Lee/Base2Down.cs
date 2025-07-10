@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Base2Down : MonoBehaviour
 {
-    private float MoveSpeed = 0.14f;
-    private float MoveAmountY = -0.6f;
+    //private float MoveSpeed = 0.114f;
+    private float MoveAmountY = -1.1f;
 
     public BeamDown beamdown1;
     public BeamDown beamdown2;
@@ -26,11 +26,11 @@ public class Base2Down : MonoBehaviour
     {
         if(isActiveDown && !isActiveUp)
         {
-            transform.position = Vector3.MoveTowards(transform.position,TargetPosition, MoveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position,TargetPosition, 0.11f * Time.deltaTime);
         }
         if(isActiveUp && !isActiveDown)
         {
-            transform.position = Vector3.MoveTowards(transform.position, TargetPosition, MoveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, TargetPosition, 0.128f * Time.deltaTime);
         }
     }
     public void ActiveDown()
@@ -60,11 +60,15 @@ public class Base2Down : MonoBehaviour
         TargetPosition = StartPosition + new Vector3(0, -MoveAmountY, 0);
         beamdown1.ActiveUp(); beamdown2.ActiveUp();
         beamup1.ActiveUp(); beamup2.ActiveUp();
+        pinmove2.ActiveForward(); pinmove8.ActiveForward();
+        Movingempty.ActiveForward();
     }
     public void DeactiveUp()
     {
         isActiveUp = false;
         beamdown1.DeactiveUp(); beamdown2.DeactiveUp();
         beamup1.DeactiveUp(); beamup2.DeactiveUp();
+        pinmove2.DeactiveForward(); pinmove8.DeactiveForward();
+        Movingempty.DeactiveForward();
     }
 }

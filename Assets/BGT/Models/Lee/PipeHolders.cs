@@ -31,22 +31,22 @@ public class PipeHolders : MonoBehaviour
 
     void Start()
     {
-        if (PipeHolder1 != null && PipeHolder1.GetComponent<Rigidbody>() != null)
-        {
-            PipeHolder1.GetComponent<Rigidbody>().isKinematic = true;
-        }
-        if (PipeHolder2 != null && PipeHolder2.GetComponent<Rigidbody>() != null)
-        {
-            PipeHolder2.GetComponent<Rigidbody>().isKinematic = true;
-        }
-        if (PipeHolder3 != null && PipeHolder3.GetComponent<Rigidbody>() != null)
-        {
-            PipeHolder3.GetComponent<Rigidbody>().isKinematic = true;
-        }
-        if (PipeHolder4 != null && PipeHolder4.GetComponent<Rigidbody>() != null)
-        {
-            PipeHolder4.GetComponent<Rigidbody>().isKinematic = true;
-        }
+        //if (PipeHolder1 != null && PipeHolder1.GetComponent<Rigidbody>() != null)
+        //{
+        //    PipeHolder1.GetComponent<Rigidbody>().isKinematic = true;
+        //}
+        //if (PipeHolder2 != null && PipeHolder2.GetComponent<Rigidbody>() != null)
+        //{
+        //    PipeHolder2.GetComponent<Rigidbody>().isKinematic = true;
+        //}
+        //if (PipeHolder3 != null && PipeHolder3.GetComponent<Rigidbody>() != null)
+        //{
+        //    PipeHolder3.GetComponent<Rigidbody>().isKinematic = true;
+        //}
+        //if (PipeHolder4 != null && PipeHolder4.GetComponent<Rigidbody>() != null)
+        //{
+        //    PipeHolder4.GetComponent<Rigidbody>().isKinematic = true;
+        //}
     }
 
     // Update is called once per frame
@@ -99,7 +99,7 @@ public class PipeHolders : MonoBehaviour
     {
         if (isPipeHoldersCW || isPipeHoldersCCW) return;
         isPipeHoldersCW = true;
-        screwControl.ActivateScrew();
+        screwControl.ActivateScrewCW();
         // PipeHolder1 설정
         PH1StartPosition = PipeHolder1.transform.position;
         PH1TargetPosition = PH1StartPosition + new Vector3(0, 0, -MoveAmountY);
@@ -117,14 +117,14 @@ public class PipeHolders : MonoBehaviour
     public void DeactivatePipeHoldersCW()
     {
         isPipeHoldersCW = false;
-        screwControl.DeactivateScrew();
+        screwControl.DeactivateScrewCW();
     }
 
     public void ActivatePipeHoldersCCW()
     {
         if (isPipeHoldersCW || isPipeHoldersCCW) return;
         isPipeHoldersCCW = true;
-        screwControl.ActivateScrew();
+        screwControl.ActivateScrewCCW();
         // PipeHolder1 설정
         PH1StartPosition = PipeHolder1.transform.position;
         PH1TargetPosition = PH1StartPosition + new Vector3(0, 0, MoveAmountY);
@@ -142,6 +142,6 @@ public class PipeHolders : MonoBehaviour
     public void DeactivatePipeHoldersCCW()
     {
         isPipeHoldersCCW = false;
-        screwControl.DeactivateScrew();
+        screwControl.DeactivateScrewCCW();
     }
 }
