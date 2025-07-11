@@ -29,28 +29,25 @@ public class PipeHolders : MonoBehaviour
     private bool isPipeHoldersCW = false;
     private bool isPipeHoldersCCW = false;
 
-    private float initialLocalY1;
-    private float initialLocalY2;
-    private float initialLocalY3;
-    private float initialLocalY4;
+    
     void Start()
     {
-        //if (PipeHolder1 != null && PipeHolder1.GetComponent<Rigidbody>() != null)
-        //{
-        //    PipeHolder1.GetComponent<Rigidbody>().isKinematic = true;
-        //}
-        //if (PipeHolder2 != null && PipeHolder2.GetComponent<Rigidbody>() != null)
-        //{
-        //    PipeHolder2.GetComponent<Rigidbody>().isKinematic = true;
-        //}
-        //if (PipeHolder3 != null && PipeHolder3.GetComponent<Rigidbody>() != null)
-        //{
-        //    PipeHolder3.GetComponent<Rigidbody>().isKinematic = true;
-        //}
-        //if (PipeHolder4 != null && PipeHolder4.GetComponent<Rigidbody>() != null)
-        //{
-        //    PipeHolder4.GetComponent<Rigidbody>().isKinematic = true;
-        //}
+        if (PipeHolder1 != null && PipeHolder1.GetComponent<Rigidbody>() != null)
+        {
+            PipeHolder1.GetComponent<Rigidbody>().isKinematic = true;
+        }
+        if (PipeHolder2 != null && PipeHolder2.GetComponent<Rigidbody>() != null)
+        {
+            PipeHolder2.GetComponent<Rigidbody>().isKinematic = true;
+        }
+        if (PipeHolder3 != null && PipeHolder3.GetComponent<Rigidbody>() != null)
+        {
+            PipeHolder3.GetComponent<Rigidbody>().isKinematic = true;
+        }
+        if (PipeHolder4 != null && PipeHolder4.GetComponent<Rigidbody>() != null)
+        {
+            PipeHolder4.GetComponent<Rigidbody>().isKinematic = true;
+        }
     }
 
     // Update is called once per frame
@@ -61,19 +58,19 @@ public class PipeHolders : MonoBehaviour
             // 각 PipeHolder의 위치를 보간
             if (PipeHolder1 != null)
             {
-                PipeHolder1.transform.position = Vector3.MoveTowards(PipeHolder1.transform.position, PH1TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder1.transform.localPosition = Vector3.MoveTowards(PipeHolder1.transform.localPosition, PH1TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder2 != null)
             {
-                PipeHolder2.transform.position = Vector3.MoveTowards(PipeHolder2.transform.position, PH2TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder2.transform.localPosition = Vector3.MoveTowards(PipeHolder2.transform.localPosition, PH2TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder3 != null)
             {
-                PipeHolder3.transform.position = Vector3.MoveTowards(PipeHolder3.transform.position, PH3TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder3.transform.localPosition = Vector3.MoveTowards(PipeHolder3.transform.localPosition, PH3TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder4 != null)
             {
-                PipeHolder4.transform.position = Vector3.MoveTowards(PipeHolder4.transform.position, PH4TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder4.transform.localPosition = Vector3.MoveTowards(PipeHolder4.transform.localPosition, PH4TargetPosition, MoveSpeed * Time.deltaTime);
             }
         }
 
@@ -82,19 +79,19 @@ public class PipeHolders : MonoBehaviour
             // 각 PipeHolder의 위치를 보간
             if (PipeHolder1 != null)
             {
-                PipeHolder1.transform.position = Vector3.MoveTowards(PipeHolder1.transform.position, PH1TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder1.transform.localPosition = Vector3.MoveTowards(PipeHolder1.transform.localPosition, PH1TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder2 != null)
             {
-                PipeHolder2.transform.position = Vector3.MoveTowards(PipeHolder2.transform.position, PH2TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder2.transform.localPosition = Vector3.MoveTowards(PipeHolder2.transform.localPosition, PH2TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder3 != null)
             {
-                PipeHolder3.transform.position = Vector3.MoveTowards(PipeHolder3.transform.position, PH3TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder3.transform.localPosition = Vector3.MoveTowards(PipeHolder3.transform.localPosition, PH3TargetPosition, MoveSpeed * Time.deltaTime);
             }
             if (PipeHolder4 != null)
             {
-                PipeHolder4.transform.position = Vector3.MoveTowards(PipeHolder4.transform.position, PH4TargetPosition, MoveSpeed * Time.deltaTime);
+                PipeHolder4.transform.localPosition = Vector3.MoveTowards(PipeHolder4.transform.localPosition, PH4TargetPosition, MoveSpeed * Time.deltaTime);
             }
         }
     }
@@ -105,16 +102,16 @@ public class PipeHolders : MonoBehaviour
         isPipeHoldersCW = true;
         screwControl.ActivateScrewCW();
         // PipeHolder1 설정
-        PH1StartPosition = PipeHolder1.transform.position;
-        PH1TargetPosition = PH1StartPosition + new Vector3(0, 0, -MoveAmountY);
+        PH1StartPosition = PipeHolder1.transform.localPosition;
+        PH1TargetPosition = PH1StartPosition + new Vector3(0, MoveAmountY, 0);
         // PipeHolder2 설정
-        PH2StartPosition = PipeHolder2.transform.position;
-        PH2TargetPosition = PH2StartPosition + new Vector3(0, 0, MoveAmountY);
+        PH2StartPosition = PipeHolder2.transform.localPosition;
+        PH2TargetPosition = PH2StartPosition + new Vector3(0, -MoveAmountY, 0);
         // PipeHolder3 설정
-        PH3StartPosition = PipeHolder3.transform.position;
+        PH3StartPosition = PipeHolder3.transform.localPosition;
         PH3TargetPosition = PH3StartPosition + new Vector3(MoveAmountY, 0, 0);
         // PipeHolder4 설정
-        PH4StartPosition = PipeHolder4.transform.position;
+        PH4StartPosition = PipeHolder4.transform.localPosition;
         PH4TargetPosition = PH4StartPosition + new Vector3(-MoveAmountY, 0, 0);
     }
 
@@ -130,16 +127,16 @@ public class PipeHolders : MonoBehaviour
         isPipeHoldersCCW = true;
         screwControl.ActivateScrewCCW();
         // PipeHolder1 설정
-        PH1StartPosition = PipeHolder1.transform.position;
-        PH1TargetPosition = PH1StartPosition + new Vector3(0, 0, MoveAmountY);
+        PH1StartPosition = PipeHolder1.transform.localPosition;
+        PH1TargetPosition = PH1StartPosition + new Vector3(0, -MoveAmountY, 0);
         // PipeHolder2 설정
-        PH2StartPosition = PipeHolder2.transform.position;
-        PH2TargetPosition = PH2StartPosition + new Vector3(0, 0, -MoveAmountY);
+        PH2StartPosition = PipeHolder2.transform.localPosition;
+        PH2TargetPosition = PH2StartPosition + new Vector3(0, MoveAmountY, 0);
         // PipeHolder3 설정
-        PH3StartPosition = PipeHolder3.transform.position;
+        PH3StartPosition = PipeHolder3.transform.localPosition;
         PH3TargetPosition = PH3StartPosition + new Vector3(-MoveAmountY, 0, 0);
         // PipeHolder4 설정
-        PH4StartPosition = PipeHolder4.transform.position;
+        PH4StartPosition = PipeHolder4.transform.localPosition;
         PH4TargetPosition = PH4StartPosition + new Vector3(MoveAmountY, 0, 0);
     }
 
