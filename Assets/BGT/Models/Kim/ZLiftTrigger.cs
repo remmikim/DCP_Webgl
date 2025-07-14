@@ -45,11 +45,11 @@ public class ZLiftTigger : MonoBehaviour
         {
             if (LiftWeight != null)
             {
-                LiftWeight.transform.position = Vector3.MoveTowards(LiftWeight.transform.position, LWTargetPosition, moveSpeed * Time.deltaTime);
+                LiftWeight.transform.localPosition = Vector3.MoveTowards(LiftWeight.transform.localPosition, LWTargetPosition, moveSpeed * Time.deltaTime);
             }
             if (CarriageFrame != null)
             {
-                CarriageFrame.transform.position = Vector3.MoveTowards(CarriageFrame.transform.position, CFTargetPosition, moveSpeed * Time.deltaTime);
+                CarriageFrame.transform.localPosition = Vector3.MoveTowards(CarriageFrame.transform.localPosition, CFTargetPosition, moveSpeed * Time.deltaTime);
             }
         }
         // CCW 이동 로직 (LiftWeight는 위로, CarriageFrame은 아래로)
@@ -58,12 +58,12 @@ public class ZLiftTigger : MonoBehaviour
             // LiftWeight 이동 (MoveTowards 사용)
             if (LiftWeight != null)
             {
-                LiftWeight.transform.position = Vector3.MoveTowards(LiftWeight.transform.position, LWTargetPosition, moveSpeed * Time.deltaTime);
+                LiftWeight.transform.localPosition = Vector3.MoveTowards(LiftWeight.transform.localPosition, LWTargetPosition, moveSpeed * Time.deltaTime);
             }
             // CarriageFrame 이동 (MoveTowards 사용)
             if (CarriageFrame != null)
             {
-                CarriageFrame.transform.position = Vector3.MoveTowards(CarriageFrame.transform.position, CFTargetPosition, moveSpeed * Time.deltaTime);
+                CarriageFrame.transform.localPosition = Vector3.MoveTowards(CarriageFrame.transform.localPosition, CFTargetPosition, moveSpeed * Time.deltaTime);
             }
         }
     }
@@ -76,11 +76,11 @@ public class ZLiftTigger : MonoBehaviour
 
         isZLiftCW = true;
 
-        LWStartPosition = LiftWeight.transform.position;
-        LWTargetPosition = LWStartPosition + new Vector3(0, -moveDistanceY, 0);
+        LWStartPosition = LiftWeight.transform.localPosition;
+        LWTargetPosition = LWStartPosition + new Vector3(0, 0,-moveDistanceY);
 
-        CFStartPosition = CarriageFrame.transform.position;
-        CFTargetPosition = CFStartPosition + new Vector3(0, moveDistanceY, 0);
+        CFStartPosition = CarriageFrame.transform.localPosition;
+        CFTargetPosition = CFStartPosition + new Vector3(0, 0, moveDistanceY);
 
         ROT.ActivateZLiftRotationCW();
         CHM.ActiveChainCW();
@@ -104,10 +104,10 @@ public class ZLiftTigger : MonoBehaviour
         if (isZLiftCW || isZLiftCCW) return;
 
         isZLiftCCW = true;
-        LWStartPosition = LiftWeight.transform.position;
-        LWTargetPosition = LWStartPosition + new Vector3(0, moveDistanceY, 0);
-        CFStartPosition = CarriageFrame.transform.position;
-        CFTargetPosition = CFStartPosition + new Vector3(0, -moveDistanceY, 0);
+        LWStartPosition = LiftWeight.transform.localPosition;
+        LWTargetPosition = LWStartPosition + new Vector3(0, 0, moveDistanceY);
+        CFStartPosition = CarriageFrame.transform.localPosition;
+        CFTargetPosition = CFStartPosition + new Vector3(0, 0, -moveDistanceY);
 
         ROT.ActivateZLiftRotationCCW();
         CHM.ActiveChainCCW();

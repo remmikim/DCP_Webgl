@@ -7,7 +7,6 @@ public class PinMove8 : MonoBehaviour
     private Vector3 previousSourcePosition; // 이전 프레임의 sourceObject 위치 (전체 Vector3 저장)
 
     private bool isForward = false;
-    private bool isBackward = false;
     void Start()
     {
         previousSourcePosition = sourceObject.transform.position;

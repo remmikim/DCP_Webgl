@@ -13,8 +13,14 @@ public class Manager1 : MonoBehaviour
     private bool currentY3State;
     private bool currentY4State;
     private bool currentY5State;
-    private bool currentY6State;
-    private bool currentY7State;
+    private bool currentY60State;
+    private bool currentY61State;
+    private bool currentY62State;
+    private bool currentY63State;
+    private bool currentY70State;
+    private bool currentY71State;
+    private bool currentY72State;
+    private bool currentY73State;
     private bool currentY8State;
     private bool currentY9State;
 
@@ -23,7 +29,10 @@ public class Manager1 : MonoBehaviour
     public Chain1 chainInstance12;
     public PipeHolders pipeHolders;
     public ZLiftTigger zLift;
-    public Base2Down base2down;
+    public Base2Down base2down1;
+    public Base2Down base2down2;
+    public Base2Down base2down3;
+    public Base2Down base2down4;
     public XGantry xGantry;
 
 
@@ -84,9 +93,15 @@ public class Manager1 : MonoBehaviour
                 // Y5 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY5State, y0ToYFValue, 5, zLift != null ? zLift.ActivateZLiftDown : null, zLift != null ? zLift.DeactivateZLiftDown : null);
                 // Y6 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY6State, y0ToYFValue, 6, base2down != null ? base2down.ActiveDown : null, base2down != null ? base2down.DeactiveDown : null);
+                UpdateYStateBit(ref currentY60State, y0ToYFValue, 6, base2down1 != null ? base2down1.ActiveDown : null, base2down1 != null ? base2down1.DeactiveDown : null);
+                UpdateYStateBit(ref currentY61State, y0ToYFValue, 6, base2down2 != null ? base2down2.ActiveDown : null, base2down2 != null ? base2down2.DeactiveDown : null);
+                UpdateYStateBit(ref currentY62State, y0ToYFValue, 6, base2down3 != null ? base2down3.ActiveDown : null, base2down3 != null ? base2down3.DeactiveDown : null);
+                UpdateYStateBit(ref currentY63State, y0ToYFValue, 6, base2down4 != null ? base2down4.ActiveDown : null, base2down4 != null ? base2down4.DeactiveDown : null);
                 // Y7 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY7State, y0ToYFValue, 7, base2down != null ? base2down.ActiveUp : null, base2down != null ? base2down.DeactiveUp : null);
+                UpdateYStateBit(ref currentY70State, y0ToYFValue, 7, base2down1 != null ? base2down1.ActiveUp : null, base2down1 != null ? base2down1.DeactiveUp : null);
+                UpdateYStateBit(ref currentY71State, y0ToYFValue, 7, base2down2 != null ? base2down2.ActiveUp : null, base2down2 != null ? base2down2.DeactiveUp : null);
+                UpdateYStateBit(ref currentY72State, y0ToYFValue, 7, base2down3 != null ? base2down3.ActiveUp : null, base2down3 != null ? base2down3.DeactiveUp : null);
+                UpdateYStateBit(ref currentY73State, y0ToYFValue, 7, base2down4 != null ? base2down4.ActiveUp : null, base2down4 != null ? base2down4.DeactiveUp : null);
                 // Y8 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY8State, y0ToYFValue, 8, xGantry != null ? xGantry.ActivateXGantryMovingRight : null, xGantry != null ? xGantry.DeactivateXGantryMovingRight : null);
                 // Y9 비트 추출 및 상태 변경 감지

@@ -4,7 +4,7 @@ public class BeamUp : MonoBehaviour
 {
     public GameObject BeamNextNum;
 
-    private float targetAngle = 22f; // 목표 회전 각도 (X축 기준)
+    private float targetAngle = 46f; // 목표 회전 각도 (X축 기준)
     private float rotationSpeed = 10; // 초당 회전할 각도 (예: 20도/초)
 
     private Quaternion initialRotationBeam1; 
