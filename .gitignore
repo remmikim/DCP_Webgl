@@ -15,9 +15,15 @@
 # Visual Studio / Rider / VS Code 등 IDE 관련 파일
 .vs/
 .vscode/
+
+# Rider
+.idea/
+!Library/Rider/
+
+# 솔루션 및 프로젝트 파일
+*.sln
 *.csproj
 *.unityproj
-*.sln
 *.suo
 *.tmp
 *.user
@@ -31,9 +37,8 @@
 *.VC.db
 *.DotSettings.user
 
-# Rider
-.idea/
-!Library/Rider/
+# External Script Editor Visual Studio <-> Rider IDE
+ProjectSettings/EditorSettings.asset
 
 # macOS 특정 파일
 .DS_Store
@@ -57,8 +62,9 @@ __pycache__/
 
 # 빌드된 실행 파일 및 아카이브 (직접 빌드한 결과물)
 *.exe
-# *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
 *.app
 *.apk
 *.aab
 *.ipa
+
+# *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
