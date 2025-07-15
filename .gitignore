@@ -9,7 +9,7 @@
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
 
-# Unity 에셋 스토어 관련 폴
+# Unity 에셋 스토어 관련 폴더
 /[Aa]ssets/AssetStoreTools*
 
 # Visual Studio / Rider / VS Code 등 IDE 관련 파일
@@ -37,8 +37,14 @@
 *.VC.db
 *.DotSettings.user
 
-# External Script Editor Visual Studio <-> Rider IDE
+# ProjectSettings - IDE별 차이로 인한 충돌 방지
 ProjectSettings/EditorSettings.asset
+ProjectSettings/UnityConnectSettings.asset
+ProjectSettings/VersionControlSettings.asset
+ProjectSettings/ProjectVersion.txt
+
+# 패키지 관련 (선택적)
+# Packages/packages-lock.json
 
 # macOS 특정 파일
 .DS_Store
@@ -66,5 +72,21 @@ __pycache__/
 *.apk
 *.aab
 *.ipa
+
+# 추가 권장 Unity 관련 파일
+# Unity 크래시 덤프
+*.stackdump
+
+# Unity 프로파일링 결과
+*.profraw
+
+# Unity 패키지 매니저 캐시 (선택적)
+# Library/PackageCache/
+
+# 임시 백업 파일
+*.tmp
+*.bak
+*.swp
+*~
 
 # *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
