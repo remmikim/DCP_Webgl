@@ -1,3 +1,159 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d0c3c3469820ea21da6563de0dd8e351eb1bbca105f6101ad14c26a2c70dd3b4
-size 6329
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7293533856830725955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2415686784934694699}
+  m_Layer: 0
+  m_Name: Batteries
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2415686784934694699
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7293533856830725955}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7120199422290127075}
+  - {fileID: 7189899130030242343}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &7022199085349663190
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2415686784934694699}
+    m_Modifications:
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.9524386
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.0251224
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.206274
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8483426062172034429, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+      propertyPath: m_Name
+      value: Battery_R
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+--- !u!4 &7120199422290127075 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 262294522629560629, guid: f8307deff5fb0b540a17f917a0bdb98f, type: 3}
+  m_PrefabInstance: {fileID: 7022199085349663190}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8693898016096702719
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2415686784934694699}
+    m_Modifications:
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.9514387
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.0251224
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.9977484
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5380741439809851313, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+      propertyPath: m_Name
+      value: Battery_L
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+--- !u!4 &7189899130030242343 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1972938396292442840, guid: 8afecc8967ec0e847a34f39c6348c870, type: 3}
+  m_PrefabInstance: {fileID: 8693898016096702719}
+  m_PrefabAsset: {fileID: 0}

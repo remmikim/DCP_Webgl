@@ -1,3 +1,100 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:26b35a1775fd3d0cff2d5789ac38bcb33ef6f7aead5ee3d7f4b96975fa873a9d
-size 3858
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3624244002683262008
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6208131107965221684}
+  m_Layer: 0
+  m_Name: CCW-1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6208131107965221684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3624244002683262008}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: -2.7404387, y: 1.3869224, z: -5.107085}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7330942483234233034}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &6603057271864673311
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6208131107965221684}
+    m_Modifications:
+    - target: {fileID: 3843163051159356527, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_Name
+      value: CCW
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353008161122098852, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2ac574f926f87ca488b4e329f30803f1, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+--- !u!4 &7330942483234233034 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4476147855428607701, guid: a305200b54a1f554abcf05b9da5cb7b0, type: 3}
+  m_PrefabInstance: {fileID: 6603057271864673311}
+  m_PrefabAsset: {fileID: 0}
