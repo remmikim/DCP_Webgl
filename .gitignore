@@ -38,10 +38,11 @@
 *.DotSettings.user
 
 # ProjectSettings - IDE별 차이로 인한 충돌 방지
-ProjectSettings/EditorSettings.asset
-ProjectSettings/UnityConnectSettings.asset
-ProjectSettings/VersionControlSettings.asset
-ProjectSettings/ProjectVersion.txt
+ProjectSettings/EditorSettings.asset          # IDE별 설정 차이
+ProjectSettings/UnityConnectSettings.asset    # Unity 클라우드 (사용 안 함)
+ProjectSettings/VersionControlSettings.asset  # 개인 Git 설정
+ProjectSettings/ProjectVersion.txt            # Unity 버전 차이
+ProjectSettings/PackageManagerSettings.asset  # 기본 패키지만 사용
 
 # 패키지 관련 (선택적)
 # Packages/packages-lock.json
