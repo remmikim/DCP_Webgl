@@ -7,26 +7,23 @@ public class Manager1 : MonoBehaviour
     public ActUtlManager actUtlManager;
 
     // Y 디바이스 상태를 추적 (PLC로부터 읽어옴)
-    private bool currentY0State;
-    private bool currentY1State;
-    private bool currentY2State;
-    private bool currentY3State;
-    private bool currentY4State;
-    private bool currentY5State;
-    private bool currentY60State;
-    private bool currentY61State;
-    private bool currentY62State;
-    private bool currentY63State;
-    private bool currentY70State;
-    private bool currentY71State;
-    private bool currentY72State;
-    private bool currentY73State;
-    private bool currentY8State;
-    private bool currentY9State;
+    private bool currentY0State; private bool currentY1State;
+    private bool currentY2State; private bool currentY3State;
+    private bool currentY4State; private bool currentY5State;
+    private bool currentY60State; private bool currentY61State;
+    private bool currentY62State; private bool currentY63State;
+    private bool currentY70State; private bool currentY71State;
+    private bool currentY72State; private bool currentY73State;
+    private bool currentY8State; private bool currentY9State;
+    private bool currentYAState; private bool currentYBState;
+    private bool currentYCState; private bool currentYDState;
+
+    private bool currentY101State; private bool currentY111State;
+    private bool currentY102State; private bool currentY112State;
+
 
     // 제어할 Unity 오브젝트 스크립트 참조 (인스펙터에서 할당)
-    public Chain1 chainInstance;
-    public Chain1 chainInstance12;
+    public RoofMove roofMove;
     public PipeHolders pipeHolders;
     public ZLiftTigger zLift;
     public Base2Down base2down1;
@@ -34,9 +31,10 @@ public class Manager1 : MonoBehaviour
     public Base2Down base2down3;
     public Base2Down base2down4;
     public XGantry xGantry;
-
-
-
+    public CarriageFrameRT carriageFrameRT;
+    public ForkMove1 forkMove;
+    public ForkFrontBackMove forkFrontBackMoveLeft;
+    public ForkFrontBackMove forkFrontBackMoveRight;
 
     // ManagerWrite 스크립트 참조 (인스펙터에서 할당)
     public ManagerWrite1 managerWrite;
@@ -81,9 +79,9 @@ public class Manager1 : MonoBehaviour
             if (parts.Length == 2 && int.TryParse(parts[1], out int y0ToYFValue))
             {
                 // Y0 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY0State, y0ToYFValue, 0, chainInstance12 != null ? chainInstance12.ActiveChainCW : null, chainInstance12 != null ? chainInstance12.DeActiveChainCW : null);
+                UpdateYStateBit(ref currentY0State, y0ToYFValue, 0, roofMove != null ? roofMove.ActivateFrontRoof : null, roofMove != null ? roofMove.DeactivateFrontRoof : null);
                 // Y1 비트 추출 및 상태 변경 감지
-                UpdateYStateBit(ref currentY1State, y0ToYFValue, 1, chainInstance12 != null ? chainInstance12.ActiveChainCCW : null, chainInstance12 != null ? chainInstance12.DeActiveChainCCW : null);
+                UpdateYStateBit(ref currentY1State, y0ToYFValue, 1, roofMove != null ? roofMove.ActivateBackRoof : null, roofMove != null ? roofMove.DeactivateBackRoof : null);
                 // Y2 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY2State, y0ToYFValue, 2, pipeHolders != null ? pipeHolders.ActivatePipeHoldersCW : null, pipeHolders != null ? pipeHolders.DeactivatePipeHoldersCW : null);
                 // Y3 비트 추출 및 상태 변경 감지
@@ -106,6 +104,28 @@ public class Manager1 : MonoBehaviour
                 UpdateYStateBit(ref currentY8State, y0ToYFValue, 8, xGantry != null ? xGantry.ActivateXGantryMovingRight : null, xGantry != null ? xGantry.DeactivateXGantryMovingRight : null);
                 // Y9 비트 추출 및 상태 변경 감지
                 UpdateYStateBit(ref currentY9State, y0ToYFValue, 9, xGantry != null ? xGantry.ActivateXGantryMovingLeft : null, xGantry != null ? xGantry.DeactivateXGantryMovingLeft : null);
+                // Y10 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentYAState, y0ToYFValue, 10, carriageFrameRT != null ? carriageFrameRT.ActivateZLiftRotationCW : null, carriageFrameRT != null ? carriageFrameRT.DeactivateZLiftRotationCW : null);
+                // Y11 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentYBState, y0ToYFValue, 11, carriageFrameRT != null ? carriageFrameRT.ActivateZLiftRotationCCW : null, carriageFrameRT != null ? carriageFrameRT.DeactivateZLiftRotationCCW : null);
+                //// Y12 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentYCState, y0ToYFValue, 12, forkMove != null ? forkMove.ActivateRight : null, forkMove != null ? forkMove.DeactivateRight : null);
+                // Y13 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentYDState, y0ToYFValue, 13, forkMove != null ? forkMove.ActivateLeft : null, forkMove != null ? forkMove.DeactivateLeft : null);
+            }
+        }
+        if (receivedData.StartsWith("Y10Y1F:"))
+        {
+            string[] parts = receivedData.Split(':');
+            if (parts.Length == 2 && int.TryParse(parts[1], out int y10ToY1FValue))
+            {
+                // Y12 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentY101State, y10ToY1FValue, 0, forkFrontBackMoveLeft != null ? forkFrontBackMoveLeft.ActivateFront : null, forkFrontBackMoveLeft != null ? forkFrontBackMoveLeft.DeactivateFront : null);
+                UpdateYStateBit(ref currentY102State, y10ToY1FValue, 0, forkFrontBackMoveRight != null ? forkFrontBackMoveRight.ActivateFront : null, forkFrontBackMoveRight != null ? forkFrontBackMoveRight.DeactivateFront : null);
+                // Y13 비트 추출 및 상태 변경 감지
+                UpdateYStateBit(ref currentY111State, y10ToY1FValue, 1, forkFrontBackMoveLeft != null ? forkFrontBackMoveLeft.ActivateBack : null, forkFrontBackMoveLeft != null ? forkFrontBackMoveLeft.DeactivateBack : null);
+                UpdateYStateBit(ref currentY112State, y10ToY1FValue, 1, forkFrontBackMoveRight != null ? forkFrontBackMoveRight.ActivateBack : null, forkFrontBackMoveRight != null ? forkFrontBackMoveRight.DeactivateBack : null);
+                
             }
         }
         // 다른 유형의 PLC 데이터가 있다면 여기에 추가 파싱 로직 구현
