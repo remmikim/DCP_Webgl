@@ -154,7 +154,6 @@ namespace JWK.Scripts
         #endregion
 
         #region 드론 임무 및 상태 관리 (Drone Mission & State Logic)
-        // ReSharper disable Unity.PerformanceAnalysis
         void RunStateMachine()
         {
             switch (currentMissionState)
@@ -200,11 +199,9 @@ namespace JWK.Scripts
                 
                     if (droneStationLocation)
                         targetAltitudeAbs = droneStationLocation.position.y;
+                    
                     else
-                    {
-                        Debug.LogError("[Mission] Cannot land, Drone Station Location is not set!");
                         targetAltitudeAbs = _currentGroundYAgl;
-                    }
                 }
             }
         }
@@ -221,6 +218,8 @@ namespace JWK.Scripts
             
                 if (droneStationLocation)
                     transform.rotation = droneStationLocation.rotation;
+
+                DroneEvents.LandingSequenceCompleted();
             }
         }
         #endregion
@@ -238,7 +237,13 @@ namespace JWK.Scripts
             {
                 isArrived = true;
                 
-                if(!extinguisherDropSystem)
+                if(extinguisherDropSystem)
+                {
+                    yield return StartCoroutine(extinguisherDropSystem.PlayDropExtinguishBomb());
+                    Debug.Log($"[Mission] Performing action for payload: {currentPayload}.");
+                }
+                
+                else
                     Debug.LogWarning("extinguisherDropSystem is NULL!!!!!!!");
 
                 /*
@@ -257,12 +262,6 @@ namespace JWK.Scripts
                 }
                 */
 
-                else
-                {
-                    yield return StartCoroutine(extinguisherDropSystem.PlayDropExtinguishBomb());
-                    Debug.Log($"[Mission] Performing action for payload: {currentPayload}.");
-                    
-                }
             
             }
         
@@ -301,6 +300,7 @@ namespace JWK.Scripts
     
         #endregion
     
+        // ReSharper disable Unity.PerformanceAnalysis
         public void DispatchMissionFromInspector()
         {
             if (currentMissionState != DroneMissionState.IdleAtStation) 
@@ -331,8 +331,11 @@ namespace JWK.Scripts
             if (currentMissionState != DroneMissionState.IdleAtStation) 
                 return;
 
+            DroneEvents.TakeOffSequenceStarted();
+            
             Debug.Log($"[Mission] Starting: {missionDescription}! Target: {targetPosition}, Bombs: {bombsToUse}");
             _currentTargetPositionXZ = new Vector3(targetPosition.x, 0, targetPosition.z);
+            currentPayload = PayloadType.FireExtinguishingBomb;
             _fireScaleBombCount = bombsToUse;
         
             RaycastHit hit;

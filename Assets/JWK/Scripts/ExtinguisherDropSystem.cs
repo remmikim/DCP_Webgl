@@ -33,9 +33,10 @@ namespace JWK.Scripts
                 Debug.LogError("부모 오브젝트에서 DroneController를 찾을 수 없습니다!");
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// DroneController에서 호출할 메인 함수입니다.
-        /// 드론이 도착했는지 확인하고, 전체 투하 시퀀스 코루틴을 시작합니다.
+        /// 드론이 도착했는지 확인하고, 전체 투하 시퀀스 코루틴을 시작
         /// </summary>
         public IEnumerator PlayDropExtinguishBomb()
         {
@@ -45,6 +46,7 @@ namespace JWK.Scripts
                 Debug.Log("드론 도착 확인! 소화탄 투하 시퀀스를 시작합니다.");
                 yield return StartCoroutine(FullDropSequenceCoroutine());
             }
+
             else
             {
                 if (!_droneController) Debug.LogWarning("DroneController가 연결되지 않았습니다.");
@@ -55,7 +57,7 @@ namespace JWK.Scripts
 
         // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
-        /// 요청하신 모든 투하 및 회전 순서를 관리하는 메인 코루틴입니다.
+        /// 모든 투하 및 회전 순서를 관리하는 메인 코루틴
         /// </summary>
         private IEnumerator FullDropSequenceCoroutine()
         {
@@ -206,11 +208,10 @@ namespace JWK.Scripts
 
         private IEnumerator RotateBombToGround(GameObject bomb)
         {
-            if (!bomb)
-                yield break;
-
-            
             yield return new WaitForSeconds(1.0f);
+
+            if (!bomb) yield break;
+
             float rotationDuration = 2.0f; // 회전에 걸리는 시간
             float elapsedTime = 0f;
 
@@ -219,16 +220,15 @@ namespace JWK.Scripts
 
             while (elapsedTime < rotationDuration)
             {
-                if (!bomb)
-                    yield break;
+                if (!bomb)  yield break;
 
                 bomb.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsedTime / rotationDuration);
-                
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            bomb.transform.rotation = targetRotation;
+            if(bomb) bomb.transform.rotation = targetRotation;
         }
 
         #endregion
