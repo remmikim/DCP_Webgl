@@ -398,7 +398,7 @@ MonoBehaviour:
   vfxDestroyDelay: 5
   groundlayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
 --- !u!4 &515448757 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8901391580125802303, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
@@ -614,12 +614,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1077556948}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.19562387, y: 0.26399487, z: -0.053854227, w: -0.94294107}
-  m_LocalPosition: {x: 956.36096, y: 97.58474, z: 816.8777}
+  m_LocalRotation: {x: -0.11990929, y: -0.71145576, z: 0.12529776, w: -0.6809941}
+  m_LocalPosition: {x: -4.9050903, y: 1.3726425, z: -3.52948}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2076018656}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1077556952
 MonoBehaviour:
@@ -690,9 +690,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 255079089081861908, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
+      objectReference: {fileID: 0}
+    - target: {fileID: 1129178834842528634, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
+      objectReference: {fileID: 0}
     - target: {fileID: 2292310008969604807, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2401222610932698249, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
       objectReference: {fileID: 0}
     - target: {fileID: 2795162735471756077, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: testDispatchTarget
@@ -702,6 +714,10 @@ PrefabInstance:
       propertyPath: droneStationLocation
       value: 
       objectReference: {fileID: 441959903}
+    - target: {fileID: 4017833843673768429, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
+      objectReference: {fileID: 0}
     - target: {fileID: 4043592755146672126, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: m_LocalPosition.x
       value: 949.162
@@ -742,13 +758,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4669652927036779211, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
+      objectReference: {fileID: 0}
     - target: {fileID: 4680461062403692385, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: m_Name
       value: Drone
       objectReference: {fileID: 0}
+    - target: {fileID: 4766934059762654140, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_Mass
+      value: 0.0000001
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4043592755146672126, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 1077556951}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4680461062403692385, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       insertIndex: -1
@@ -1280,6 +1307,11 @@ MonoBehaviour:
   maxRPM: 2000
   accelerationTime: 2
   decelerationTime: 1
+--- !u!4 &2076018656 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4043592755146672126, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+  m_PrefabInstance: {fileID: 1195172316}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2130889729 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 357765062162513813, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
@@ -1354,7 +1386,6 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1077556951}
   - {fileID: 1631359082}
   - {fileID: 9033816610203748610}
   - {fileID: 956502344}

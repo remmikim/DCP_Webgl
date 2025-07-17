@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Text;
 using SimpleJSON;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -87,6 +88,11 @@ namespace JWK.Scripts
         private WebSocket _ws;
         private string serverUrl = "ws://127.0.0.1:5000/socket.io/?EIO=4&transport=websocket&type=unity_main";
     
+        private StringBuilder _socketMessageBuilder;
+        private DroneStatusData _dataToSend;
+        private WaitForSeconds _sendDataWait;
+        private WaitForSeconds _terrainCheckWait;
+        
         #endregion
 
         #region Unity 생명주기 함수 (Lifecycle Methods)
@@ -103,8 +109,15 @@ namespace JWK.Scripts
             _rb.useGravity = false;
             _rb.angularDamping = 2.5f;
 
+            // --- 최적화 ---
+            _socketMessageBuilder = new StringBuilder(256);
+            _dataToSend = new DroneStatusData(Vector3.zero, 0, 0, "", "", 0);
+            _sendDataWait = new WaitForSeconds(0.2f);
+            _terrainCheckWait = new WaitForSeconds(0.1f);
+            
             ConnectWebSocket();
             StartCoroutine(SendDroneDataRoutine());
+            StartCoroutine(TerrainCheckRoutine());  // 지형 체크를 별도 코루틴으로 분리
             UnityMainThreadDispatcher.Instance();
 
             if (droneStationLocation)
@@ -112,10 +125,9 @@ namespace JWK.Scripts
                 transform.position = droneStationLocation.position;
                 transform.rotation = droneStationLocation.rotation;
             }
+            
             else
-            {
                 Debug.LogError("[Mission] Drone Station Location (LandingPad) not assigned in Inspector!");
-            }
 
             PerformInitialGroundCheckAndSetAltitude();
             currentMissionState = DroneMissionState.IdleAtStation;
@@ -126,7 +138,7 @@ namespace JWK.Scripts
         void Update()
         {
             UpdateDroneInternalStatus();
-            UpdateTerrainSensingAndDynamicTargetAltitude();
+            // UpdateTerrainSensingAndDynamicTargetAltitude();
             RunStateMachine();
         }
 
@@ -378,7 +390,16 @@ namespace JWK.Scripts
             if (currentMissionState != DroneMissionState.TakingOff && currentMissionState != DroneMissionState.Landing)
                 targetAltitudeAbs = _currentGroundYAgl + missionCruisingAgl;
         }
-    
+
+        private IEnumerator TerrainCheckRoutine()
+        {
+            while (true)
+            {
+                UpdateTerrainSensingAndDynamicTargetAltitude();
+                yield return _terrainCheckWait; // 캐시 된 WaitForSeconds 사용
+            }
+        }
+        
         void UpdateDroneInternalStatus()
         {
             currentPositionAbs = transform.position;
@@ -512,24 +533,44 @@ namespace JWK.Scripts
     
         IEnumerator SendDroneDataRoutine()
         {
-            DroneStatusData dataToSend = new DroneStatusData(Vector3.zero, 0, 0, "", "", 0);
+            // DroneStatusData dataToSend = new DroneStatusData(Vector3.zero, 0, 0, "", "", 0);
 
             while (true)
             {
-                yield return new WaitForSeconds(0.2f);
+                yield return _sendDataWait;
             
                 if (_ws != null && _ws.IsAlive)
                 {
+                    _dataToSend.position.x= currentPositionAbs.x;
+                    _dataToSend.position.y = currentPositionAbs.y;
+                    _dataToSend.position.z = currentPositionAbs.z;
+                    _dataToSend.altitude = currentAltitudeAbs;
+                    _dataToSend.battery = batteryLevel;
+                    _dataToSend.mission_state = currentMissionState.ToString();
+                    _dataToSend.payload_type = currentPayload.ToString();
+                    _dataToSend.bomb_load = _currentBombLoad;
+                    
+                    string droneDataJson = JsonUtility.ToJson(_dataToSend);
+                    
+                    _socketMessageBuilder.Clear();
+                    _socketMessageBuilder.Append("42[\"unity_main_drone_daa\",");
+                    _socketMessageBuilder.Append(droneDataJson);
+                    _socketMessageBuilder.Append("]");
+                    
+                    _ws.Send(_socketMessageBuilder.ToString());
+
+                    /*
                     dataToSend.position = new Vector3Data(currentPositionAbs.x, currentPositionAbs.y, currentPositionAbs.z);
                     dataToSend.altitude = currentAltitudeAbs;
                     dataToSend.battery = batteryLevel;
                     dataToSend.mission_state = currentMissionState.ToString();
                     dataToSend.payload_type = currentPayload.ToString();
                     dataToSend.bomb_load = _currentBombLoad;
-                
+
                     string droneDataJson = JsonUtility.ToJson(dataToSend);
                     string socketIOMessage = "42[\"unity_main_drone_data\"," + droneDataJson + "]";
                     _ws.Send(socketIOMessage);
+                    */
                 }
             }
         }
