@@ -1,15 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace JWK.Scripts
 {
     public class Bomb_Particle : MonoBehaviour
     {
-        [Header("ÆøÅº Ãæµ¹ VFX")] [Tooltip("ÆøÅºÀÌ È­Àç Æ÷ÀÎÆ®¿Í Ãæµ¹ ÈÄ »ı±â´Â VFX PrefabÀ» ÇÒ´çÇÏ¼¼¿ä")]
+        [Header("í­íƒ„ ì¶©ëŒ VFX")] [Tooltip("í­íƒ„ì´ í™”ì¬ í¬ì¸íŠ¸ì™€ ì¶©ëŒ í›„ ìƒê¸°ëŠ” VFX Prefabì„ í• ë‹¹í•˜ì„¸ìš”")]
         public GameObject impactVFXPrefab;
 
-        [Tooltip("VFX°¡ ¸î ÃÊ µÚ¿¡ ÆÄ±«µÉÁö")] public float vfxDestroyDelay = 5.0f;
+        [Tooltip("VFXê°€ ëª‡ ì´ˆ ë’¤ì— íŒŒê´´ë ì§€")] public float vfxDestroyDelay = 5.0f;
         
-        [Tooltip("Áö¸éÀ¸·Î ÀÎ½ÄÇÒ LayerMask")]
+        [Tooltip("ì§€ë©´ìœ¼ë¡œ ì¸ì‹í•  LayerMask")]
         public LayerMask groundlayerMask;
 
         private void OnCollisionEnter(Collision collision)
