@@ -21,16 +21,16 @@ public class PinMove8 : MonoBehaviour
         if(isForward)
         {
             // sourceObject의 현재 Z축 위치를 가져옴
-            float currentSourceZ = sourceObject.transform.position.z;
+            float currentSourceZ = sourceObject.transform.position.x;
 
       
-            float deltaZ = currentSourceZ - previousSourcePosition.z;
+            float deltay = currentSourceZ - previousSourcePosition.x;
 
 
             Vector3 currentMyPosition = transform.position;
 
             // 이 오브젝트의 X축 위치를 sourceObject의 Z축 이동량(deltaZ)만큼 변경
-            currentMyPosition.z += deltaZ;
+            currentMyPosition.x += deltay;
             transform.position = currentMyPosition;
 
             // 다음 프레임을 위해 sourceObject의 현재 전체 위치를 이전 위치로 업데이트

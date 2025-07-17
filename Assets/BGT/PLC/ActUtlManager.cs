@@ -78,7 +78,7 @@ public class ActUtlManager : MonoBehaviour
                 }
 
                 // 2. PLC로부터 Y 디바이스 상태 읽기
-                int blockCnt = 1; // Y0부터 1워드(16비트) 읽기
+                int blockCnt = 2; // Y0부터 1워드(16비트) 읽기
                 int[] data = new int[blockCnt];
                 int readRet = mxComponent.ReadDeviceBlock("Y0", blockCnt, out data[0]); // 동기 호출
 
@@ -87,6 +87,7 @@ public class ActUtlManager : MonoBehaviour
                     // Y0부터 YF까지의 비트 상태를 나타내는 워드 값
                     // 이 값을 문자열로 변환하여 메인 스레드로 전달
                     receivedDataQueue.Enqueue($"Y0YF:{data[0]}");
+                    receivedDataQueue.Enqueue($"Y10Y1F:{data[1]}");
                 }
                 // 3. Unity에서 보낼 명령 처리 (X 디바이스 쓰기 등)
                 while (sendCommandQueue.TryDequeue(out string command))
