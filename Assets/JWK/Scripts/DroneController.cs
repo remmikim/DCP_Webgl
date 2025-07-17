@@ -428,6 +428,7 @@ namespace JWK.Scripts
                     _isTakingOffSubState = false;
                 }
             }
+            
             else if (_isLandingSubState)
             {
                 if (currentAltitudeAbs > targetAltitudeAbs + 0.05f)
@@ -451,8 +452,8 @@ namespace JWK.Scripts
                 
                     if (droneStationLocation)
                     {
-                        transform.position = droneStationLocation.position;
-                        transform.rotation = droneStationLocation.rotation;
+                        // transform.position = droneStationLocation.position;
+                        // transform.rotation = droneStationLocation.rotation;
                     }
                 }
             }

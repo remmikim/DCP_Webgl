@@ -33,7 +33,6 @@ namespace JWK.Scripts
                 Debug.LogError("부모 오브젝트에서 DroneController를 찾을 수 없습니다!");
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// DroneController에서 호출할 메인 함수입니다.
         /// 드론이 도착했는지 확인하고, 전체 투하 시퀀스 코루틴을 시작
@@ -134,6 +133,18 @@ namespace JWK.Scripts
 
             if (bombToDrop)
             {
+                bombToDrop.transform.SetParent(null);
+                Rigidbody bombRb = bombToDrop.GetComponent<Rigidbody>();
+
+                if (bombRb)
+                {
+                    bombRb.isKinematic = false;
+                    Debug.Log($"'{bombToDrop.name}' 폭탄의 isKinematic을 false로 설정하여 투하");
+                }
+
+                else
+                    Debug.Log($"'{bombToDrop.name}' 폭탄에 Rigidbody 컴포넌트가 없음");
+                /*
                 FixedJoint joint = bombToDrop.GetComponent<FixedJoint>();
 
                 if (joint)
@@ -147,10 +158,10 @@ namespace JWK.Scripts
                 }
 
                 else
-                    Debug.LogWarning($"'{bombToDrop.name}' 폭탄에 FixedJoint 컴포넌트가 없습니다.");
+                    Debug.LogWarning($"'{bombToDrop.name}' 폭탄에 FixedJoint 컴포넌트가 없습니다.");*/
             }
-            else
-                Debug.LogWarning($"bombList의 {index}번째 요소가 비어있습니다.");
+
+            StartCoroutine(RotateBombToGround(bombToDrop));
         }
 
         #region 단일 로터를 지정된 각도만큼 회전시키는 코루틴
