@@ -1,125 +1,119 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace JWK.Scripts
 {
     public class ExtinguisherDropSystem : MonoBehaviour
     {
-        [Header("회전 및 투하 대상")] [Tooltip("안쪽 로터의 Transform을 할당하세요.")]
-        public Transform rotaryIn;
-
-        [Tooltip("바깥쪽 로터의 Transform을 할당하세요.")] public Transform rotaryOut;
-
+        [Header("회전 및 투하 대상")]
+        [Tooltip("안쪽 로터의 Transform을 할당하세요.")]
+        [SerializeField] private Transform rotaryIn;
+        [Tooltip("바깥쪽 로터의 Transform을 할당하세요.")]
+        [SerializeField] private Transform rotaryOut;
         [Tooltip("분리할 모든 폭탄 게임 오브젝트들을 순서대로 할당하세요.")]
-        public List<GameObject> bombList; // Bomb_1, Bomb_2, ... 순서로 할당
+        [SerializeField] private List<GameObject> bombList;
 
-        [Header("애니메이션 설정")] [Tooltip("로터가 회전하는 속도입니다 (도/초).")]
-        public float rotationSpeed = 180.0f;
-
-        [Tooltip("각 행동 사이의 대기 시간입니다 (초).")] public float delayBetweenActions = 2.0f;
+        [Header("애니메이션 설정")]
+        [Tooltip("로터가 회전하는 속도입니다 (도/초).")]
+        [SerializeField] private float rotationSpeed = 180.0f;
+        [Tooltip("각 행동 사이의 대기 시간입니다 (초).")]
+        [SerializeField] private float delayBetweenActions = 2.0f;
 
         // --- 내부 변수 ---
         private DroneController _droneController;
-        private bool isActionInProgress = false; // 현재 액션이 진행 중인지 확인하는 플래그
+        private bool _isActionInProgress = false;
 
-        void Start()
+        // --- 코루틴 캐싱 (GC 최적화) ---
+        private WaitForSeconds _delayWait;
+        private readonly WaitForSeconds _bombRotateWait = new WaitForSeconds(1.0f);
+
+        private void Awake()
         {
-            // 이 스크립트의 부모 계층에서 DroneController 컴포넌트를 자동으로 찾아 할당합니다.
+            // 이 스크립트의 부모 계층에서 DroneController 컴포넌트를 자동으로 찾아 할당
             _droneController = GetComponentInParent<DroneController>();
-
             if (!_droneController)
-                Debug.LogError("부모 오브젝트에서 DroneController를 찾을 수 없습니다!");
+            {
+                Debug.LogError("부모 오브젝트에서 DroneController를 찾을 수 없습니다! 이 스크립트를 비활성화합니다.");
+                enabled = false; // 컴포넌트를 찾지 못하면 스크립트 비활성화
+                return;
+            }
+            
+            // 최적화: 코루틴에서 사용할 WaitForSeconds 인스턴스를 미리 생성
+            _delayWait = new WaitForSeconds(delayBetweenActions);
         }
 
         /// <summary>
-        /// DroneController에서 호출할 메인 함수입니다.
-        /// 드론이 도착했는지 확인하고, 전체 투하 시퀀스 코루틴을 시작
+        /// DroneController에서 호출할 메인 함수.
         /// </summary>
         public IEnumerator PlayDropExtinguishBomb()
         {
-            // DroneController가 연결되어 있고, 드론이 목표에 도착했으며, 다른 액션이 진행 중이 아닐 때만 실행
-            if (_droneController && _droneController.isArrived && !isActionInProgress)
+            if (_droneController.isArrived && !_isActionInProgress)
             {
                 Debug.Log("드론 도착 확인! 소화탄 투하 시퀀스를 시작합니다.");
                 yield return StartCoroutine(FullDropSequenceCoroutine());
             }
-
             else
             {
-                if (!_droneController) Debug.LogWarning("DroneController가 연결되지 않았습니다.");
-                if (_droneController && !_droneController.isArrived) Debug.LogWarning("드론이 아직 목표 지점에 도착하지 않았습니다.");
-                if (isActionInProgress) Debug.LogWarning("이미 다른 투하 액션이 진행 중입니다.");
+                if (!_droneController.isArrived) Debug.LogWarning("드론이 아직 목표 지점에 도착하지 않았습니다.");
+                if (_isActionInProgress) Debug.LogWarning("이미 다른 투하 액션이 진행 중입니다.");
             }
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// 모든 투하 및 회전 순서를 관리하는 메인 코루틴
         /// </summary>
         private IEnumerator FullDropSequenceCoroutine()
         {
-            isActionInProgress = true; // 액션 시작 플래그
+            _isActionInProgress = true;
 
-            // --- 1. Bomb_1 투하 시퀀스 ---
-            Debug.Log("Step 1: Bomb_1 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f)); // Rotary_Out 시계 방향 45도 회전
-            DetachBombByIndex(0); // 첫 번째 폭탄 (Bomb_1) 투하
+            // --- 1 & 2. Bomb 1, 2 투하 ---
+            yield return StartCoroutine(RotateAndDropSequence(0, -45f));
+            yield return _delayWait;
+            yield return StartCoroutine(RotateAndDropSequence(1, -45f));
+            yield return _delayWait;
 
-            // --- 2. Bomb_2 투하 시퀀스 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 2: Bomb_2 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f)); // Rotary_Out 시계 방향 -45도 회전 (원위치 복귀와 유사)
-            DetachBombByIndex(1); // 두 번째 폭탄 (Bomb_2) 투하
+            // --- 3. 재장전 1 ---
+            yield return StartCoroutine(ReloadSequence());
 
-            // --- 3. 재장전 회전 1 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 3: 재장전 회전 1.");
-            yield return
-                StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f)); // Out 반시계 90도, In 시계 30도
+            // --- 4 & 5. Bomb 3, 4 투하 ---
+            yield return StartCoroutine(RotateAndDropSequence(2, -45f));
+            yield return _delayWait;
+            yield return StartCoroutine(RotateAndDropSequence(3, -45f));
+            yield return _delayWait;
 
-            // --- 4. Bomb_3 투하 시퀀스 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 4: Bomb_3 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
-            DetachBombByIndex(2);
+            // --- 6. 재장전 2 ---
+            yield return StartCoroutine(ReloadSequence());
 
-            // --- 5. Bomb_4 투하 시퀀스 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 5: Bomb_4 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
-            DetachBombByIndex(3);
+            // --- 7 & 8. Bomb 5, 6 투하 ---
+            yield return StartCoroutine(RotateAndDropSequence(4, -45f));
+            yield return _delayWait;
+            yield return StartCoroutine(RotateAndDropSequence(5, -45f));
+            yield return _delayWait;
 
-            // --- 6. 재장전 회전 2 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 6: 재장전 회전 2.");
-            yield return StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f));
+            // --- 9. 마지막 재장전 ---
+            yield return StartCoroutine(ReloadSequence());
 
-            // --- 7. Bomb_5 투하 시퀀스 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 7: Bomb_5 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
-            DetachBombByIndex(4);
-
-            // --- 8. Bomb_6 투하 시퀀스 ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 8: Bomb_6 투하 준비.");
-            yield return StartCoroutine(RotateRotor(rotaryOut, -45f));
-            DetachBombByIndex(5);
-
-            // --- 9. 재장전 회전 3 (마지막) ---
-            yield return new WaitForSeconds(delayBetweenActions);
-            Debug.Log("Step 9: 마지막 재장전 회전.");
-            yield return StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f));
-
-            // --- 10. 임무 완료 ---
             Debug.Log("모든 소화탄 투하 및 재장전 시퀀스 완료.");
-            isActionInProgress = false; // 액션 완료 플래그
+            _isActionInProgress = false;
+        }
+
+        // 최적화: 반복되는 로직을 함수로 묶어 가독성 및 재사용성 향상
+        private IEnumerator RotateAndDropSequence(int bombIndex, float angle)
+        {
+            Debug.Log($"Step: Bomb_{bombIndex + 1} 투하 준비.");
+            yield return StartCoroutine(RotateRotor(rotaryOut, angle));
+            DetachBombByIndex(bombIndex);
+        }
+
+        private IEnumerator ReloadSequence()
+        {
+            Debug.Log("Step: 재장전 회전.");
+            yield return StartCoroutine(RotateRotorsSimultaneously(rotaryOut, 90f, rotaryIn, -60f));
         }
 
         /// <summary>
-        /// 지정된 인덱스의 폭탄을 찾아 분리(Joint 해제)합니다.
+        /// 지정된 인덱스의 폭탄을 찾아 분리
         /// </summary>
         private void DetachBombByIndex(int index)
         {
@@ -130,72 +124,43 @@ namespace JWK.Scripts
             }
 
             GameObject bombToDrop = bombList[index];
-
             if (bombToDrop)
             {
                 bombToDrop.transform.SetParent(null);
-                Rigidbody bombRb = bombToDrop.GetComponent<Rigidbody>();
-
-                if (bombRb)
+                if (bombToDrop.TryGetComponent<Rigidbody>(out var bombRb))
                 {
                     bombRb.isKinematic = false;
-                    Debug.Log($"'{bombToDrop.name}' 폭탄의 isKinematic을 false로 설정하여 투하");
-                }
-
-                else
-                    Debug.Log($"'{bombToDrop.name}' 폭탄에 Rigidbody 컴포넌트가 없음");
-                /*
-                FixedJoint joint = bombToDrop.GetComponent<FixedJoint>();
-
-                if (joint)
-                {
-                    Destroy(joint);
-                    Debug.Log($"'{bombToDrop.name}' 폭탄의 FixedJoint가 성공적으로 해제되었습니다.");
-
-                    bombToDrop.transform.SetParent(null);
-
+                    Debug.Log($"'{bombToDrop.name}' 폭탄 투하.");
                     StartCoroutine(RotateBombToGround(bombToDrop));
                 }
-
-                else
-                    Debug.LogWarning($"'{bombToDrop.name}' 폭탄에 FixedJoint 컴포넌트가 없습니다.");*/
             }
-
-            StartCoroutine(RotateBombToGround(bombToDrop));
         }
 
-        #region 단일 로터를 지정된 각도만큼 회전시키는 코루틴
+        #region 코루틴 헬퍼 함수
 
         private IEnumerator RotateRotor(Transform rotor, float angle)
         {
             Quaternion startRot = rotor.localRotation;
-            Quaternion targetRot = startRot * Quaternion.Euler(angle, 0, 0); // Z축 기준 회전
+            Quaternion targetRot = startRot * Quaternion.Euler(angle, 0, 0);
             float duration = Mathf.Abs(angle) / rotationSpeed;
             float elapsedTime = 0f;
 
             while (elapsedTime < duration)
             {
-                rotor.localRotation = Quaternion.Slerp(startRot, targetRot, elapsedTime / duration);
+                rotor.localRotation = Quaternion.SlerpUnclamped(startRot, targetRot, elapsedTime / duration);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
-            rotor.localRotation = targetRot; // 최종 위치 보정
+            rotor.localRotation = targetRot;
         }
-
-        #endregion
-
-        #region 두 개의 로터를 동시에 다른 각도로 회전시키는 코루틴
 
         private IEnumerator RotateRotorsSimultaneously(Transform rotor1, float angle1, Transform rotor2, float angle2)
         {
             Quaternion startRot1 = rotor1.localRotation;
             Quaternion targetRot1 = startRot1 * Quaternion.Euler(angle1, 0, 0);
-
             Quaternion startRot2 = rotor2.localRotation;
             Quaternion targetRot2 = startRot2 * Quaternion.Euler(angle2, 0, 0);
 
-            // 두 회전 중 더 오래 걸리는 시간을 기준으로 duration 설정
             float duration1 = Mathf.Abs(angle1) / rotationSpeed;
             float duration2 = Mathf.Abs(angle2) / rotationSpeed;
             float maxDuration = Mathf.Max(duration1, duration2);
@@ -203,8 +168,8 @@ namespace JWK.Scripts
 
             while (elapsedTime < maxDuration)
             {
-                rotor1.localRotation = Quaternion.Slerp(startRot1, targetRot1, elapsedTime / maxDuration);
-                rotor2.localRotation = Quaternion.Slerp(startRot2, targetRot2, elapsedTime / maxDuration);
+                rotor1.localRotation = Quaternion.SlerpUnclamped(startRot1, targetRot1, elapsedTime / maxDuration);
+                rotor2.localRotation = Quaternion.SlerpUnclamped(startRot2, targetRot2, elapsedTime / maxDuration);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
@@ -213,33 +178,25 @@ namespace JWK.Scripts
             rotor2.localRotation = targetRot2;
         }
 
-        #endregion
-
-        #region 폭탄이 떨어지며 탄두가 서서히 바닥을 바라보게 회전 시키는 코루틴
-
         private IEnumerator RotateBombToGround(GameObject bomb)
         {
-            yield return new WaitForSeconds(1.0f);
-
+            yield return _bombRotateWait; // 캐시된 WaitForSeconds 사용
             if (!bomb) yield break;
 
-            float rotationDuration = 2.0f; // 회전에 걸리는 시간
+            float rotationDuration = 2.0f;
             float elapsedTime = 0f;
-
             Quaternion startRotation = bomb.transform.rotation;
-            Quaternion targetRotation = Quaternion.LookRotation(Vector3.down);
+            // 목표 회전을 미리 계산
+            Quaternion targetRotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
 
             while (elapsedTime < rotationDuration)
             {
-                if (!bomb)  yield break;
-
+                if (!bomb) yield break;
                 bomb.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsedTime / rotationDuration);
-
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
-            if(bomb) bomb.transform.rotation = targetRotation;
+            if (bomb) bomb.transform.rotation = targetRotation;
         }
 
         #endregion
