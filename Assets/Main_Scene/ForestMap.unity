@@ -599,65 +599,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 255079089081861908, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 255079089081861908, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 683873584509515138, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1129178834842528634, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 1129178834842528634, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1236374771686554294, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1442250958425765864, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1624450923545811988, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1852952417143172790, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1989725170773193732, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2292310008969604807, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2356829983466272007, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2401222610932698249, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 2401222610932698249, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2726953926215098566, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2795162735471756077, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: testDispatchTarget
@@ -667,25 +619,9 @@ PrefabInstance:
       propertyPath: droneStationLocation
       value: 
       objectReference: {fileID: 165469074}
-    - target: {fileID: 2881115677403727095, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3773491859153835381, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3849597124731137057, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 4017833843673768429, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 4017833843673768429, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4043592755146672126, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: m_LocalPosition.x
@@ -727,61 +663,23 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4669652927036779211, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 4669652927036779211, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4680461062403692385, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
       propertyPath: m_Name
       value: Drone
       objectReference: {fileID: 0}
-    - target: {fileID: 4766934059762654140, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Mass
-      value: 0.0000001
-      objectReference: {fileID: 0}
-    - target: {fileID: 4766934059762654140, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsKinematic
+    - target: {fileID: 4680461062403692385, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5992861236264482657, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 5997623743487171387, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7311663333542121214, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7841083758788370045, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: groundlayerMask.m_Bits
+      propertyPath: groundLayerMask.m_Bits
       value: 8
       objectReference: {fileID: 0}
-    - target: {fileID: 7847716710310758932, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8626923307511934716, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9205502369609312816, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1624450923545811988, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-    - {fileID: 7847716710310758932, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-    - {fileID: 2881115677403727095, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-    - {fileID: 8626923307511934716, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-    - {fileID: 2356829983466272007, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
-    - {fileID: 3773491859153835381, guid: 048bf9500b1ee074b987ed2cd7dbc9df, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
