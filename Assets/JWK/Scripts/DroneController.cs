@@ -435,38 +435,89 @@ namespace JWK.Scripts
                 _rb.AddTorque(Vector3.up * Mathf.Clamp(pTorque + dTorque, -maxRotationTorque, maxRotationTorque), ForceMode.Acceleration);
             }
         }
+
+        public void DispatchMissionToTestTarget()
+        {
+            if (currentMissionState != DroneMissionState.IdleAtStation)
+            {
+                Debug.LogWarning("[Mission] 드론이 현재 임무 수행 중입니다.");
+                return;
+            }
+
+            if (!testDispatchTarget)
+            {
+                Debug.LogError("[Mission] 테스트 임무 타겟이 설정되지 않았습니다.");
+                return;
+            }
+            
+            StartMission(testDispatchTarget.position, totalBombs);
+            SendDispatchDataToServer("수동 타겟 임무 (테스트)", testDispatchTarget.position);
+        }
+        /*
+            if (!testDispatchTarget)
+            {
+                Debug.LogError("[Mission] 테스트 임무 타겟이 설정되지 않았습니다!");
+                return;
+            }
+
+            // 최적화된 StartMission 메서드 호출
+            StartMission(testDispatchTarget.position, totalBombs);
+
+            // 웹소켓으로 테스트 임무 데이터를 보내는 로직 (선택사항)
+            // 만약 Inspector 테스트가 서버와 통신할 필요가 없다면 이 부분은 생략 가능합니다.
+            DispatchData dispatchData = new DispatchData("산불 진압 (테스트)", testDispatchTarget.position);
+            string dispatchJson = JsonUtility.ToJson(dispatchData);
+
+            _socketMessageBuilder.Clear();
+            _socketMessageBuilder.Append("42[\"unity_dispatch_mission\",");
+            _socketMessageBuilder.Append(dispatchJson);
+            _socketMessageBuilder.Append("]");
+            */
         
-        public void DispatchMissionFromInspector()
+        
+        public void DispatchMissionToRandomFire()
         {
             if (currentMissionState != DroneMissionState.IdleAtStation) 
             {
                 Debug.LogWarning("[Mission] 드론이 현재 임무 수행 중입니다."); 
                 return; 
             }
-    
-            if (!testDispatchTarget) 
+            
+
+            if (!WildfireManager.Instance)
             {
-                Debug.LogError("[Mission] 테스트 임무 타겟이 설정되지 않았습니다!"); 
-                return; 
+                Debug.LogWarning("[Miision] WildFireManager 인스턴스를 찾을 수 없습니다.");
+                return;
             }
-    
-            // 최적화된 StartMission 메서드 호출
-            StartMission(testDispatchTarget.position, totalBombs);
-    
-            // 웹소켓으로 테스트 임무 데이터를 보내는 로직 (선택사항)
-            // 만약 Inspector 테스트가 서버와 통신할 필요가 없다면 이 부분은 생략 가능합니다.
-            DispatchData dispatchData = new DispatchData("산불 진압 (테스트)", testDispatchTarget.position);
+
+            if (!WildfireManager.Instance.isFireActive)
+            {
+                Debug.LogWarning("[Miision] 화재가 없으므로 새로 생성합니다.");
+                WildfireManager.Instance.GenerateFires();
+            }
+
+            Vector3 fireTargetPosition = WildfireManager.Instance.FireEpicenterPosition;
+            StartMission(fireTargetPosition, totalBombs);
+            SendDispatchDataToServer("랜덤 화재 진압(테스트)", fireTargetPosition);
+            
+            
+        }
+
+        /// <summary>
+        /// 출동 데이터를 서버로 전송하는 공통 메서드
+        /// </summary>
+        private void SendDispatchDataToServer(string missionType, Vector3 targetPosition)
+        {
+            DispatchData dispatchData = new DispatchData(missionType, targetPosition);
             string dispatchJson = JsonUtility.ToJson(dispatchData);
-        
+            
             _socketMessageBuilder.Clear();
             _socketMessageBuilder.Append("42[\"unity_dispatch_mission\",");
             _socketMessageBuilder.Append(dispatchJson);
             _socketMessageBuilder.Append("]");
-        
+            
             if (_ws != null && _ws.IsAlive)
-            {
                 _ws.Send(_socketMessageBuilder.ToString());
-            }
         }
         #endregion
         
