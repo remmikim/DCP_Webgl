@@ -55,7 +55,7 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 180도 시계 방향으로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(180, 0, 0f);
+        targetRotation = startRotation * Quaternion.Euler(0, 0, 180f);
         Debug.Log("CW 180도 회전 시작!");
     }
 
@@ -78,7 +78,7 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 -180도 (반시계 방향)로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(-180, 0, 0f);
+        targetRotation = startRotation * Quaternion.Euler(0, 0, -180f);
         Debug.Log("CCW 180도 회전 시작!");
     }
 
