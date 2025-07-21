@@ -32,7 +32,7 @@ namespace JWK.Scripts
         [Header("드론 실시간 상태")] [SerializeField] private float batteryLevel = 100.0f;
         public Vector3 CurrentPositionAbs {get; private set;}
         public float CurrentAltitudeAbs {get; private set;}
-        public float BatteryLevel {get; private set;}
+        public float BatteryLevel => batteryLevel;
         
         // --- 페이로드 및 임무 상태 Enum ---
         public enum PayloadType {None, FireExtinguishingBomb, RescueEquipment, DisasterReliefBag, AluminiumSplint, Gripper}
@@ -219,9 +219,8 @@ namespace JWK.Scripts
                     PerformInitialGroundCheckAndSetAltitude();
             
                     if (droneStationLocation)
-                    {
                         transform.rotation = droneStationLocation.rotation;
-                    }
+                    
                     DroneEvents.LandingSequenceCompleted();
                 }
             }
@@ -355,9 +354,13 @@ namespace JWK.Scripts
                     ApplyHorizontalAndRotationalForces();
                     break;
                 case DroneMissionState.IdleAtStation:
+                    /*
                     // 물리적으로 완전히 멈추도록 속도를 감쇠시킵니다.
                     _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 5f);
                     _rb.angularVelocity = Vector3.Lerp(_rb.angularVelocity, Vector3.zero, Time.fixedDeltaTime * 5f);
+                    */
+                    _rb.AddForce(-_rb.linearVelocity, ForceMode.VelocityChange);
+                    _rb.AddTorque(-_rb.angularVelocity, ForceMode.VelocityChange);
                     break;
                 default: // HoldingPosition 또는 PerformingAction
                     ApplyVerticalForce(2.0f);
