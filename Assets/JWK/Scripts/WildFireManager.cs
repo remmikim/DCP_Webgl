@@ -10,10 +10,9 @@ namespace JWK.Scripts
         #region 변수 선언
 
         public static WildfireManager Instance { get; private set; }
-
-        public Vector3 FireEpicenterPosition { get; private set; }
         public bool isFireActive => _hasFireBeenGenerated;
-
+        public List<GameObject> GetActiveFires() => _activeFires;
+        
         [Header("화재 설정")] [SerializeField] private Terrain targetTerrain;
         [SerializeField] private GameObject fireParticlePrefab;
         [SerializeField] private int poolSize = 50; // 풀 크기를 늘려 예외 상황 방지
@@ -111,8 +110,6 @@ namespace JWK.Scripts
             float randomEpicenterX = Random.Range(0, spawnAreaSize.x);
             float randomEpicenterZ = Random.Range(0, spawnAreaSize.y);
             Vector3 fireEpicenter = areaStartCorner + new Vector3(randomEpicenterX, 0, randomEpicenterZ);
-
-            FireEpicenterPosition = fireEpicenter;
 
             int spawnCount = Mathf.Min(numberOfFiresToSpawn, _fireParticlePool.Count);
 
