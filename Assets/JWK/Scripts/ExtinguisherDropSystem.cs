@@ -13,7 +13,10 @@ namespace JWK.Scripts
         [Tooltip("바깥쪽 로터의 Transform을 할당하세요.")]
         [SerializeField] private Transform rotaryOut;
         
-        [Tooltip("분리할 모든 폭탄 게임 오브젝트들을 순서대로 할당하세요.")]
+        [Tooltip("모든 폭탄(Bomb_1, Bomb_2 등)을 담고 있는 부모 오브젝트를 할당하세요.")]
+        [SerializeField] private Transform bombsParent;
+
+        [Tooltip("이 리스트는 시작 시 자동으로 채워지므로, Inspector에서 직접 수정할 필요 없습니다.")]
         [SerializeField] private List<GameObject> bombList;
 
         [Header("애니메이션 설정")]
@@ -28,55 +31,86 @@ namespace JWK.Scripts
         private int _bombsDroppedCount = 0;
         
         // --- 코루틴 캐싱 (GC 최적화) ---
-        private readonly WaitForSeconds _bombRotateWait = new WaitForSeconds(2.0f);
         private WaitForSeconds _actionDelayWait;
         private readonly WaitForSeconds _clearanceDelay = new WaitForSeconds(1.0f);
 
         private void Awake()
         {
             _actionDelayWait = new WaitForSeconds(delayBetweenActions);
+            PopulateBombList();
         }
+
+        private void PopulateBombList()
+        {
+            if (bombsParent == null)
+            {
+                Debug.LogError("Bombs Parent가 할당되지 않았습니다!", this.gameObject);
+                return;
+            }
+
+            bombList = new List<GameObject>();
+            foreach (Transform bombTransform in bombsParent)
+            {
+                bombList.Add(bombTransform.gameObject);
+            }
+            
+            Debug.Log($"{bombList.Count}개의 폭탄이 자동으로 리스트에 추가되었습니다.", this.gameObject);
+        }
+
         public void ResetBombs()
         {
             _bombsDroppedCount = 0;
         }
 
-        /// <summary>
-        /// DroneController에서 호출할 메인 함수.
-        /// </summary>
+        // [수정] DroneController가 다음 폭탄의 오프셋을 '드론 루트 기준'으로 계산할 수 있도록 새로운 public 함수를 추가합니다.
+        public Vector3 GetNextBombOffsetFromDroneRoot(Transform droneRoot)
+        {
+            if (_bombsDroppedCount >= bombList.Count) return Vector3.zero;
+            GameObject nextBomb = bombList[_bombsDroppedCount];
+            if (nextBomb == null) return Vector3.zero;
+
+            // 폭탄의 월드 좌표를 드론의 로컬 좌표로 변환하여 반환합니다.
+            return droneRoot.InverseTransformPoint(nextBomb.transform.position);
+        }
+
+        public Vector3 GetNextBombWorldPosition()
+        {
+            if (_bombsDroppedCount >= bombList.Count) return transform.position;
+            GameObject nextBomb = bombList[_bombsDroppedCount];
+            return nextBomb != null ? nextBomb.transform.position : transform.position;
+        }
+
         public IEnumerator DropSingleBomb()
         {
             if (_isActionInProgress || _bombsDroppedCount >= bombList.Count)
             {
-                Debug.LogWarning("이미 다른 액션이 진행 중이거나 모든 폭탄을 소진했습니다.");
                 yield break;
             }
             
             _isActionInProgress = true;
-            Debug.Log($"{_bombsDroppedCount + 1}번째 폭탄 투하 시퀀스를 시작합니다.");
 
             switch (_bombsDroppedCount)
             {
-                case 0: // Bomb 1 투하
+                case 0:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     break;
-                case 1: // Bomb 2 투하 후 재장전
+                case 1:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(1));
                     break;
-                case 2: // Bomb 3 투하
+                case 2:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     break;
-                case 3: // Bomb 4 투하 후 재장전
+                case 3:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(2));
                     break;
-                case 4: // Bomb 5 투하
+                case 4:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     break;
-                case 5: // Bomb 6 투하 후 마지막 재장전
+                case 5:
                     yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(3));
@@ -87,36 +121,23 @@ namespace JWK.Scripts
             _isActionInProgress = false;
         }
 
-       /// <summary>
-        /// 로터 회전과 폭탄 투하를 순차적으로 실행하는 헬퍼 코루틴입니다.
-        /// </summary>
         private IEnumerator RotateAndDropSequence(int bombIndex, float angle)
         {
             yield return StartCoroutine(RotateRotor(rotaryOut, angle));
             DetachBombByIndex(bombIndex);
-            // 투하 후에는 즉시 원위치로 복귀하지 않고, 다음 명령을 기다립니다.
-            
             yield return _clearanceDelay;
         }
 
-        /// <summary>
-        /// 재장전을 위해 두 로터를 동시에 회전시키는 헬퍼 코루틴입니다.
-        /// </summary>
         private IEnumerator ReloadSequence(int sequenceNumber)
         {
-            Debug.Log($"Step: 재장전 {sequenceNumber}.");
             yield return StartCoroutine(RotateRotor(rotaryIn, -60f));
             yield return StartCoroutine(RotateRotor(rotaryOut, 90f));
         }
 
-        /// <summary>
-        /// 지정된 인덱스의 폭탄을 찾아 분리하고 물리적으로 떨어지게 만듭니다.
-        /// </summary>
         private void DetachBombByIndex(int index)
         {
             if (bombList == null || index < 0 || index >= bombList.Count)
             {
-                Debug.LogError($"잘못된 폭탄 인덱스({index})입니다.");
                 return;
             }
 
@@ -124,6 +145,7 @@ namespace JWK.Scripts
             if (bombToDrop)
             {
                 bombToDrop.transform.SetParent(null);
+
                 if (bombToDrop.TryGetComponent<Rigidbody>(out var bombRb))
                 {
                     bombRb.isKinematic = false;
@@ -136,9 +158,6 @@ namespace JWK.Scripts
 
         #region 코루틴 헬퍼 함수 (애니메이션)
 
-        /// <summary>
-        /// 단일 로터를 지정된 각도만큼 부드럽게 회전시키는 코루틴입니다.
-        /// </summary>
         private IEnumerator RotateRotor(Transform rotor, float angle)
         {
             Quaternion startRot = rotor.localRotation;
@@ -155,9 +174,6 @@ namespace JWK.Scripts
             rotor.localRotation = targetRot;
         }
         
-        /// <summary>
-        /// 투하된 폭탄이 떨어지면서 탄두가 서서히 바닥을 바라보도록 회전시키는 코루틴입니다.
-        /// </summary>
         private IEnumerator RotateBombToGround(GameObject bomb)
         {
             yield return new WaitForSeconds(0.5f);

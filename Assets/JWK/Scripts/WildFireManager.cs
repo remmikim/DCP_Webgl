@@ -34,6 +34,8 @@ namespace JWK.Scripts
         private readonly List<GameObject> _activeFires = new List<GameObject>();
         private bool _hasFireBeenGenerated = false;
 
+        private int _fireNamingCounter = 1;
+
         #endregion
 
         #region 초기화
@@ -128,6 +130,9 @@ namespace JWK.Scripts
                 Vector3 finalSpawnPosition = new Vector3(spawnPos.x, terrainHeight, spawnPos.z);
 
                 fireInstance.transform.SetPositionAndRotation(finalSpawnPosition, Quaternion.identity);
+
+                fireInstance.name = $"Fire{_fireNamingCounter++}";
+                
                 fireInstance.SetActive(true);
 
                 _activeFires.Add(fireInstance);
@@ -149,6 +154,8 @@ namespace JWK.Scripts
 
             _activeFires.Clear();
             _hasFireBeenGenerated = false;
+            
+            _fireNamingCounter = 1;
         }
 
         /// <summary>
