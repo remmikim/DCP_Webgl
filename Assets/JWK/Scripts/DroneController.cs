@@ -32,9 +32,6 @@ namespace JWK.Scripts
         public float CurrentAltitudeAbs { get; private set; }
         public float BatteryLevel => batteryLevel;
 
-        public enum PayloadType { None, FireExtinguishingBomb, RescueEquipment, DisasterReliefBag, AluminumSplint, Gripper }
-        public enum DroneMissionState { IdleAtStation, TakingOff, MovingToTarget, PerformingAction, RetreatingAfterAction, ReturningToStation, Landing, EmergencyReturn, HoldingPosition }
-
         [Header("임무 상태 및 페이로드")]
         public DroneMissionState currentMissionState = DroneMissionState.IdleAtStation;
         public PayloadType currentPayload = PayloadType.FireExtinguishingBomb;
@@ -52,11 +49,13 @@ namespace JWK.Scripts
         [Header("임무 설정")]
         [SerializeField] private Transform droneStationLocation;
         [SerializeField] private float missionCruisingAgl = 50.0f;
-        [SerializeField] private float arrivalDistanceThreshold = 2.5f;
+        [SerializeField] private float arrivalDistanceThreshold = 0.1f; // 매우 작은 값으로 유지
         [SerializeField] private float preActionStabilizationTime = 0.5f;
-        [SerializeField] private float retreatDistance = 15.0f;
+        [Tooltip("폭탄 투하 후 다음 행동까지 대기하는 시간입니다.")]
+        [SerializeField] private float postDropMoveDelay = 1.5f;
+        [SerializeField] private float retreatDistance = 10.0f;
         private float _arrivalDistanceThresholdSqr;
-        private Vector3 _currentTargetPositionXZ;
+        private Vector3 _currentTargetPosition;
         private int _currentBombLoad;
         [SerializeField] private int totalBombs = 6;
         
@@ -64,7 +63,7 @@ namespace JWK.Scripts
         [SerializeField] private float kpAltitude = 2.0f;
         [SerializeField] private float kdAltitude = 2.5f;
         [SerializeField] private float landingDescentRate = 0.4f;
-        [SerializeField] private float terrainCheckDistance = 200.0f;
+        [SerializeField] private float terrainCheckDistance = 20.0f;
         [SerializeField] private LayerMask groundLayerMask;
         private float _currentGroundYAgl;
         private float _targetAltitudeAbs;
@@ -181,12 +180,12 @@ namespace JWK.Scripts
         {
             IsArrived = false;
             Vector3 currentPos = transform.position;
-            Vector3 targetPos = _currentTargetPositionXZ;
-            float distanceSqr = (currentPos.x - targetPos.x) * (currentPos.x - targetPos.x) + 
-                                (currentPos.z - targetPos.z) * (currentPos.z - targetPos.z);
+            Vector3 targetPos = _currentTargetPosition;
             
-            // [수정] 도착 판정 조건을 '거리'만으로 완화하여 반응 속도를 높입니다.
-            // 속도 조건은 제거하고, 반경 안에 들어오면 즉시 다음 상태로 넘어갑니다.
+            Vector3 currentPosXZ = new Vector3(currentPos.x, 0, currentPos.z);
+            Vector3 targetPosXZ = new Vector3(targetPos.x, 0, targetPos.z);
+            float distanceSqr = (currentPosXZ - targetPosXZ).sqrMagnitude;
+
             if (distanceSqr < _arrivalDistanceThresholdSqr)
             {
                 IsArrived = true;
@@ -196,7 +195,7 @@ namespace JWK.Scripts
                     if (_actionCoroutine != null) StopCoroutine(_actionCoroutine);
                     _actionCoroutine = StartCoroutine(PerformActionCoroutine());
                 }
-                else 
+                else // 기지 복귀 또는 긴급 복귀 시
                 {
                     currentMissionState = DroneMissionState.Landing;
                     _targetAltitudeAbs = droneStationLocation ? droneStationLocation.position.y : _currentGroundYAgl;
@@ -207,13 +206,12 @@ namespace JWK.Scripts
         private void Handle_Retreating()
         {
             Vector3 currentPos = transform.position;
-            Vector3 targetPos = _currentTargetPositionXZ;
+            Vector3 targetPos = _currentTargetPosition;
             float distanceSqr = (currentPos.x - targetPos.x) * (currentPos.x - targetPos.x) + 
                                 (currentPos.z - targetPos.z) * (currentPos.z - targetPos.z);
 
             if (distanceSqr < _arrivalDistanceThresholdSqr)
             {
-                // 후퇴 지점에 도착하면 즉시 다음 행동을 결정합니다.
                 DecideNextAction();
             }
         }
@@ -242,14 +240,24 @@ namespace JWK.Scripts
         
         private IEnumerator PerformActionCoroutine()
         {
-            // [수정] 드론이 물리적으로 완전히 멈출 때까지 기다리는 로직을 강화합니다.
-            // PerformingAction 상태의 물리 로직이 제동을 거는 동안, 이 코루틴은 기다립니다.
-            while (_rb.linearVelocity.sqrMagnitude > 0.01f || _rb.angularVelocity.sqrMagnitude > 0.01f)
+            // 드론이 목표 지점 상공에서 안정화될 때까지 기다립니다.
+            while (true)
             {
+                Vector3 horizontalVelocity = _rb.linearVelocity;
+                horizontalVelocity.y = 0;
+                
+                if (horizontalVelocity.sqrMagnitude < 0.01f && _rb.angularVelocity.sqrMagnitude < 0.01f)
+                {
+                    break; // 안정화되었으므로 루프 탈출
+                }
+                
                 yield return _waitForFixedUpdate;
             }
-            
-            yield return _preActionWait;
+
+            // 안정화 후 추가 대기 시간을 제거합니다.
+            // 이 대기 시간 동안 드론이 미세하게 움직여 오차가 발생할 수 있습니다.
+            // 이제 드론은 안정화되는 즉시 폭탄을 투하합니다.
+            // yield return _preActionWait; // 이 라인을 주석 처리하거나 삭제합니다.
 
             if (currentPayload == PayloadType.FireExtinguishingBomb)
             {
@@ -259,18 +267,18 @@ namespace JWK.Scripts
                     _currentBombLoad--;
                 }
                 else
-                {
                     Debug.LogWarning("ExtinguisherDropSystem이 없거나 폭탄을 모두 소진했습니다.");
-                }
             }
             
+            Debug.Log($"폭탄 투하 완료. {postDropMoveDelay}초 후 다음 행동을 시작합니다.");
+            yield return new WaitForSeconds(postDropMoveDelay);
+
             Vector3 retreatDirection = -transform.forward;
             Vector3 retreatPosition = transform.position + retreatDirection * retreatDistance;
             
-            _currentTargetPositionXZ = retreatPosition;
-            _currentTargetPositionXZ.y = 0;
+            _currentTargetPosition = retreatPosition;
 
-            Debug.Log($"공격 완료. 후퇴 지점({retreatPosition})으로 이동합니다.");
+            Debug.Log($"후퇴 지점({retreatPosition})으로 이동합니다.");
             currentMissionState = DroneMissionState.RetreatingAfterAction;
         
             _actionCoroutine = null;
@@ -281,8 +289,7 @@ namespace JWK.Scripts
             if (_fireTargetsQueue.Count > 0 && _currentBombLoad > 0)
             {
                 GameObject nextTarget = _fireTargetsQueue.Dequeue();
-                _currentTargetPositionXZ = nextTarget.transform.position;
-                _currentTargetPositionXZ.y = 0;
+                _currentTargetPosition = nextTarget.transform.position;
                 
                 Debug.Log($"다음 목표({nextTarget.name})로 이동합니다. 남은 목표: {_fireTargetsQueue.Count}");
                 currentMissionState = DroneMissionState.MovingToTarget;
@@ -293,8 +300,7 @@ namespace JWK.Scripts
                 if (_currentBombLoad == 0) Debug.Log("폭탄을 모두 소진했습니다.");
                 
                 Debug.Log("기지로 복귀합니다.");
-                _currentTargetPositionXZ = droneStationLocation.position;
-                _currentTargetPositionXZ.y = 0;
+                _currentTargetPosition = droneStationLocation.position;
                 
                 _targetAltitudeAbs = droneStationLocation.position.y + 20f;
                 currentMissionState = DroneMissionState.ReturningToStation;
@@ -312,8 +318,7 @@ namespace JWK.Scripts
             DroneEvents.TakeOffSequenceStarted();
             
             Debug.Log($"[Mission] 단일 목표 임무 시작! Target: {targetPosition}");
-            _currentTargetPositionXZ = targetPosition;
-            _currentTargetPositionXZ.y = 0;
+            _currentTargetPosition = targetPosition;
             
             SetTakeOffAltitudeAndState();
         }
@@ -339,8 +344,7 @@ namespace JWK.Scripts
             DroneEvents.TakeOffSequenceStarted();
             
             GameObject firstTarget = _fireTargetsQueue.Dequeue();
-            _currentTargetPositionXZ = firstTarget.transform.position;
-            _currentTargetPositionXZ.y = 0;
+            _currentTargetPosition = firstTarget.transform.position;
 
             Debug.Log($"[Mission] 순차 화재 진압 임무 시작! 총 {fireTargets.Count}개의 목표. 첫 목표: {firstTarget.name}");
 
@@ -353,13 +357,10 @@ namespace JWK.Scripts
             Vector3 takeoffRefPos = droneStationLocation ? droneStationLocation.position : transform.position;
         
             if (Physics.Raycast(takeoffRefPos + Vector3.up, Vector3.down, out RaycastHit hit, terrainCheckDistance, groundLayerMask))
-            {
                 _targetAltitudeAbs = hit.point.y + missionCruisingAgl;
-            }
+            
             else
-            {
                 _targetAltitudeAbs = takeoffRefPos.y + missionCruisingAgl;
-            }
         
             currentMissionState = DroneMissionState.TakingOff;
         }
@@ -389,7 +390,10 @@ namespace JWK.Scripts
                     _currentGroundYAgl = hit.point.y;
                 }
                 
-                if (currentMissionState == DroneMissionState.MovingToTarget || currentMissionState == DroneMissionState.RetreatingAfterAction)
+                if (currentMissionState == DroneMissionState.MovingToTarget || 
+                    currentMissionState == DroneMissionState.RetreatingAfterAction ||
+                    currentMissionState == DroneMissionState.PerformingAction ||
+                    currentMissionState == DroneMissionState.HoldingPosition)
                 {
                     _targetAltitudeAbs = _currentGroundYAgl + missionCruisingAgl;
                 }
@@ -473,35 +477,42 @@ namespace JWK.Scripts
         {
             Vector3 currentPosXZ = transform.position;
             currentPosXZ.y = 0;
-            Vector3 targetPosXZ = _currentTargetPositionXZ;
+            Vector3 targetPosXZ = _currentTargetPosition;
             targetPosXZ.y = 0;
 
             float distanceSqrToTarget = (targetPosXZ - currentPosXZ).sqrMagnitude;
             
-            // [수정] 이동/회전과 정지/제동의 역할을 명확히 분리합니다.
-            // 이 함수는 이제 목표 반경 밖에 있을 때만 작동하여 이동/회전만 책임집니다.
             if (distanceSqrToTarget > _arrivalDistanceThresholdSqr)
             {
                 Vector3 targetDirectionOnPlane = (targetPosXZ - currentPosXZ).normalized;
-                float effectiveMoveForce = moveForce;
-                
-                if (distanceSqrToTarget < _decelerationStartDistanceSqr)
-                {
-                    effectiveMoveForce = Mathf.Lerp(moveForce * 0.2f, moveForce, Mathf.Sqrt(distanceSqrToTarget) / decelerationStartDistanceXZ);
-                }
-
-                Vector3 desiredVelocityXZ = targetDirectionOnPlane * effectiveMoveForce;
                 Quaternion targetRotation = Quaternion.LookRotation(targetDirectionOnPlane);
-                
-                if (Quaternion.Angle(transform.rotation, targetRotation) > turnBeforeMoveAngleThreshold)
+                float angleToTarget = Quaternion.Angle(transform.rotation, targetRotation);
+
+                if (distanceSqrToTarget < _decelerationStartDistanceSqr && angleToTarget > turnBeforeMoveAngleThreshold)
                 {
-                    desiredVelocityXZ *= 0.2f;
+                    Vector3 horizontalVel = _rb.linearVelocity;
+                    horizontalVel.y = 0;
+                    _rb.AddForce(-horizontalVel, ForceMode.VelocityChange); 
                 }
-                
-                Vector3 currentVelocityXZ = _rb.linearVelocity;
-                currentVelocityXZ.y = 0;
-                Vector3 forceNeededXZ = (desiredVelocityXZ - currentVelocityXZ) * 3.0f;
-                _rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
+                else
+                {
+                    float effectiveMoveForce = moveForce;
+                    if (distanceSqrToTarget < _decelerationStartDistanceSqr)
+                    {
+                        effectiveMoveForce = Mathf.Lerp(moveForce * 0.2f, moveForce, Mathf.Sqrt(distanceSqrToTarget) / decelerationStartDistanceXZ);
+                    }
+
+                    Vector3 desiredVelocityXZ = targetDirectionOnPlane * effectiveMoveForce;
+                    if (angleToTarget > turnBeforeMoveAngleThreshold)
+                    {
+                        desiredVelocityXZ *= 0.2f;
+                    }
+                    
+                    Vector3 currentVelocityXZ = _rb.linearVelocity;
+                    currentVelocityXZ.y = 0;
+                    Vector3 forceNeededXZ = (desiredVelocityXZ - currentVelocityXZ) * 3.0f;
+                    _rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
+                }
 
                 float targetAngleY = targetRotation.eulerAngles.y;
                 float angleErrorY = Mathf.DeltaAngle(_rb.rotation.eulerAngles.y, targetAngleY);
@@ -509,8 +520,6 @@ namespace JWK.Scripts
                 float dTorque = -_rb.angularVelocity.y * kdRotation;
                 _rb.AddTorque(Vector3.up * Mathf.Clamp(pTorque + dTorque, -maxRotationTorque, maxRotationTorque), ForceMode.Acceleration);
             }
-            // [수정] 목표 반경 안에 들어왔을 때의 제동 로직은 이제 각 상태(PerformingAction 등)의 물리 로직이 전담하므로,
-            // 이 함수의 else 블록은 제거합니다.
         }
         
         public void DispatchMissionToTestTarget()
@@ -708,8 +717,7 @@ namespace JWK.Scripts
         {
             if (droneStationLocation)
             {
-                _currentTargetPositionXZ = droneStationLocation.position;
-                _currentTargetPositionXZ.y = 0;
+                _currentTargetPosition = droneStationLocation.position;
                 currentMissionState = DroneMissionState.EmergencyReturn;
                 if (_actionCoroutine != null) StopCoroutine(_actionCoroutine);
             }

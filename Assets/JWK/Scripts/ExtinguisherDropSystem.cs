@@ -127,6 +127,8 @@ namespace JWK.Scripts
                 if (bombToDrop.TryGetComponent<Rigidbody>(out var bombRb))
                 {
                     bombRb.isKinematic = false;
+                    bombRb.linearVelocity = Vector3.zero;
+                    bombRb.angularVelocity = Vector3.zero;
                     StartCoroutine(RotateBombToGround(bombToDrop));
                 }
             }
@@ -158,7 +160,7 @@ namespace JWK.Scripts
         /// </summary>
         private IEnumerator RotateBombToGround(GameObject bomb)
         {
-            yield return _bombRotateWait;
+            yield return new WaitForSeconds(0.5f);
             if (!bomb) yield break;
 
             float rotationDuration = 2.0f;

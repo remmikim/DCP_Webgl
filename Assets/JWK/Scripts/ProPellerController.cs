@@ -49,14 +49,10 @@ namespace JWK.Scripts
 
                 // 최적화: 캐시된 카운트를 사용함.
                 for (int i = 0; i < _cwCount; i++)
-                {
                     cwProPellers[i].Rotate(Vector3.up, rotationThisFrame, Space.Self);
-                }
                 
                 for (int i = 0; i < _ccwCount; i++)
-                {
                     ccwProPellers[i].Rotate(Vector3.up, -rotationThisFrame, Space.Self);
-                }
             }
         }
         
