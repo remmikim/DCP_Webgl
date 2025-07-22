@@ -20,7 +20,7 @@ public class Manager : MonoBehaviour
     public Chain1 chainInstance; // Y0 상태에 따라 제어할 Chain1 스크립트 참조
     public Chain1 chainInstance12; // Y1 상태에 따라 제어할 Chain1 스크립트 참조
     public PipeHolders pipeHolders;
-    public ZLiftTigger zLift;
+    public ZLiftTrigger zLift;
     
 
     // ====== ManagerWrite Class 불러오기 ======

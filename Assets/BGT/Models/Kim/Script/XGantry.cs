@@ -13,13 +13,11 @@ public class XGantry : MonoBehaviour
 
     // 로컬 Y축 이동 거리들 (델타 값)
     // 오른쪽 이동 (Y축 음수 방향)을 위한 이동 거리들 (예: -3.0f면 현재 위치에서 -3.0만큼 이동)
-    private float[] moveDistancesRight = { -1.5f, -1.25f, -1.5f };
+    private float[] moveDistancesRight = {-0.123f,-0.26f, -0.96f, -0.48f, -0.96f, -0.48f }; // 오른쪽 Y8
     // 왼쪽 이동 (Y축 양수 방향)을 위한 이동 거리들 (예: 0.75f면 현재 위치에서 +0.75만큼 이동)
-    private float[] moveDistancesLeft = { 1.5f, 1.77f, 0.5f };
+    private float[] moveDistancesLeft = {0.123f, 0.26f, 0.96f, 0.48f, 0.96f, 0.48f }; // 왼쪽 Y9
 
-    // 초기 Y 위치 (어떤 이동이 시작되기 전의 시작점, 로컬 좌표)
-    public float initialYPosition = 1.5f;
-
+    
     // 현재 활성 이동을 위한 최종 목표 위치 (로컬 좌표)
     private Vector3 currentLocalTargetPosition;
 
@@ -33,30 +31,6 @@ public class XGantry : MonoBehaviour
 
     // 진행 중인 이동을 중지해야 할 경우를 위한 코루틴 참조
     private Coroutine currentMovementCoroutine;
-
-    void Awake() // 초기 설정을 위해 Start()보다 먼저 호출되는 Awake() 사용
-    {
-        //if (XGantryMoving == null)
-        //{
-        //    Debug.LogError("XGantryMoving GameObject가 인스펙터에 할당되지 않았습니다!");
-        //    return; // 참조가 없으면 함수 종료
-        //}
-
-        //// XGantryMoving 오브젝트의 초기 로컬 위치를 설정합니다.
-        //// 로컬 X와 Z는 유지하고 로컬 Y만 initialYPosition으로 설정
-        //XGantryMoving.transform.localPosition = new Vector3(
-        //    XGantryMoving.transform.localPosition.x,
-        //    initialYPosition,
-        //    XGantryMoving.transform.localPosition.z
-        //);
-        //Debug.Log($"XGantryMoving 초기 로컬 위치 Y: {initialYPosition}로 설정되었습니다.");
-
-        //// Rigidbody가 있다면 물리적 간섭을 막기 위해 Is Kinematic으로 설정합니다.
-        //if (XGantryMoving.GetComponent<Rigidbody>() != null)
-        //{
-        //    XGantryMoving.GetComponent<Rigidbody>().isKinematic = true;
-        //}
-    }
 
     // Update는 더 이상 직접적인 이동 로직을 담당하지 않습니다.
     // 이동 로직은 이제 코루틴에서 처리됩니다.

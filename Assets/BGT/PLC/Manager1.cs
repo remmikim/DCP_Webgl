@@ -25,7 +25,7 @@ public class Manager1 : MonoBehaviour
     // 제어할 Unity 오브젝트 스크립트 참조 (인스펙터에서 할당)
     public RoofMove roofMove;
     public PipeHolders pipeHolders;
-    public ZLiftTigger zLift;
+    public ZLiftTrigger zLift;
     public Base2Down base2down1;
     public Base2Down base2down2;
     public Base2Down base2down3;
