@@ -1,7 +1,6 @@
 ﻿using System;
-using UnityEngine;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.Drone
 {
     // --- 드론의 주요 상태 변경 이벤트를 관리하는 클래스
     public static class DroneEvents

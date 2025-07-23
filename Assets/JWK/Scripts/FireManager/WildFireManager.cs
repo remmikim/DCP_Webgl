@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.FireManager
 {
     public class WildfireManager : MonoBehaviour
     {

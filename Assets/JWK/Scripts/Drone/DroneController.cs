@@ -5,11 +5,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using JWK.Scripts.DropSystem;
+using JWK.Scripts.FireManager;
 using SimpleJSON;
 using UnityEngine;
 using WebSocketSharp;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.Drone
 {
     [RequireComponent(typeof(Rigidbody))]
     public class DroneController : MonoBehaviour
@@ -64,7 +66,7 @@ namespace JWK.Scripts
         [SerializeField] private float kpAltitude = 2.0f;
         [SerializeField] private float kdAltitude = 2.5f;
         [SerializeField] private float landingDescentRate = 0.4f;
-        [SerializeField] private float terrainCheckDistance = 20.0f;
+        [SerializeField] private float terrainCheckDistance = 50.0f;
         [SerializeField] private LayerMask groundLayerMask;
         private float _currentGroundYAgl;
         private float _targetAltitudeAbs;
@@ -75,6 +77,15 @@ namespace JWK.Scripts
         [SerializeField] private float turnBeforeMoveAngleThreshold = 15.0f;
         [SerializeField] private float decelerationStartDistanceXZ = 15.0f;
         [SerializeField] private float maxRotationTorque = 15.0f;
+        // ====================================================================================
+        // [수정] 부드러운 이동을 위한 변수 추가
+        [Tooltip("회전이 얼마나 부드럽게 될지 결정합니다. 낮을수록 빠르고 예리하게, 높을수록 부드럽게 회전합니다.")]
+        [SerializeField] private float rotationSmoothTime = 0.8f;
+        [Tooltip("속도 변경(가/감속)이 얼마나 부드럽게 될지 결정합니다. 낮을수록 반응이 빠르고, 높을수록 부드러워집니다.")]
+        [SerializeField] private float velocitySmoothTime = 0.8f;
+        private Vector3 _smoothedLookDirection;
+        private Vector3 _currentSmoothedVelocity;
+        // ====================================================================================
         private float _decelerationStartDistanceSqr;
 
         private WebSocket _ws;
@@ -117,6 +128,10 @@ namespace JWK.Scripts
             PerformInitialGroundCheckAndSetAltitude();
             currentMissionState = DroneMissionState.IdleAtStation;
             _currentBombLoad = totalBombs;
+
+            // [수정] 스무딩 변수 초기화
+            _smoothedLookDirection = transform.forward;
+            _currentSmoothedVelocity = Vector3.zero;
         }
 
         private void Update()
@@ -168,15 +183,12 @@ namespace JWK.Scripts
             }
         }
         
-        // [수정] 드론 본체를 기준으로, 미리 계산된 고정 목표 지점으로 이동
         private void Handle_MovingToTarget()
         {
-            // 목표 지점(_currentTargetPosition)은 SetMissionTarget에서 한 번만 계산됨
             Vector3 dronePosXZ = new Vector3(transform.position.x, 0, transform.position.z);
             Vector3 targetPosXZ = new Vector3(_currentTargetPosition.x, 0, _currentTargetPosition.z);
             float distanceSqr = (dronePosXZ - targetPosXZ).sqrMagnitude;
 
-            // 드론 본체가 목표 지점에 도착하면 투하 시작
             if (distanceSqr < _arrivalDistanceThresholdSqr)
             {
                 IsArrived = true;
@@ -186,7 +198,6 @@ namespace JWK.Scripts
             }
         }
 
-        // 복귀 또는 후퇴 시에는 드론 본체 기준으로 이동
         private void Handle_MovingToStation()
         {
             Vector3 currentPosXZ = new Vector3(transform.position.x, 0, transform.position.z);
@@ -248,7 +259,7 @@ namespace JWK.Scripts
             {
                 if(extinguisherDropSystem && _currentBombLoad > 0)
                 {
-                    yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb());
+                    yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition));
                     _currentBombLoad--;
                 }
                 else
@@ -292,31 +303,24 @@ namespace JWK.Scripts
             }
         }
         
-        // [핵심 수정] 목표 설정 시, 드론이 날아갈 고정된 위치를 '한 번만' 계산
         private void SetMissionTarget(Vector3 actualFirePosition)
         {
             _actualFireTargetPosition = actualFirePosition;
 
             if (extinguisherDropSystem && _currentBombLoad > 0)
             {
-                // 1. 드론이 목표를 향할 때의 '예상 회전값'을 계산
                 Vector3 directionToTarget = (actualFirePosition - transform.position);
-                directionToTarget.y = 0; // 수평 방향만 고려
+                directionToTarget.y = 0;
                 Quaternion predictedRotation = Quaternion.LookRotation(directionToTarget);
 
-                // 2. 다음 폭탄의 '로컬' 오프셋을 드론 루트 기준으로 가져옴
                 Vector3 bombLocalOffset = extinguisherDropSystem.GetNextBombOffsetFromDroneRoot(this.transform);
-
-                // 3. '예상 회전값'을 기준으로 월드 오프셋을 계산
                 Vector3 bombWorldOffset = predictedRotation * bombLocalOffset;
 
-                // 4. 드론이 비행할 최종 목표 위치를 설정
                 _currentTargetPosition = actualFirePosition - bombWorldOffset;
             }
+            
             else
-            {
                 _currentTargetPosition = actualFirePosition;
-            }
         }
         
         public void StartSingleTargetMission(Vector3 targetPosition)
@@ -447,11 +451,16 @@ namespace JWK.Scripts
                 case DroneMissionState.IdleAtStation:
                     _rb.AddForce(-_rb.linearVelocity, ForceMode.VelocityChange);
                     _rb.AddTorque(-_rb.angularVelocity, ForceMode.VelocityChange);
+                    // [수정] 정지 시 스무딩 변수도 리셋
+                    _currentSmoothedVelocity = Vector3.zero;
+                    _smoothedLookDirection = transform.forward;
                     break;
                 case DroneMissionState.PerformingAction:
                 case DroneMissionState.HoldingPosition:
                     ApplyVerticalForce(2.0f);
                     ApplyHorizontalDamping();
+                     // [수정] 호버링 시 스무딩 변수 리셋
+                    _currentSmoothedVelocity = Vector3.zero;
                     break;
             }
         }
@@ -490,51 +499,57 @@ namespace JWK.Scripts
             }
         }
 
+        // ====================================================================================
+        // [핵심 수정] 수평/회전 힘 적용 로직을 스무딩을 사용하도록 변경
         private void ApplyHorizontalAndRotationalForces()
         {
+            // 1. 목표 위치와 현재 위치의 수평 벡터 계산
             Vector3 currentPosXZ = transform.position;
             currentPosXZ.y = 0;
             Vector3 targetPosXZ = _currentTargetPosition;
             targetPosXZ.y = 0;
+            Vector3 directionToTarget = (targetPosXZ - currentPosXZ);
+            float distanceToTarget = directionToTarget.magnitude;
 
-            Vector3 targetDirectionOnPlane = (targetPosXZ - currentPosXZ).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirectionOnPlane);
+            // 2. 부드러운 회전을 위한 목표 방향 계산 (Slerp)
+            Vector3 targetLookDirection = (distanceToTarget > 0.01f) ? directionToTarget.normalized : transform.forward;
+            _smoothedLookDirection = Vector3.Slerp(_smoothedLookDirection, targetLookDirection, Time.fixedDeltaTime / rotationSmoothTime);
+            Quaternion targetRotation = Quaternion.LookRotation(_smoothedLookDirection);
             
-            float distanceSqrToTarget = (targetPosXZ - currentPosXZ).sqrMagnitude;
+            // 3. 목표에 가까워질수록 감속하는 로직
+            float effectiveMoveForce = moveForce;
+            if (distanceToTarget < decelerationStartDistanceXZ)
+            {
+                effectiveMoveForce = Mathf.Lerp(moveForce * 0.2f, moveForce, distanceToTarget / decelerationStartDistanceXZ);
+            }
+
+            // 4. 부드러운 속도 변화를 위한 목표 속도 계산 (Lerp)
+            Vector3 desiredVelocityXZ = _smoothedLookDirection * effectiveMoveForce;
             float angleToTarget = Quaternion.Angle(transform.rotation, targetRotation);
-
-            if (distanceSqrToTarget < _decelerationStartDistanceSqr && angleToTarget > turnBeforeMoveAngleThreshold)
-            {
-                Vector3 horizontalVel = _rb.linearVelocity;
-                horizontalVel.y = 0;
-                _rb.AddForce(-horizontalVel, ForceMode.VelocityChange); 
-            }
-            else
-            {
-                float effectiveMoveForce = moveForce;
-                if (distanceSqrToTarget < _decelerationStartDistanceSqr)
-                {
-                    effectiveMoveForce = Mathf.Lerp(moveForce * 0.2f, moveForce, Mathf.Sqrt(distanceSqrToTarget) / decelerationStartDistanceXZ);
-                }
-
-                Vector3 desiredVelocityXZ = targetDirectionOnPlane * effectiveMoveForce;
-                if (angleToTarget > turnBeforeMoveAngleThreshold)
-                {
-                    desiredVelocityXZ *= 0.2f;
-                }
-                
-                Vector3 currentVelocityXZ = _rb.linearVelocity;
-                currentVelocityXZ.y = 0;
-                Vector3 forceNeededXZ = (desiredVelocityXZ - currentVelocityXZ) * 3.0f;
-                _rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
-            }
             
+            // 아직 목표를 완전히 바라보지 못했다면 이동 속도를 줄여 회전에 집중
+            if (angleToTarget > turnBeforeMoveAngleThreshold)
+            {
+                desiredVelocityXZ *= 0.2f;
+            }
+
+            // 현재의 부드러운 속도를 목표 속도 쪽으로 점진적으로 변경
+            _currentSmoothedVelocity = Vector3.Lerp(_currentSmoothedVelocity, desiredVelocityXZ, Time.fixedDeltaTime / velocitySmoothTime);
+
+            // 5. 계산된 부드러운 목표 속도에 도달하기 위한 힘 적용
+            Vector3 currentVelocityXZ = _rb.linearVelocity;
+            currentVelocityXZ.y = 0;
+            Vector3 forceNeededXZ = (_currentSmoothedVelocity - currentVelocityXZ) * 3.0f; // 3.0f는 힘의 강도 조절 계수
+            _rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
+
+            // 6. 계산된 부드러운 목표 회전을 향한 토크 적용 (PD 컨트롤러)
             float targetAngleY = targetRotation.eulerAngles.y;
             float angleErrorY = Mathf.DeltaAngle(_rb.rotation.eulerAngles.y, targetAngleY);
             float pTorque = angleErrorY * Mathf.Deg2Rad * kpRotation;
             float dTorque = -_rb.angularVelocity.y * kdRotation;
             _rb.AddTorque(Vector3.up * Mathf.Clamp(pTorque + dTorque, -maxRotationTorque, maxRotationTorque), ForceMode.Acceleration);
         }
+        // ====================================================================================
         
         public void DispatchMissionToTestTarget()
         {

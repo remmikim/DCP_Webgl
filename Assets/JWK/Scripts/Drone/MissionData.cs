@@ -1,6 +1,6 @@
 // C:\Unity\TeamProject\Assets\JWK\Scripts\MissionData.cs
 
-namespace JWK.Scripts
+namespace JWK.Scripts.Drone
 {
     public enum PayloadType
     {

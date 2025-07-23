@@ -1,35 +1,33 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.DropSystem
 {
     public class ExtinguisherDropSystem : MonoBehaviour
     {
-        [Header("회전 및 투하 대상")]
-        [Tooltip("안쪽 로터의 Transform을 할당하세요.")]
-        [SerializeField] private Transform rotaryIn;
-        
-        [Tooltip("바깥쪽 로터의 Transform을 할당하세요.")]
-        [SerializeField] private Transform rotaryOut;
-        
-        [Tooltip("모든 폭탄(Bomb_1, Bomb_2 등)을 담고 있는 부모 오브젝트를 할당하세요.")]
-        [SerializeField] private Transform bombsParent;
+        [Header("회전 및 투하 대상")] [Tooltip("안쪽 로터의 Transform을 할당하세요.")] [SerializeField]
+        private Transform rotaryIn;
 
-        [Tooltip("이 리스트는 시작 시 자동으로 채워지므로, Inspector에서 직접 수정할 필요 없습니다.")]
-        [SerializeField] private List<GameObject> bombList;
+        [Tooltip("바깥쪽 로터의 Transform을 할당하세요.")] [SerializeField]
+        private Transform rotaryOut;
 
-        [Header("애니메이션 설정")]
-        [Tooltip("로터가 회전하는 속도입니다 (도/초).")]
-        [SerializeField] private float rotationSpeed = 180.0f;
-        
-        [Tooltip("각 행동 사이의 대기 시간입니다 (초).")]
-        [SerializeField] private float delayBetweenActions = 1.0f;
+        [Tooltip("모든 폭탄(Bomb_1, Bomb_2 등)을 담고 있는 부모 오브젝트를 할당하세요.")] [SerializeField]
+        private Transform bombsParent;
+
+        [Tooltip("이 리스트는 시작 시 자동으로 채워지므로, Inspector에서 직접 수정할 필요 없습니다.")] [SerializeField]
+        private List<GameObject> bombList;
+
+        [Header("애니메이션 설정")] [Tooltip("로터가 회전하는 속도입니다 (도/초).")] [SerializeField]
+        private float rotationSpeed = 180.0f;
+
+        [Tooltip("각 행동 사이의 대기 시간입니다 (초).")] [SerializeField]
+        private float delayBetweenActions = 1.0f;
 
         // --- 내부 변수 ---
         private bool _isActionInProgress = false;
         private int _bombsDroppedCount = 0;
-        
+
         // --- 코루틴 캐싱 (GC 최적화) ---
         private WaitForSeconds _actionDelayWait;
         private readonly WaitForSeconds _clearanceDelay = new WaitForSeconds(1.0f);
@@ -53,7 +51,7 @@ namespace JWK.Scripts
             {
                 bombList.Add(bombTransform.gameObject);
             }
-            
+
             Debug.Log($"{bombList.Count}개의 폭탄이 자동으로 리스트에 추가되었습니다.", this.gameObject);
         }
 
@@ -80,38 +78,38 @@ namespace JWK.Scripts
             return nextBomb != null ? nextBomb.transform.position : transform.position;
         }
 
-        public IEnumerator DropSingleBomb()
+        public IEnumerator DropSingleBomb(Vector3 targetPosition)
         {
             if (_isActionInProgress || _bombsDroppedCount >= bombList.Count)
             {
                 yield break;
             }
-            
+
             _isActionInProgress = true;
 
             switch (_bombsDroppedCount)
             {
                 case 0:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     break;
                 case 1:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(1));
                     break;
                 case 2:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     break;
                 case 3:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(2));
                     break;
                 case 4:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     break;
                 case 5:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(3));
                     break;
@@ -121,10 +119,10 @@ namespace JWK.Scripts
             _isActionInProgress = false;
         }
 
-        private IEnumerator RotateAndDropSequence(int bombIndex, float angle)
+        private IEnumerator RotateAndDropSequence(int bombIndex, float angle, Vector3 targetPosition)
         {
             yield return StartCoroutine(RotateRotor(rotaryOut, angle));
-            DetachBombByIndex(bombIndex);
+            DetachBombByIndex(bombIndex, targetPosition);
             yield return _clearanceDelay;
         }
 
@@ -134,16 +132,17 @@ namespace JWK.Scripts
             yield return StartCoroutine(RotateRotor(rotaryOut, 90f));
         }
 
-        private void DetachBombByIndex(int index)
+        private void DetachBombByIndex(int index, Vector3 targetPosition)
         {
             if (bombList == null || index < 0 || index >= bombList.Count)
-            {
                 return;
-            }
 
             GameObject bombToDrop = bombList[index];
             if (bombToDrop)
             {
+                if (bombToDrop.TryGetComponent<Bomb_Particle>(out var bombParticle))
+                    bombParticle.ActivateGuidance(targetPosition);
+                
                 bombToDrop.transform.SetParent(null);
 
                 if (bombToDrop.TryGetComponent<Rigidbody>(out var bombRb))
@@ -171,9 +170,10 @@ namespace JWK.Scripts
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
             rotor.localRotation = targetRot;
         }
-        
+
         private IEnumerator RotateBombToGround(GameObject bomb)
         {
             yield return new WaitForSeconds(0.5f);
@@ -191,6 +191,7 @@ namespace JWK.Scripts
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
             if (bomb) bomb.transform.rotation = targetRotation;
         }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.Drone
 {
     public class ProPellerController : MonoBehaviour
     {
