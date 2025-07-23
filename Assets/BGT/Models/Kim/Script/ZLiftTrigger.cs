@@ -15,15 +15,15 @@ public class ZLiftTrigger : MonoBehaviour
 
     // LiftWeight의 Z축 이동 거리들 (델타 값)
     // "Up" (LiftWeight의 Z축 음수 방향)을 위한 이동 거리들
-    private float[] liftWeightMoveDistancesUp = {-0.52f, -1.0f, -0.5f, -2.5f };
+    private float[] liftWeightMoveDistancesUp = {-0.55f, -0.45f, -0.5f, -2.5f };
     // "Down" (LiftWeight의 Z축 양수 방향)을 위한 이동 거리들
-    private float[] liftWeightMoveDistancesDown = {0.52f, 1.0f, 0.5f, 0.5f };
+    private float[] liftWeightMoveDistancesDown = {0.55f, 1.0f, 0.5f, 0.5f };
 
     // CarriageFrame의 Z축 이동 거리들 (델타 값)
     // "Up" (CarriageFrame의 Z축 양수 방향)을 위한 이동 거리들
-    private float[] carriageFrameMoveDistancesUp = { 0.52f, 1.0f, 0.5f, 2.5f };
+    private float[] carriageFrameMoveDistancesUp = { 0.55f, 0.45f, 0.5f, 2.5f };
     // "Down" (CarriageFrame의 Z축 음수 방향)을 위한 이동 거리들
-    private float[] carriageFrameMoveDistancesDown = {-0.52f, -1.0f, -0.5f, -0.5f };
+    private float[] carriageFrameMoveDistancesDown = {-0.55f, -1.0f, -0.5f, -0.5f };
 
    
     // 현재 활성 이동을 위한 최종 목표 위치 (로컬 좌표)
