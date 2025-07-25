@@ -78,7 +78,7 @@ namespace JWK.Scripts.Drone
         [SerializeField] private float decelerationStartDistanceXZ = 15.0f;
         [SerializeField] private float maxRotationTorque = 15.0f;
         // ====================================================================================
-        // [수정] 부드러운 이동을 위한 변수 추가
+        // 부드러운 이동을 위한 변수 추가
         [Tooltip("회전이 얼마나 부드럽게 될지 결정합니다. 낮을수록 빠르고 예리하게, 높을수록 부드럽게 회전합니다.")]
         [SerializeField] private float rotationSmoothTime = 0.8f;
         [Tooltip("속도 변경(가/감속)이 얼마나 부드럽게 될지 결정합니다. 낮을수록 반응이 빠르고, 높을수록 부드러워집니다.")]
@@ -129,7 +129,7 @@ namespace JWK.Scripts.Drone
             currentMissionState = DroneMissionState.IdleAtStation;
             _currentBombLoad = totalBombs;
 
-            // [수정] 스무딩 변수 초기화
+            // 스무딩 변수 초기화
             _smoothedLookDirection = transform.forward;
             _currentSmoothedVelocity = Vector3.zero;
         }
@@ -151,9 +151,8 @@ namespace JWK.Scripts.Drone
             _webSocketCts?.Dispose();
 
             if (_ws != null && _ws.IsAlive)
-            {
                 _ws.Close(CloseStatusCode.Normal, "Client shutting down");
-            }
+            
             _ws = null;
             StopAllCoroutines();
         }
@@ -178,9 +177,7 @@ namespace JWK.Scripts.Drone
         private void Handle_TakingOff()
         {
             if (CurrentAltitudeAbs >= _targetAltitudeAbs - 0.2f)
-            {
                 currentMissionState = DroneMissionState.MovingToTarget;
-            }
         }
         
         private void Handle_MovingToTarget()
@@ -207,9 +204,8 @@ namespace JWK.Scripts.Drone
             if (distanceSqr < _arrivalDistanceThresholdSqr)
             {
                 if (currentMissionState == DroneMissionState.RetreatingAfterAction)
-                {
                     DecideNextAction();
-                }
+                
                 else 
                 {
                     currentMissionState = DroneMissionState.Landing;
@@ -229,9 +225,8 @@ namespace JWK.Scripts.Drone
                     PerformInitialGroundCheckAndSetAltitude();
             
                     if (droneStationLocation)
-                    {
                         transform.rotation = droneStationLocation.rotation;
-                    }
+                    
                     DroneEvents.LandingSequenceCompleted();
                 }
             }
@@ -248,9 +243,7 @@ namespace JWK.Scripts.Drone
                 horizontalVelocity.y = 0;
                 
                 if (horizontalVelocity.sqrMagnitude < 0.01f && _rb.angularVelocity.sqrMagnitude < 0.01f)
-                {
                     break; 
-                }
                 
                 yield return _waitForFixedUpdate;
             }
@@ -259,14 +252,20 @@ namespace JWK.Scripts.Drone
             {
                 if(extinguisherDropSystem && _currentBombLoad > 0)
                 {
-                    yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition));
+                    Debug.Log($"<color=yellow>[좌표 비교 디버그] 소화탄 투하 직전</color>");
+                    Debug.Log($" - 드론 현재 위치: {transform.position}");
+                    Debug.Log($" - <color=red>실제 화재 목표 위치</color>(_actualFireTargetPosition): {_actualFireTargetPosition}");
+                    Debug.Log($" - <color=blue>드론 이동 목표 위치</color>(_currentTargetPosition): {_currentTargetPosition}");
+                    float distanceToTarget = Vector3.Distance(transform.position, _currentTargetPosition);
+                    Debug.Log($" - 드론-이동목표 간 거리: {distanceToTarget:F2}m");
+                    yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition, this.transform));
                     _currentBombLoad--;
                 }
                 else
                     Debug.LogWarning("ExtinguisherDropSystem이 없거나 폭탄을 모두 소진했습니다.");
             }
             
-            Debug.Log($"폭탄 투하 완료. {postDropMoveDelay}초 후 다음 행동을 시작합니다.");
+            // Debug.Log($"폭탄 투하 완료. {postDropMoveDelay}초 후 다음 행동을 시작합니다.");
             yield return new WaitForSeconds(postDropMoveDelay);
 
             Vector3 retreatDirection = -transform.forward;
@@ -274,7 +273,7 @@ namespace JWK.Scripts.Drone
             
             _currentTargetPosition = retreatPosition;
 
-            Debug.Log($"후퇴 지점({retreatPosition})으로 이동합니다.");
+            // Debug.Log($"후퇴 지점({retreatPosition})으로 이동합니다.");
             currentMissionState = DroneMissionState.RetreatingAfterAction;
         
             _actionCoroutine = null;
@@ -282,25 +281,39 @@ namespace JWK.Scripts.Drone
         
         private void DecideNextAction()
         {
-            if (_fireTargetsQueue.Count > 0 && _currentBombLoad > 0)
+            if (currentMissionState != DroneMissionState.RetreatingAfterAction)
+            {
+                return;
+            }
+
+            Debug.Log("다음 행동 결정 시작... 남은 폭탄: " + _currentBombLoad + ", 남은 타겟 큐: " + _fireTargetsQueue.Count);
+
+            while (_fireTargetsQueue.Count > 0 && _currentBombLoad > 0)
             {
                 GameObject nextTarget = _fireTargetsQueue.Dequeue();
-                SetMissionTarget(nextTarget.transform.position);
-                
-                Debug.Log($"다음 목표({nextTarget.name})로 이동합니다. 남은 목표: {_fireTargetsQueue.Count}");
-                currentMissionState = DroneMissionState.MovingToTarget;
+
+                if (nextTarget)
+                {
+                    Debug.Log($"[성공] 다음 유효 목표({nextTarget.name})를 찾았습니다. 이동을 시작합니다.");
+                    SetMissionTarget(nextTarget.transform.position);
+                    currentMissionState = DroneMissionState.MovingToTarget;
+                    // 유효한 목표를 찾았으니, 더 이상 이 함수에서 할 일은 없습니다.
+                    return;
+                }
+                else
+                {
+                    // 이 로그가 계속해서 찍힌다면, 큐 안의 목표들이 다른 요인에 의해 파괴되고 있다는 명백한 증거입니다.
+                    Debug.LogWarning("[정보] 이미 파괴된 목표(유령 참조)를 큐에서 제거하고 다음을 탐색합니다.");
+                }
             }
-            else
-            {
-                if (_fireTargetsQueue.Count == 0) Debug.Log("모든 화재 목표를 처리했습니다.");
-                if (_currentBombLoad == 0) Debug.Log("폭탄을 모두 소진했습니다.");
-                
-                Debug.Log("기지로 복귀합니다.");
-                _currentTargetPosition = droneStationLocation.position;
-                
-                _targetAltitudeAbs = droneStationLocation.position.y + 20f;
-                currentMissionState = DroneMissionState.ReturningToStation;
-            }
+
+            // while 루프를 빠져나왔다는 것은, 큐가 비었거나 유효한 타겟을 하나도 찾지 못했다는 의미입니다.
+            // 이 경우, 임무를 종료하고 기지로 복귀합니다.
+            Debug.Log("[임무 종료] 더 이상 처리할 유효 목표가 없습니다. 기지로 복귀합니다.");
+    
+            _currentTargetPosition = droneStationLocation.position;
+            _targetAltitudeAbs = droneStationLocation.position.y + 20f;
+            currentMissionState = DroneMissionState.ReturningToStation;
         }
         
         private void SetMissionTarget(Vector3 actualFirePosition)
@@ -309,7 +322,7 @@ namespace JWK.Scripts.Drone
 
             if (extinguisherDropSystem && _currentBombLoad > 0)
             {
-                Vector3 directionToTarget = (actualFirePosition - transform.position);
+                Vector3 directionToTarget = (actualFirePosition - droneStationLocation.position).normalized;
                 directionToTarget.y = 0;
                 Quaternion predictedRotation = Quaternion.LookRotation(directionToTarget);
 
@@ -333,7 +346,7 @@ namespace JWK.Scripts.Drone
 
             DroneEvents.TakeOffSequenceStarted();
             
-            Debug.Log($"[Mission] 단일 목표 임무 시작! Target: {targetPosition}");
+            // Debug.Log($"[Mission] 단일 목표 임무 시작! Target: {targetPosition}");
             SetMissionTarget(targetPosition);
             
             SetTakeOffAltitudeAndState();

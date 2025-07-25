@@ -33,6 +33,7 @@ namespace JWK.Scripts.FireManager
         private IEnumerator ExtinguishCoroutine()
         {
             _isExtinguishing = true;
+            yield return new WaitForSeconds(2.0f);
             
             _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             

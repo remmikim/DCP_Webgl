@@ -60,12 +60,12 @@ namespace JWK.Scripts.DropSystem
             _bombsDroppedCount = 0;
         }
 
-        // [수정] DroneController가 다음 폭탄의 오프셋을 '드론 루트 기준'으로 계산할 수 있도록 새로운 public 함수를 추가합니다.
+        // DroneController가 다음 폭탄의 오프셋을 '드론 루트 기준'으로 계산할 수 있도록 새로운 public 함수를 추가합니다.
         public Vector3 GetNextBombOffsetFromDroneRoot(Transform droneRoot)
         {
             if (_bombsDroppedCount >= bombList.Count) return Vector3.zero;
             GameObject nextBomb = bombList[_bombsDroppedCount];
-            if (nextBomb == null) return Vector3.zero;
+            if (!nextBomb) return Vector3.zero;
 
             // 폭탄의 월드 좌표를 드론의 로컬 좌표로 변환하여 반환합니다.
             return droneRoot.InverseTransformPoint(nextBomb.transform.position);
@@ -78,7 +78,7 @@ namespace JWK.Scripts.DropSystem
             return nextBomb != null ? nextBomb.transform.position : transform.position;
         }
 
-        public IEnumerator DropSingleBomb(Vector3 targetPosition)
+        public IEnumerator DropSingleBomb(Vector3 targetPosition, Transform droneTransform)
         {
             if (_isActionInProgress || _bombsDroppedCount >= bombList.Count)
             {
@@ -87,42 +87,56 @@ namespace JWK.Scripts.DropSystem
 
             _isActionInProgress = true;
 
+            Vector3 finalTargetPostion = targetPosition;
+
             switch (_bombsDroppedCount)
             {
                 case 0:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     break;
                 case 1:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(1));
                     break;
                 case 2:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     break;
                 case 3:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(2));
                     break;
                 case 4:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     break;
                 case 5:
-                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, targetPosition));
+                    yield return StartCoroutine(RotateAndDropSequence(_bombsDroppedCount, -45f, droneTransform, finalTargetPostion));
                     yield return _actionDelayWait;
                     yield return StartCoroutine(ReloadSequence(3));
                     break;
             }
 
+            DetachBombByIndex(_bombsDroppedCount, finalTargetPostion);
             _bombsDroppedCount++;
             _isActionInProgress = false;
         }
 
-        private IEnumerator RotateAndDropSequence(int bombIndex, float angle, Vector3 targetPosition)
+        private IEnumerator RotateAndDropSequence(int bombIndex, float angle, Transform droneTransform, Vector3 finalTargetPosition)
         {
             yield return StartCoroutine(RotateRotor(rotaryOut, angle));
-            DetachBombByIndex(bombIndex, targetPosition);
+
+            GameObject bombToDrop = bombList[bombIndex];
+
+            if (bombToDrop)
+            {
+                Vector3 bombPositionAfterRotation = bombToDrop.transform.position;
+                
+                Vector3 offset = bombPositionAfterRotation - droneTransform.position;
+                
+                Debug.Log($"<color=yellow>[투하 직전 오프셋 계산]</color> 드론-폭탄 간 최종 오프셋: {offset}");
+            }
+            
             yield return _clearanceDelay;
         }
 
@@ -140,18 +154,19 @@ namespace JWK.Scripts.DropSystem
             GameObject bombToDrop = bombList[index];
             if (bombToDrop)
             {
-                if (bombToDrop.TryGetComponent<Bomb_Particle>(out var bombParticle))
-                    bombParticle.ActivateGuidance(targetPosition);
-                
                 bombToDrop.transform.SetParent(null);
-
+                
                 if (bombToDrop.TryGetComponent<Rigidbody>(out var bombRb))
                 {
                     bombRb.isKinematic = false;
+                    bombRb.useGravity = true;
                     bombRb.linearVelocity = Vector3.zero;
                     bombRb.angularVelocity = Vector3.zero;
                     StartCoroutine(RotateBombToGround(bombToDrop));
                 }
+
+                if (bombToDrop.TryGetComponent<BombParticle>(out var bombParticle))
+                    bombParticle.ActivateGuidance(targetPosition);
             }
         }
 
