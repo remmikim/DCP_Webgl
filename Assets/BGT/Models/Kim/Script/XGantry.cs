@@ -15,7 +15,7 @@ public class XGantry : MonoBehaviour
     // 오른쪽 이동 (Y축 음수 방향)을 위한 이동 거리들 (예: -3.0f면 현재 위치에서 -3.0만큼 이동)
     private float[] moveDistancesRight = {-0.123f,-0.86f+0.123f, -0.96f, -0.48f, -0.96f, -0.48f }; // 오른쪽 Y8
     // 왼쪽 이동 (Y축 양수 방향)을 위한 이동 거리들 (예: 0.75f면 현재 위치에서 +0.75만큼 이동)
-    private float[] moveDistancesLeft = {0.86f + 0.123f + 0.05f, 0.26f, 0.96f, 0.48f, 0.96f, 0.48f }; // 왼쪽 Y9
+    private float[] moveDistancesLeft = {1.13f, 0.26f, 0.96f, 0.48f, 0.96f, 0.48f }; // 왼쪽 Y9
 
     
     // 현재 활성 이동을 위한 최종 목표 위치 (로컬 좌표)
