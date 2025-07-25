@@ -1,0 +1,116 @@
+# Unity가 자동으로 생성하는 임시 파일 및 캐시 폴더
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Unity 에셋 스토어 관련 폴더
+/[Aa]ssets/AssetStoreTools*
+
+# Visual Studio / Rider / VS Code 등 IDE 관련 파일
+.vs/
+.vscode/
+
+# Rider
+.idea/
+!Library/Rider/
+
+# 솔루션 및 프로젝트 파일
+*.sln
+*.csproj
+*.unityproj
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.DotSettings.user
+
+# ProjectSettings - IDE별 차이로 인한 충돌 방지
+ProjectSettings/EditorSettings.asset          # IDE별 설정 차이
+ProjectSettings/UnityConnectSettings.asset    # Unity 클라우드 (사용 안 함)
+ProjectSettings/VersionControlSettings.asset  # 개인 Git 설정
+ProjectSettings/ProjectVersion.txt            # Unity 버전 차이
+ProjectSettings/PackageManagerSettings.asset  # 기본 패키지만 사용
+
+# 패키지 관련 (선택적)
+# Packages/packages-lock.json
+
+# macOS 특정 파일
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows 특정 파일
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python 특정 파일 및 폴더
+# Python 가상 환경 폴더는 용량이 크고, 각자 컴퓨터에서 생성해야 합니다.
+PythonWebServer/venv/
+
+# Python 캐시 폴더 및 컴파일된 파일
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 빌드된 실행 파일 및 아카이브 (직접 빌드한 결과물)
+*.exe
+*.app
+*.apk
+*.aab
+*.ipa
+
+# 추가 권장 Unity 관련 파일
+# Unity 크래시 덤프
+*.stackdump
+
+# Unity 프로파일링 결과
+*.profraw
+
+# Unity 패키지 매니저 캐시 (선택적)
+# Library/PackageCache/
+
+# 임시 백업 파일
+*.tmp
+*.bak
+*.swp
+*~
+
+# *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.ntvs*
+*.njsproj
+*.sw?
+# OS specific
+
+# Task files
+tasks.json
+tasks/ 
