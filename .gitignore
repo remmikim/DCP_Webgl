@@ -91,3 +91,26 @@ __pycache__/
 *~
 
 # *.dll # 주의: Assets/Plugins 폴더의 중요한 dll 파일도 무시될 수 있으므로, 보통 이 규칙은 사용하지 않습니다.
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.ntvs*
+*.njsproj
+*.sw?
+# OS specific
+
+# Task files
+tasks.json
+tasks/ 

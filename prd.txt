@@ -1,0 +1,62 @@
+# PRD: PLC-to-Web Control Refactoring
+
+## Overview
+This document outlines the plan to refactor the DCP_WebGL project's control system. The current system reads data directly from a Mitsubishi PLC via a DLL (`ActUtlType64.dll`). This will be replaced with a web-based control interface that communicates with the Unity simulation via a Python WebSocket server. This change will decouple the simulation from the physical PLC, enabling remote control and easier testing through a standard web browser.
+
+## Core Features
+- **Web-Based Manual Control Panel:** An HTML page with buttons for manually controlling simulation components (Pipe Holders, Z-Lift).
+- **Real-time Command Relay Server:** A Python Flask-SocketIO server that listens for commands from the web UI and relays them to the connected Unity client in real-time.
+- **Unity WebSocket Client:** The `Manager.cs` script in Unity will be refactored to act as a WebSocket client, receiving commands from the server and executing the corresponding actions in the 3D simulation.
+
+## User Experience
+- **User Persona:** A simulation operator or developer.
+- **User Flow:**
+    1. The user runs both the Python web server and the Unity application.
+    2. The user opens the `index.html` page in their web browser.
+    3. The page displays a set of control buttons (e.g., "Pipe Holder CW", "Z-Lift Up").
+    4. The user presses and holds a button on the web page.
+    5. In the Unity application window, the corresponding 3D model (e.g., the Pipe Holder) animates or performs its action.
+    6. When the user releases the button, the action in the Unity simulation stops.
+
+## Technical Architecture
+- **System Components:**
+    - **Frontend:** `index.html` (UI), `main_script.js` (client-side logic), `style.css`.
+    - **Backend:** `app.py` (Python Flask-SocketIO server).
+    - **Simulation Client:** Unity C# script (`Manager.cs`) using a compatible Socket.IO client library.
+- **Data Models / APIs:**
+    - A new WebSocket event, `simulation_control`, will be used.
+    - The data payload will be a JSON object: `{ "command": "[CommandName]", "isActive": [true/false] }`.
+    - Example: `{ "command": "PipeHoldersCW", "isActive": true }`.
+- **Integrations:**
+    - The Unity client will connect to the Python server at `ws://127.0.0.1:5000`.
+
+## Development Roadmap (MVP)
+1.  **Backend (`app.py`):**
+    - Create a new Socket.IO event handler for `simulation_control`.
+    - This handler will receive data from the web client and forward it to the `test_drone` (Unity client) room using the `dispatch_command` event.
+
+2.  **Unity Client (`Manager.cs`):**
+    - Remove all code related to `ActUtlType64Lib`.
+    - Integrate a Unity-compatible Socket.IO client library.
+    - Establish a connection to the Python server on `Start()`.
+    - Register a listener for the `dispatch_command` event.
+    - Implement a thread-safe queue to pass incoming commands from the network thread to Unity's main thread (`Update` loop).
+    - In `Update()`, process commands from the queue, calling the appropriate methods on `pipeHolders` and `zLift` based on the `command` and `isActive` fields.
+    - Ensure the WebSocket connection is closed gracefully in `OnDestroy()`.
+
+3.  **Frontend (`index.html` / `main_script.js`):**
+    - Add a "Simulation Control" section to `index.html` with buttons for "Pipe Holder CW", "Pipe Holder CCW", "Z-Lift Up", and "Z-Lift Down".
+    - In `main_script.js`, add `mousedown` and `mouseup` event listeners to these new buttons.
+    - On `mousedown`, emit a `simulation_control` event to the server with `{ "command": "...", "isActive": true }`.
+    - On `mouseup`, emit a `simulation_control` event with `{ "command": "...", "isActive": false }`.
+
+## Logical Dependency Chain
+1.  **Backend First:** Implement the `simulation_control` handler in `app.py`. This creates the endpoint that everything else will connect to.
+2.  **Unity Client Next:** Modify `Manager.cs`. This is the most complex part and can be tested independently by sending mock `dispatch_command` messages from the Python server if needed.
+3.  **Frontend Last:** Update `index.html` and `main_script.js`. This is the final step that makes the system usable from the UI.
+
+## Risks and Mitigations
+- **Technical Challenge: Socket.IO vs. Standard WebSocket:** The initial plan to use `websocket-sharp` is incorrect because Flask-SocketIO uses a specific protocol.
+    - **Mitigation:** A dedicated Socket.IO client library for Unity must be used. The implementation in `Manager.cs` will be based on the assumption that such a library is added to the project.
+- **Technical Challenge: Threading in Unity:** Network events are received on a separate thread, but Unity's API can only be called from the main thread.
+    - **Mitigation:** The plan already includes a thread-safe queue (`Queue<CommandData>`) to pass commands from the network thread to the `Update()` method, which runs on the main thread. This is a standard and effective pattern.

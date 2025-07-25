@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/BGT/Scenes/Station.unity
+    guid: 90aa0f74b2037324c8bed269067a08f2
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
