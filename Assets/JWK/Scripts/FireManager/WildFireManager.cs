@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -87,11 +88,42 @@ namespace JWK.Scripts.FireManager
                 generateFireNow = false;
             }
 
+            if (_hasFireBeenGenerated)
+            {
+                bool allFiresExtinguished = true;
+
+                foreach (var fire in _activeFires)
+                {
+                    if (fire && fire.activeInHierarchy)
+                    {
+                        allFiresExtinguished = false;
+                        break;
+                    }
+                }
+
+                if (allFiresExtinguished)
+                {
+                    Debug.Log("<color=cyan>모든 화재 진압 완료! 3초 후 연기 제거를 시작합니다.</color>");
+                    TriggerSmokeCleanup();
+                    _hasFireBeenGenerated = false; // 임무 완료 상태로 변경하여 중복 실행 방지
+                }
+            }
             if (ExtinguishConditionCheck != null && ExtinguishConditionCheck())
             {
                 ExtinguishAllFires();
                 ExtinguishConditionCheck = null;
             }
+        }
+
+        private void TriggerSmokeCleanup()
+        {
+            foreach (var smokeController in SmokeVFXController.ActiveSmokeEffects)
+            {
+                if(smokeController)
+                    smokeController.StartDelayFadeOut(3.0f);
+            }
+
+            SmokeVFXController.ActiveSmokeEffects.Clear();
         }
 
         public void GenerateFires()
@@ -108,6 +140,19 @@ namespace JWK.Scripts.FireManager
                 return;
             }
 
+            if (SmokeVFXController.ActiveSmokeEffects.Count > 0)
+            {
+                Debug.Log("이전 임무의 연기 파티클이 남아있어 정리합니다.");
+                foreach (var smoke in SmokeVFXController.ActiveSmokeEffects)
+                {
+                    if(smoke)
+                        Destroy(smoke.gameObject);
+                }
+                SmokeVFXController.ActiveSmokeEffects.Clear();
+            }
+            
+            _activeFires.Clear();
+            
             Vector3 areaStartCorner = spawnAreaCenter - new Vector3(spawnAreaSize.x / 2, 0, spawnAreaSize.y / 2);
             float randomEpicenterX = Random.Range(0, spawnAreaSize.x);
             float randomEpicenterZ = Random.Range(0, spawnAreaSize.y);
