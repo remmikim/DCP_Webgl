@@ -1,5 +1,11 @@
 ﻿using System.Collections;
 using UnityEngine;
+//====================================================================================
+// [수정된 부분] 네임스페이스 추가
+using JWK.Scripts;
+using JWK.Scripts.CameraManager;
+
+//====================================================================================
 
 namespace JWK.Scripts.DropSystem
 {
@@ -63,39 +69,41 @@ namespace JWK.Scripts.DropSystem
         private void OnTriggerEnter(Collider other)
         {
             if (other.GetComponent<Collider>())
+            {
                 HandleImpact(transform.position);
+            }
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            // 유도 중이었다면 코루틴을 중지합니다.
-            if (_guidanceCoroutine != null)
-            {
-                StopCoroutine(_guidanceCoroutine);
-                _guidanceCoroutine = null;
-            }
-            
-            // LayerMask 비트 연산으로 충돌한 오브젝트의 레이어를 확인합니다.
             if (((1 << collision.gameObject.layer) & groundLayerMask) != 0)
+            {
                 HandleImpact(collision.contacts[0].point);
+            }
         }
-        
+
         private void HandleImpact(Vector3 impactPosition)
         {
-            // 유도 중이었다면 코루틴을 중지합니다.
             if (_guidanceCoroutine != null)
             {
                 StopCoroutine(_guidanceCoroutine);
                 _guidanceCoroutine = null;
             }
             
+            //====================================================================================
+            // [수정된 부분] 소화탄 충돌 이벤트를 카메라 시스템에 알립니다.
+            DroneCameraEvents.BombImpact(impactPosition);
+            //====================================================================================
+            
             if (impactVFXPrefab)
+            {
                 Instantiate(impactVFXPrefab, impactPosition, Quaternion.identity);
-
+            }
             else
+            {
                 Debug.LogError("impactVFXPrefab is null!");
+            }
 
-            // 자기 자신을 파괴합니다.
             Destroy(gameObject);
         }
     }

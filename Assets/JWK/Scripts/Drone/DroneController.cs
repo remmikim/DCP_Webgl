@@ -10,6 +10,8 @@ using JWK.Scripts.FireManager;
 using SimpleJSON;
 using UnityEngine;
 using WebSocketSharp;
+using JWK.Scripts;
+using JWK.Scripts.CameraManager;
 
 namespace JWK.Scripts.Drone
 {
@@ -52,16 +54,16 @@ namespace JWK.Scripts.Drone
         [Tooltip("기울일 드론의 비주얼 모델 Transform")]
         [SerializeField] private Transform droneModelTransform;
         [Tooltip("최대 기울기 각도")]
-        [SerializeField] private float maxTiltAngle = 30.0f;
+        [SerializeField] private float maxTiltAngle = 15.0f;
         [Tooltip("기울기 복원 시 스프링처럼 작용하는 힘의 강도입니다. 높을수록 더 빠르게 원래 각도로 돌아옵니다.")]
         [SerializeField] private float tiltSpringStiffness = 50f;
         [Tooltip("기울기 스윙이 멈추는 정도입니다. 0에 가까우면 바이킹처럼 많이 흔들리고, 1에 가까우면 거의 흔들리지 않고 멈춥니다.")]
         [Range(0f, 1f)]
-        [SerializeField] private float tiltDamping = 0.1f;
+        [SerializeField] private float tiltDamping = 0.25f;
         private Quaternion _modelNeutralRotation;
         private Vector3 _modelNeutralPosition;
-        private Vector2 _visualTilt; // 현재 시각적 기울기 (x: pitch, y: roll)
-        private Vector2 _tiltVelocity; // 현재 기울기 속도 (x: pitch velocity, y: roll velocity)
+        private Vector2 _visualTilt; 
+        private Vector2 _tiltVelocity; 
 
 
         [Header("임무 설정")]
@@ -71,11 +73,8 @@ namespace JWK.Scripts.Drone
         [SerializeField] private float preActionStabilizationTime = 0.5f;
         [Tooltip("폭탄 투하 후 다음 행동까지 대기하는 시간입니다.")]
         [SerializeField] private float postDropMoveDelay = 1.5f;
-        // ====================================================================================
-        // [수정된 부분] 이륙 전 대기 시간을 위한 변수 추가
         [Tooltip("프로펠러가 최대 속도에 도달한 후 실제 이륙까지 대기하는 시간입니다.")]
         [SerializeField] private float preTakeoffDelay = 1.5f;
-        // ====================================================================================
         [SerializeField] private float retreatDistance = 10.0f;
         private float _arrivalDistanceThresholdSqr;
         private Vector3 _currentTargetPosition; 
@@ -93,7 +92,7 @@ namespace JWK.Scripts.Drone
         [SerializeField] private LayerMask groundLayerMask;
         private float _currentGroundYAgl;
         private float _targetAltitudeAbs;
-        private float _smoothedTargetAltitudeAbs; // 부드럽게 변경되는 실제 목표 고도
+        private float _smoothedTargetAltitudeAbs; 
 
         [Header("자율 이동 및 회전 개선")]
         [SerializeField] private float kpRotation = 0.8f;
@@ -228,6 +227,16 @@ namespace JWK.Scripts.Drone
             {
                 IsArrived = true;
                 currentMissionState = DroneMissionState.PerformingAction;
+
+                //====================================================================================
+                // [수정된 부분] 목표 지점 도착 이벤트를 카메라 시스템에 알립니다.
+                // 임시 게임오브젝트를 생성하여 정확한 위치의 Transform을 전달합니다.
+                var fireTargetFocus = new GameObject("FireTargetFocusPoint");
+                fireTargetFocus.transform.position = _actualFireTargetPosition;
+                DroneCameraEvents.ArrivedAtDropZone(fireTargetFocus.transform);
+                Destroy(fireTargetFocus, 5f); // 5초 뒤에 임시 오브젝트를 파괴합니다.
+                //====================================================================================
+
                 if (_actionCoroutine != null) StopCoroutine(_actionCoroutine);
                 _actionCoroutine = StartCoroutine(PerformActionCoroutine());
             }
@@ -290,12 +299,6 @@ namespace JWK.Scripts.Drone
             {
                 if(extinguisherDropSystem && _currentBombLoad > 0)
                 {
-                    Debug.Log($"<color=yellow>[좌표 비교 디버그] 소화탄 투하 직전</color>");
-                    Debug.Log($" - 드론 현재 위치: {transform.position}");
-                    Debug.Log($" - <color=red>실제 화재 목표 위치</color>(_actualFireTargetPosition): {_actualFireTargetPosition}");
-                    Debug.Log($" - <color=blue>드론 이동 목표 위치</color>(_currentTargetPosition): {_currentTargetPosition}");
-                    float distanceToTarget = Vector3.Distance(transform.position, _currentTargetPosition);
-                    Debug.Log($" - 드론-이동목표 간 거리: {distanceToTarget:F2}m");
                     yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition, this.transform));
                     _currentBombLoad--;
                 }
@@ -322,17 +325,19 @@ namespace JWK.Scripts.Drone
                 return;
             }
 
-            Debug.Log("다음 행동 결정 시작... 남은 폭탄: " + _currentBombLoad + ", 남은 타겟 큐: " + _fireTargetsQueue.Count);
-
             while (_fireTargetsQueue.Count > 0 && _currentBombLoad > 0)
             {
                 GameObject nextTarget = _fireTargetsQueue.Dequeue();
 
                 if (nextTarget)
                 {
-                    Debug.Log($"[성공] 다음 유효 목표({nextTarget.name})를 찾았습니다. 이동을 시작합니다.");
                     SetMissionTarget(nextTarget.transform.position);
                     currentMissionState = DroneMissionState.MovingToTarget;
+                    
+                    //====================================================================================
+                    // [수정된 부분] 다음 화재 타겟으로 임무를 다시 시작한다는 이벤트를 보냅니다.
+                    DroneCameraEvents.MissionStart(transform, nextTarget.transform);
+                    //====================================================================================
                     return;
                 }
                 else
@@ -341,11 +346,14 @@ namespace JWK.Scripts.Drone
                 }
             }
             
-            Debug.Log("[임무 종료] 더 이상 처리할 유효 목표가 없습니다. 기지로 복귀합니다.");
-    
             _currentTargetPosition = droneStationLocation.position;
             _targetAltitudeAbs = droneStationLocation.position.y + 20f;
             currentMissionState = DroneMissionState.ReturningToStation;
+
+            //====================================================================================
+            // [수정된 부분] 기지로 복귀하므로, 카메라 시스템에 복귀 신호를 보냅니다.
+            DroneCameraEvents.ReturnToStation();
+            //====================================================================================
         }
         
         private void SetMissionTarget(Vector3 actualFirePosition)
@@ -378,10 +386,7 @@ namespace JWK.Scripts.Drone
 
             SetMissionTarget(targetPosition);
             
-            // ====================================================================================
-            // [수정된 부분] 이륙 시퀀스 코루틴을 시작합니다.
             StartCoroutine(TakeOffSequenceCoroutine());
-            // ====================================================================================
         }
         
         public void StartFireSuppressionMission(List<GameObject> fireTargets)
@@ -407,23 +412,20 @@ namespace JWK.Scripts.Drone
 
             Debug.Log($"[Mission] 순차 화재 진압 임무 시작! 총 {fireTargets.Count}개의 목표. 첫 목표: {firstTarget.name}");
 
-            // ====================================================================================
-            // [수정된 부분] 이륙 시퀀스 코루틴을 시작합니다.
+            //====================================================================================
+            // [수정된 부분] 첫 화재 타겟으로 임무를 시작한다는 이벤트를 보냅니다.
+            DroneCameraEvents.MissionStart(droneStationLocation, firstTarget.transform);
+            //====================================================================================
+
             StartCoroutine(TakeOffSequenceCoroutine());
-            // ====================================================================================
         }
         
-        // ====================================================================================
-        // [수정된 부분] 이륙 시퀀스를 처리하는 새로운 코루틴
         private IEnumerator TakeOffSequenceCoroutine()
         {
-            // 1. 프로펠러 회전을 시작하라는 이벤트를 보냅니다.
             DroneEvents.TakeOffSequenceStarted();
 
-            // 2. 프로펠러가 충분히 회전할 때까지 설정된 시간(1.5초)만큼 기다립니다.
             yield return new WaitForSeconds(preTakeoffDelay);
 
-            // 3. 이륙 상태로 전환하고 목표 고도를 설정합니다.
             currentPayload = PayloadType.FireExtinguishingBomb;
             Vector3 takeoffRefPos = droneStationLocation ? droneStationLocation.position : transform.position;
         
@@ -435,7 +437,6 @@ namespace JWK.Scripts.Drone
         
             currentMissionState = DroneMissionState.TakingOff;
         }
-        // ====================================================================================
         #endregion
 
         #region 드론 물리 및 상태 업데이트 (Physics & Status Updates)
@@ -646,6 +647,12 @@ namespace JWK.Scripts.Drone
                 Debug.LogError("[Mission] 테스트 임무 타겟이 설정되지 않았습니다!"); 
                 return; 
             }
+            
+            //====================================================================================
+            // [수정된 부분] 테스트 타겟으로 임무 시작 이벤트를 보냅니다.
+            DroneCameraEvents.MissionStart(droneStationLocation, testDispatchTarget);
+            //====================================================================================
+            
             StartSingleTargetMission(testDispatchTarget.position);
             SendDispatchDataToServer("수동 타겟 임무 (테스트)", testDispatchTarget.position);
         }
