@@ -49,8 +49,7 @@ public class CarriageFrameRT : MonoBehaviour
                     // --- 추가된 부분: CW 회전 완료 시 X12:0 신호 전송 ---
                     if (actUtlManager != null)
                     {
-                        actUtlManager.SendCommandToPlc("X12:1"); // CW 회전 동작 완료를 PLC에 알림 (OFF)
-                        Debug.Log("CarriageFrameRT: PLC에 X12:0 (CW 회전 완료) 명령 전송.");
+                        actUtlManager.SendCommandToPlc("X12:1");
                     }
                     // --- 추가된 부분 끝 ---
                 }
@@ -61,8 +60,7 @@ public class CarriageFrameRT : MonoBehaviour
                     // --- 추가된 부분: CCW 회전 완료 시 X13:0 신호 전송 ---
                     if (actUtlManager != null)
                     {
-                        actUtlManager.SendCommandToPlc("X13:1"); // CCW 회전 동작 완료를 PLC에 알림 (OFF)
-                        Debug.Log("CarriageFrameRT: PLC에 X13:0 (CCW 회전 완료) 명령 전송.");
+                        actUtlManager.SendCommandToPlc("X13:1");
                     }
                     // --- 추가된 부분 끝 ---
                 }
@@ -81,14 +79,13 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 180도 시계 방향으로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(0, 0, 180f);
+        targetRotation = startRotation * Quaternion.Euler(180f, 0, 0);
         Debug.Log("CW 180도 회전 시작!");
 
         // --- 추가된 부분: 회전 시작 시 X9:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X12:0"); // 회전 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("CarriageFrameRT: PLC에 X9:1 (CW 회전 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X12:0"); 
         }
         // --- 추가된 부분 끝 ---
     }
@@ -105,8 +102,7 @@ public class CarriageFrameRT : MonoBehaviour
             // --- 추가된 부분: 수동 비활성화 시 X9:0 신호 전송 ---
             if (actUtlManager != null)
             {
-                actUtlManager.SendCommandToPlc("X12:1"); // 회전 동작 정지를 PLC에 알림 (OFF)
-                Debug.Log("CarriageFrameRT: PLC에 X9:0 (CW 회전 수동 비활성화) 명령 전송.");
+                actUtlManager.SendCommandToPlc("X12:1");
             }
             // --- 추가된 부분 끝 ---
         }
@@ -123,14 +119,13 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 -180도 (반시계 방향)로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(0, 0, -180f);
+        targetRotation = startRotation * Quaternion.Euler(-180f, 0, 0);
         Debug.Log("CCW 180도 회전 시작!");
 
         // --- 추가된 부분: 회전 시작 시 X9:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X13:0"); // 회전 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("CarriageFrameRT: PLC에 X9:1 (CCW 회전 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X13:0"); 
         }
         // --- 추가된 부분 끝 ---
     }
@@ -147,8 +142,7 @@ public class CarriageFrameRT : MonoBehaviour
             // --- 추가된 부분: 수동 비활성화 시 X9:0 신호 전송 ---
             if (actUtlManager != null)
             {
-                actUtlManager.SendCommandToPlc("X13:1"); // 회전 동작 정지를 PLC에 알림 (OFF)
-                Debug.Log("CarriageFrameRT: PLC에 X9:0 (CCW 회전 수동 비활성화) 명령 전송.");
+                actUtlManager.SendCommandToPlc("X13:1"); 
             }
             // --- 추가된 부분 끝 ---
         }

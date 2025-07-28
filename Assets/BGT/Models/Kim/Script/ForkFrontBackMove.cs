@@ -80,8 +80,7 @@ public class ForkFrontBackMove : MonoBehaviour
         // --- 추가된 부분: 움직임 시작 시 X8:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X10:0"); // 포크 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("ForkFrontBackMove: PLC에 X8:1 (포크 전진 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X10:0");
         }
         // --- 추가된 부분 끝 ---
     }
@@ -94,8 +93,7 @@ public class ForkFrontBackMove : MonoBehaviour
         // --- 추가된 부분: 수동 또는 자동 완료 시 X8:0 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X10:1"); // 포크 동작 정지를 PLC에 알림 (OFF)
-            Debug.Log("ForkFrontBackMove: PLC에 X8:0 (포크 전진 비활성화/완료) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X10:1");
         }
         // --- 추가된 부분 끝 ---
     }
@@ -114,8 +112,7 @@ public class ForkFrontBackMove : MonoBehaviour
         // --- 추가된 부분: 움직임 시작 시 X8:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X11:0"); // 포크 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("ForkFrontBackMove: PLC에 X8:1 (포크 후진 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X11:0"); 
         }
         // --- 추가된 부분 끝 ---
     }
@@ -128,8 +125,7 @@ public class ForkFrontBackMove : MonoBehaviour
         // --- 추가된 부분: 수동 또는 자동 완료 시 X8:0 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X11:1"); // 포크 동작 정지를 PLC에 알림 (OFF)
-            Debug.Log("ForkFrontBackMove: PLC에 X8:0 (포크 후진 비활성화/완료) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X11:1");
         }
         // --- 추가된 부분 끝 ---
     }

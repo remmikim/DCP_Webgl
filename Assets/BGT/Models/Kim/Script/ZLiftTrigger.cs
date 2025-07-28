@@ -15,11 +15,11 @@ public class ZLiftTrigger : MonoBehaviour
 
     public float moveSpeed = 0.2f;
 
-    private float[] liftWeightMoveDistancesUp = { -0.55f, -0.45f, -0.5f, -2.5f };
-    private float[] liftWeightMoveDistancesDown = { 0.55f, 1.0f, 0.5f, 0.5f };
+    private float[] liftWeightMoveDistancesUp = { -1.725f, -1.269f, -0.5f, -2.5f };
+    private float[] liftWeightMoveDistancesDown = { 0.797615f, 1.0f, 0.5f, 0.5f };
 
-    private float[] carriageFrameMoveDistancesUp = { 0.55f, 0.45f, 0.5f, 2.5f };
-    private float[] carriageFrameMoveDistancesDown = { -0.55f, -1.0f, -0.5f, -0.5f };
+    private float[] carriageFrameMoveDistancesUp = { 1.725f, 1.269f, 0.5f, 2.5f };
+    private float[] carriageFrameMoveDistancesDown = { -0.797615f, -1.0f, -0.5f, -0.5f };
 
     private Vector3 currentLWLocalTargetPosition;
     private Vector3 currentCFLocalTargetPosition;
@@ -61,15 +61,11 @@ public class ZLiftTrigger : MonoBehaviour
         CHM.ActiveChainCW();
         CHM1.ActiveChainCW();
 
-        // --- 수정된 부분: 움직임 시작 시 X6:1 신호 전송 ---
+        // --- 수정된 부분: 움직임 시작 시 X4:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X4:0"); // 리프트 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("ZLiftTrigger: PLC에 X6:1 (리프트 UP 동작 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X4:0");
         }
-        // --- 수정된 부분 끝 ---
-
-        Debug.Log($"ZLiftUp 활성화. LiftWeight 로컬 Z: {LiftWeight.transform.localPosition.z} 에서 {currentLWLocalTargetPosition.z} 로, CarriageFrame 로컬 Z: {CarriageFrame.transform.localPosition.z} 에서 {currentCFLocalTargetPosition.z} 로 이동 중.");
     }
 
     /// <summary>
@@ -92,11 +88,9 @@ public class ZLiftTrigger : MonoBehaviour
             // --- 수정된 부분: 수동 비활성화 시 X6:0 신호 전송 ---
             if (actUtlManager != null)
             {
-                actUtlManager.SendCommandToPlc("X4:1"); // 리프트 동작 정지를 PLC에 알림 (OFF)
-                Debug.Log("ZLiftTrigger: PLC에 X6:0 (리프트 UP 수동 비활성화) 명령 전송.");
+                actUtlManager.SendCommandToPlc("X4:1"); 
             }
             // --- 수정된 부분 끝 ---
-
             Debug.Log("ZLiftUp 수동 비활성화. 이동 중지.");
         }
     }
@@ -131,12 +125,8 @@ public class ZLiftTrigger : MonoBehaviour
         // --- 수정된 부분: 움직임 시작 시 X6:1 신호 전송 ---
         if (actUtlManager != null)
         {
-            actUtlManager.SendCommandToPlc("X5:0"); // 리프트 동작 시작을 PLC에 알림 (ON)
-            Debug.Log("ZLiftTrigger: PLC에 X6:1 (리프트 DOWN 동작 시작) 명령 전송.");
+            actUtlManager.SendCommandToPlc("X5:0"); 
         }
-        // --- 수정된 부분 끝 ---
-
-        Debug.Log($"ZLiftDown 활성화. LiftWeight 로컬 Z: {LiftWeight.transform.localPosition.z} 에서 {currentLWLocalTargetPosition.z} 로, CarriageFrame 로컬 Z: {CarriageFrame.transform.localPosition.z} 에서 {currentCFLocalTargetPosition.z} 로 이동 중.");
     }
 
     /// <summary>
@@ -159,7 +149,7 @@ public class ZLiftTrigger : MonoBehaviour
             // --- 수정된 부분: 수동 비활성화 시 X6:0 신호 전송 ---
             if (actUtlManager != null)
             {
-                actUtlManager.SendCommandToPlc("X5:1"); // 리프트 동작 정지를 PLC에 알림 (OFF)
+                actUtlManager.SendCommandToPlc("X5:1"); 
                 Debug.Log("ZLiftTrigger: PLC에 X6:0 (리프트 DOWN 수동 비활성화) 명령 전송.");
             }
             // --- 수정된 부분 끝 ---
@@ -216,9 +206,7 @@ public class ZLiftTrigger : MonoBehaviour
             // --- 수정된 부분: 동작 완료 시 X6:0 신호 전송 ---
             if (actUtlManager != null)
             {
-                actUtlManager.SendCommandToPlc("X4:1"); // 리프트 동작 완료를 PLC에 알림 (OFF)
-                //actUtlManager.SendCommandToPlc("X5:1"); // 리프트 동작 완료를 PLC에 알림 (OFF)
-                Debug.Log("ZLiftTrigger: PLC에 X6:0 (리프트 UP 동작 완료) 명령 전송.");
+                actUtlManager.SendCommandToPlc("X4:1");
             }
             // --- 수정된 부분 끝 ---
             Debug.Log("ZLiftUp 이동 완료 및 자동 비활성화.");
@@ -235,8 +223,7 @@ public class ZLiftTrigger : MonoBehaviour
             if (actUtlManager != null)
             {
                 //actUtlManager.SendCommandToPlc("X4:1"); // 리프트 동작 완료를 PLC에 알림 (OFF)
-                actUtlManager.SendCommandToPlc("X5:1"); // 리프트 동작 완료를 PLC에 알림 (OFF)
-                Debug.Log("ZLiftTrigger: PLC에 X6:0 (리프트 DOWN 동작 완료) 명령 전송.");
+                actUtlManager.SendCommandToPlc("X5:1"); 
             }
             // --- 수정된 부분 끝 ---
             Debug.Log("ZLiftDown 이동 완료 및 자동 비활성화.");
