@@ -3,26 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.FireManager
 {
     public class WildfireManager : MonoBehaviour
     {
         #region 변수 선언
-        public static WildfireManager Instance { get; private set; }
 
-        [Header("화재 설정")]
-        [SerializeField] private Terrain targetTerrain;
+        public static WildfireManager Instance { get; private set; }
+        public bool isFireActive => _hasFireBeenGenerated;
+        public List<GameObject> GetActiveFires() => _activeFires;
+        
+        [Header("화재 설정")] [SerializeField] private Terrain targetTerrain;
         [SerializeField] private GameObject fireParticlePrefab;
         [SerializeField] private int poolSize = 50; // 풀 크기를 늘려 예외 상황 방지
         [SerializeField] private int numberOfFiresToSpawn = 10;
-    
-        [Header("화재 발생 영역 설정")]
-        [SerializeField] private Vector3 spawnAreaCenter = new Vector3(500, 0, 500);
+
+        [Header("화재 발생 영역 설정")] [SerializeField]
+        private Vector3 spawnAreaCenter = new Vector3(500, 0, 500);
+
         [SerializeField] private Vector2 spawnAreaSize = new Vector2(5, 5);
         [SerializeField] private float fireClusterRadius = 2.0f;
 
-        [Header("화재 발생 제어")]
-        [SerializeField] private bool generateFireNow = false;
+        [Header("화재 발생 제어")] [SerializeField] private bool generateFireNow = false;
 
         public Func<bool> ExtinguishConditionCheck;
 
@@ -31,28 +33,31 @@ namespace JWK.Scripts
         private Queue<GameObject> _fireParticlePool;
         private readonly List<GameObject> _activeFires = new List<GameObject>();
         private bool _hasFireBeenGenerated = false;
+
+        private int _fireNamingCounter = 1;
+
         #endregion
-    
+
         #region 초기화
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
+            if (Instance && Instance != this)
                 Destroy(gameObject);
-            }
+
             else
-            {
                 Instance = this;
-            }
         }
 
         private void Start()
         {
             InitializeObjectPool();
         }
+
         #endregion
 
         #region 오브젝트 풀링
+
         private void InitializeObjectPool()
         {
             _fireParticlePool = new Queue<GameObject>(poolSize);
@@ -71,8 +76,9 @@ namespace JWK.Scripts
                 _fireParticlePool.Enqueue(fireInstance); // 풀에 추가
             }
         }
+
         #endregion
-    
+
         private void Update()
         {
             if (generateFireNow && !_hasFireBeenGenerated)
@@ -95,7 +101,7 @@ namespace JWK.Scripts
                 Debug.LogWarning("화재가 이미 발생했습니다. 기존 화재를 먼저 진압하세요.");
                 return;
             }
-        
+
             if (!targetTerrain)
             {
                 Debug.LogError("Terrain이 할당되지 않았습니다.");
@@ -108,10 +114,9 @@ namespace JWK.Scripts
             Vector3 fireEpicenter = areaStartCorner + new Vector3(randomEpicenterX, 0, randomEpicenterZ);
 
             int spawnCount = Mathf.Min(numberOfFiresToSpawn, _fireParticlePool.Count);
+
             if (spawnCount < numberOfFiresToSpawn)
-            {
-                 Debug.LogWarning($"풀이 부족하여 {spawnCount}개의 화재만 생성합니다.");
-            }
+                Debug.LogWarning($"풀이 부족하여 {spawnCount}개의 화재만 생성합니다.");
 
             for (int i = 0; i < spawnCount; i++)
             {
@@ -125,6 +130,9 @@ namespace JWK.Scripts
                 Vector3 finalSpawnPosition = new Vector3(spawnPos.x, terrainHeight, spawnPos.z);
 
                 fireInstance.transform.SetPositionAndRotation(finalSpawnPosition, Quaternion.identity);
+
+                fireInstance.name = $"Fire{_fireNamingCounter++}";
+                
                 fireInstance.SetActive(true);
 
                 _activeFires.Add(fireInstance);
@@ -143,9 +151,11 @@ namespace JWK.Scripts
                 fire.SetActive(false);
                 _fireParticlePool.Enqueue(fire); // 비활성화 후 풀에 다시 넣어줌
             }
-        
+
             _activeFires.Clear();
             _hasFireBeenGenerated = false;
+            
+            _fireNamingCounter = 1;
         }
 
         /// <summary>
@@ -155,7 +165,7 @@ namespace JWK.Scripts
         {
             if (_fireParticlePool.Count > 0)
                 return _fireParticlePool.Dequeue(); // O(1) 작업
-        
+
             Debug.LogWarning("오브젝트 풀이 비어있습니다! 모든 파티클이 사용 중입니다.");
             return null;
         }

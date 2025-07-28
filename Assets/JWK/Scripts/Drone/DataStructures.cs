@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 
-namespace JWK.Scripts
+namespace JWK.Scripts.Drone
 {
     [Serializable]
     public struct Vector3Data // 클래스(참조 타입)에서 구조체(값 타입)로 변경
