@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,59 +10,63 @@ namespace JWK.Scripts
 {
     public class UnityMainThreadDispatcher : MonoBehaviour
     {
-        private static readonly Queue<Action> _executionQueue = new Queue<Action>();
+        // 스레드 안전성을 위해 ConcurrentQueue 사용
+        private static readonly ConcurrentQueue<Action> _executionQueue = new ConcurrentQueue<Action>();
         private static UnityMainThreadDispatcher _instance = null;
+        private static bool _isInitialized;
 
-        // 싱글턴 인스턴스에 접근하기 위한 프로퍼티
-        [Obsolete("Obsolete")]
-        public static UnityMainThreadDispatcher Instance()
+        // 현대적인 싱글턴 프로퍼티
+        public static UnityMainThreadDispatcher Instance
         {
-            if (!_instance)
+            get
             {
-                _instance = FindObjectOfType<UnityMainThreadDispatcher>();
-                if (!_instance)
+                if (!_isInitialized)
                 {
-                    GameObject go = new GameObject("MainThreadDispatcher_Instance");
-                    _instance = go.AddComponent<UnityMainThreadDispatcher>();
-                    DontDestroyOnLoad(go); // 씬이 바뀌어도 파괴되지 않도록 설정
+                    // 씬에서 인스턴스를 찾거나, 없으면 새로 생성
+                    _instance = FindObjectOfType<UnityMainThreadDispatcher>();
+                    if (_instance == null)
+                    {
+                        GameObject go = new GameObject("UnityMainThreadDispatcher");
+                        _instance = go.AddComponent<UnityMainThreadDispatcher>();
+                    }
                 }
+                return _instance;
             }
-            return _instance;
         }
 
-        void Awake()
+        private void Awake()
         {
-            // 중복 생성 방지
-            if (!_instance)
-            {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else if (_instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+
+            _instance = this;
+            _isInitialized = true;
+            DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 파괴되지 않도록 설정
         }
 
-        void Update()
+        private void OnDestroy()
+        {
+            _isInitialized = false;
+        }
+
+        private void Update()
         {
             // 큐에 쌓인 작업들을 메인 스레드에서 순차적으로 실행
-            lock (_executionQueue)
+            while (_executionQueue.TryDequeue(out var action))
             {
-                while (_executionQueue.Count > 0)
-                {
-                    _executionQueue.Dequeue().Invoke();
-                }
+                action.Invoke();
             }
         }
 
-        // 다른 스레드에서 실행할 작업을 큐에 추가하는 함수
+        /// <summary>
+        /// 다른 스레드에서 실행할 작업을 큐에 추가하는 함수
+        /// </summary>
         public void Enqueue(Action action)
         {
-            lock (_executionQueue)
-            {
-                _executionQueue.Enqueue(action);
-            }
+            _executionQueue.Enqueue(action);
         }
     }
 }
