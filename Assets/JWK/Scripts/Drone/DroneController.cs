@@ -18,8 +18,11 @@ namespace JWK.Scripts.Drone
     {
         #region 변수 선언 (Fields and Properties)
 
-        [Header("페이로드 및 임무")]
-        [SerializeField] private ExtinguisherDropSystem extinguisherDropSystem;
+        [Header("핵심 컴포넌트 연결")]
+        [Tooltip(" 모든 시각적 모델과 보조 기능 스크립트를 담고있는 자식 오브젝트")]
+        [SerializeField] private Transform droneModelTransform;
+ 
+        private ExtinguisherDropSystem _extinguisherDropSystem;
         public bool IsArrived { get; private set; }
 
         private Rigidbody _rb;
@@ -250,7 +253,7 @@ namespace JWK.Scripts.Drone
 
             if (currentPayload == PayloadType.FireExtinguishingBomb)
             {
-                if(extinguisherDropSystem && _currentBombLoad > 0)
+                if(_extinguisherDropSystem && _currentBombLoad > 0)
                 {
                     Debug.Log($"<color=yellow>[좌표 비교 디버그] 소화탄 투하 직전</color>");
                     Debug.Log($" - 드론 현재 위치: {transform.position}");
@@ -258,7 +261,7 @@ namespace JWK.Scripts.Drone
                     Debug.Log($" - <color=blue>드론 이동 목표 위치</color>(_currentTargetPosition): {_currentTargetPosition}");
                     float distanceToTarget = Vector3.Distance(transform.position, _currentTargetPosition);
                     Debug.Log($" - 드론-이동목표 간 거리: {distanceToTarget:F2}m");
-                    yield return StartCoroutine(extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition, this.transform));
+                    yield return StartCoroutine(_extinguisherDropSystem.DropSingleBomb(_actualFireTargetPosition, this.transform));
                     _currentBombLoad--;
                 }
                 else
@@ -320,13 +323,13 @@ namespace JWK.Scripts.Drone
         {
             _actualFireTargetPosition = actualFirePosition;
 
-            if (extinguisherDropSystem && _currentBombLoad > 0)
+            if (_extinguisherDropSystem && _currentBombLoad > 0)
             {
                 Vector3 directionToTarget = (actualFirePosition - droneStationLocation.position).normalized;
                 directionToTarget.y = 0;
                 Quaternion predictedRotation = Quaternion.LookRotation(directionToTarget);
 
-                Vector3 bombLocalOffset = extinguisherDropSystem.GetNextBombOffsetFromDroneRoot(this.transform);
+                Vector3 bombLocalOffset = _extinguisherDropSystem.GetNextBombOffsetFromDroneRoot(this.transform);
                 Vector3 bombWorldOffset = predictedRotation * bombLocalOffset;
 
                 _currentTargetPosition = actualFirePosition - bombWorldOffset;
@@ -342,7 +345,7 @@ namespace JWK.Scripts.Drone
 
             _fireTargetsQueue.Clear();
             _currentBombLoad = totalBombs;
-            if(extinguisherDropSystem) extinguisherDropSystem.ResetBombs();
+            if(_extinguisherDropSystem) _extinguisherDropSystem.ResetBombs();
 
             DroneEvents.TakeOffSequenceStarted();
             
@@ -368,7 +371,7 @@ namespace JWK.Scripts.Drone
             }
 
             _currentBombLoad = totalBombs;
-            if(extinguisherDropSystem) extinguisherDropSystem.ResetBombs();
+            if(_extinguisherDropSystem) _extinguisherDropSystem.ResetBombs();
 
             DroneEvents.TakeOffSequenceStarted();
             
