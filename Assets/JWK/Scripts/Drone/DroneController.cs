@@ -48,6 +48,22 @@ namespace JWK.Scripts.Drone
         [SerializeField] private float hoverForce = 70.0f;
         [SerializeField] private float moveForce = 15.0f;
 
+        [Header("모델 비주얼 설정")]
+        [Tooltip("기울일 드론의 비주얼 모델 Transform")]
+        [SerializeField] private Transform droneModelTransform;
+        [Tooltip("최대 기울기 각도")]
+        [SerializeField] private float maxTiltAngle = 30.0f;
+        [Tooltip("기울기 복원 시 스프링처럼 작용하는 힘의 강도입니다. 높을수록 더 빠르게 원래 각도로 돌아옵니다.")]
+        [SerializeField] private float tiltSpringStiffness = 50f;
+        [Tooltip("기울기 스윙이 멈추는 정도입니다. 0에 가까우면 바이킹처럼 많이 흔들리고, 1에 가까우면 거의 흔들리지 않고 멈춥니다.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float tiltDamping = 0.1f;
+        private Quaternion _modelNeutralRotation;
+        private Vector3 _modelNeutralPosition;
+        private Vector2 _visualTilt; // 현재 시각적 기울기 (x: pitch, y: roll)
+        private Vector2 _tiltVelocity; // 현재 기울기 속도 (x: pitch velocity, y: roll velocity)
+
+
         [Header("임무 설정")]
         [SerializeField] private Transform droneStationLocation;
         [SerializeField] private float missionCruisingAgl = 50.0f;
@@ -55,6 +71,11 @@ namespace JWK.Scripts.Drone
         [SerializeField] private float preActionStabilizationTime = 0.5f;
         [Tooltip("폭탄 투하 후 다음 행동까지 대기하는 시간입니다.")]
         [SerializeField] private float postDropMoveDelay = 1.5f;
+        // ====================================================================================
+        // [수정된 부분] 이륙 전 대기 시간을 위한 변수 추가
+        [Tooltip("프로펠러가 최대 속도에 도달한 후 실제 이륙까지 대기하는 시간입니다.")]
+        [SerializeField] private float preTakeoffDelay = 1.5f;
+        // ====================================================================================
         [SerializeField] private float retreatDistance = 10.0f;
         private float _arrivalDistanceThresholdSqr;
         private Vector3 _currentTargetPosition; 
@@ -65,11 +86,14 @@ namespace JWK.Scripts.Drone
         [Header("고도 제어 (PD & AGL)")]
         [SerializeField] private float kpAltitude = 2.0f;
         [SerializeField] private float kdAltitude = 2.5f;
+        [Tooltip("목표 고도 변경 시 얼마나 부드럽게 도달할지 결정합니다. 낮을수록 부드러워집니다.")]
+        [SerializeField] private float altitudeSmoothSpeed = 1.5f;
         [SerializeField] private float landingDescentRate = 0.4f;
         [SerializeField] private float terrainCheckDistance = 50.0f;
         [SerializeField] private LayerMask groundLayerMask;
         private float _currentGroundYAgl;
         private float _targetAltitudeAbs;
+        private float _smoothedTargetAltitudeAbs; // 부드럽게 변경되는 실제 목표 고도
 
         [Header("자율 이동 및 회전 개선")]
         [SerializeField] private float kpRotation = 0.8f;
@@ -77,15 +101,12 @@ namespace JWK.Scripts.Drone
         [SerializeField] private float turnBeforeMoveAngleThreshold = 15.0f;
         [SerializeField] private float decelerationStartDistanceXZ = 15.0f;
         [SerializeField] private float maxRotationTorque = 15.0f;
-        // ====================================================================================
-        // 부드러운 이동을 위한 변수 추가
-        [Tooltip("회전이 얼마나 부드럽게 될지 결정합니다. 낮을수록 빠르고 예리하게, 높을수록 부드럽게 회전합니다.")]
-        [SerializeField] private float rotationSmoothTime = 0.8f;
-        [Tooltip("속도 변경(가/감속)이 얼마나 부드럽게 될지 결정합니다. 낮을수록 반응이 빠르고, 높을수록 부드러워집니다.")]
-        [SerializeField] private float velocitySmoothTime = 0.8f;
+        [Tooltip("회전이 얼마나 부드럽게 될지 결정합니다. 값을 높이면 회전이 더 부드러워집니다.")]
+        [SerializeField] private float rotationSmoothTime = 1.2f;
+        [Tooltip("속도 변경(가/감속)이 얼마나 부드럽게 될지 결정합니다. 값을 높이면 가감속이 더 부드러워집니다.")]
+        [SerializeField] private float velocitySmoothTime = 1.2f;
         private Vector3 _smoothedLookDirection;
         private Vector3 _currentSmoothedVelocity;
-        // ====================================================================================
         private float _decelerationStartDistanceSqr;
 
         private WebSocket _ws;
@@ -129,9 +150,17 @@ namespace JWK.Scripts.Drone
             currentMissionState = DroneMissionState.IdleAtStation;
             _currentBombLoad = totalBombs;
 
-            // 스무딩 변수 초기화
             _smoothedLookDirection = transform.forward;
             _currentSmoothedVelocity = Vector3.zero;
+
+            if (droneModelTransform)
+            {
+                _modelNeutralRotation = droneModelTransform.localRotation;
+                _modelNeutralPosition = droneModelTransform.localPosition;
+            }
+            
+            _visualTilt = Vector2.zero;
+            _tiltVelocity = Vector2.zero;
         }
 
         private void Update()
@@ -142,7 +171,16 @@ namespace JWK.Scripts.Drone
 
         private void FixedUpdate()
         {
+            SmoothAltitudeTarget();
             ApplyForcesBasedOnState();
+        }
+
+        private void LateUpdate()
+        {
+            if (droneModelTransform)
+            {
+                ApplyVisualTilt();
+            }
         }
 
         private void OnDestroy()
@@ -176,7 +214,7 @@ namespace JWK.Scripts.Drone
         #region 상태별 핸들러 (State Handlers)
         private void Handle_TakingOff()
         {
-            if (CurrentAltitudeAbs >= _targetAltitudeAbs - 0.2f)
+            if (Mathf.Abs(CurrentAltitudeAbs - _smoothedTargetAltitudeAbs) < 0.5f)
                 currentMissionState = DroneMissionState.MovingToTarget;
         }
         
@@ -265,7 +303,6 @@ namespace JWK.Scripts.Drone
                     Debug.LogWarning("ExtinguisherDropSystem이 없거나 폭탄을 모두 소진했습니다.");
             }
             
-            // Debug.Log($"폭탄 투하 완료. {postDropMoveDelay}초 후 다음 행동을 시작합니다.");
             yield return new WaitForSeconds(postDropMoveDelay);
 
             Vector3 retreatDirection = -transform.forward;
@@ -273,7 +310,6 @@ namespace JWK.Scripts.Drone
             
             _currentTargetPosition = retreatPosition;
 
-            // Debug.Log($"후퇴 지점({retreatPosition})으로 이동합니다.");
             currentMissionState = DroneMissionState.RetreatingAfterAction;
         
             _actionCoroutine = null;
@@ -297,18 +333,14 @@ namespace JWK.Scripts.Drone
                     Debug.Log($"[성공] 다음 유효 목표({nextTarget.name})를 찾았습니다. 이동을 시작합니다.");
                     SetMissionTarget(nextTarget.transform.position);
                     currentMissionState = DroneMissionState.MovingToTarget;
-                    // 유효한 목표를 찾았으니, 더 이상 이 함수에서 할 일은 없습니다.
                     return;
                 }
                 else
                 {
-                    // 이 로그가 계속해서 찍힌다면, 큐 안의 목표들이 다른 요인에 의해 파괴되고 있다는 명백한 증거입니다.
                     Debug.LogWarning("[정보] 이미 파괴된 목표(유령 참조)를 큐에서 제거하고 다음을 탐색합니다.");
                 }
             }
-
-            // while 루프를 빠져나왔다는 것은, 큐가 비었거나 유효한 타겟을 하나도 찾지 못했다는 의미입니다.
-            // 이 경우, 임무를 종료하고 기지로 복귀합니다.
+            
             Debug.Log("[임무 종료] 더 이상 처리할 유효 목표가 없습니다. 기지로 복귀합니다.");
     
             _currentTargetPosition = droneStationLocation.position;
@@ -344,12 +376,12 @@ namespace JWK.Scripts.Drone
             _currentBombLoad = totalBombs;
             if(extinguisherDropSystem) extinguisherDropSystem.ResetBombs();
 
-            DroneEvents.TakeOffSequenceStarted();
-            
-            // Debug.Log($"[Mission] 단일 목표 임무 시작! Target: {targetPosition}");
             SetMissionTarget(targetPosition);
             
-            SetTakeOffAltitudeAndState();
+            // ====================================================================================
+            // [수정된 부분] 이륙 시퀀스 코루틴을 시작합니다.
+            StartCoroutine(TakeOffSequenceCoroutine());
+            // ====================================================================================
         }
         
         public void StartFireSuppressionMission(List<GameObject> fireTargets)
@@ -370,18 +402,28 @@ namespace JWK.Scripts.Drone
             _currentBombLoad = totalBombs;
             if(extinguisherDropSystem) extinguisherDropSystem.ResetBombs();
 
-            DroneEvents.TakeOffSequenceStarted();
-            
             GameObject firstTarget = _fireTargetsQueue.Dequeue();
             SetMissionTarget(firstTarget.transform.position);
 
             Debug.Log($"[Mission] 순차 화재 진압 임무 시작! 총 {fireTargets.Count}개의 목표. 첫 목표: {firstTarget.name}");
 
-            SetTakeOffAltitudeAndState();
+            // ====================================================================================
+            // [수정된 부분] 이륙 시퀀스 코루틴을 시작합니다.
+            StartCoroutine(TakeOffSequenceCoroutine());
+            // ====================================================================================
         }
         
-        private void SetTakeOffAltitudeAndState()
+        // ====================================================================================
+        // [수정된 부분] 이륙 시퀀스를 처리하는 새로운 코루틴
+        private IEnumerator TakeOffSequenceCoroutine()
         {
+            // 1. 프로펠러 회전을 시작하라는 이벤트를 보냅니다.
+            DroneEvents.TakeOffSequenceStarted();
+
+            // 2. 프로펠러가 충분히 회전할 때까지 설정된 시간(1.5초)만큼 기다립니다.
+            yield return new WaitForSeconds(preTakeoffDelay);
+
+            // 3. 이륙 상태로 전환하고 목표 고도를 설정합니다.
             currentPayload = PayloadType.FireExtinguishingBomb;
             Vector3 takeoffRefPos = droneStationLocation ? droneStationLocation.position : transform.position;
         
@@ -393,6 +435,7 @@ namespace JWK.Scripts.Drone
         
             currentMissionState = DroneMissionState.TakingOff;
         }
+        // ====================================================================================
         #endregion
 
         #region 드론 물리 및 상태 업데이트 (Physics & Status Updates)
@@ -408,6 +451,7 @@ namespace JWK.Scripts.Drone
                 _currentGroundYAgl = transform.position.y;
             }
             _targetAltitudeAbs = transform.position.y;
+            _smoothedTargetAltitudeAbs = _targetAltitudeAbs;
         }
 
         private IEnumerator TerrainCheckRoutine()
@@ -441,6 +485,11 @@ namespace JWK.Scripts.Drone
             }
         }
 
+        private void SmoothAltitudeTarget()
+        {
+            _smoothedTargetAltitudeAbs = Mathf.Lerp(_smoothedTargetAltitudeAbs, _targetAltitudeAbs, Time.fixedDeltaTime * altitudeSmoothSpeed);
+        }
+
         private void ApplyForcesBasedOnState()
         {
             _rb.AddForce(Physics.gravity, ForceMode.Acceleration);
@@ -448,32 +497,23 @@ namespace JWK.Scripts.Drone
             switch (currentMissionState)
             {
                 case DroneMissionState.TakingOff:
-                    ApplyVerticalForce(1.5f);
-                    ApplyHorizontalDamping();
-                    break;
-                case DroneMissionState.Landing:
-                    ApplyLandingForce();
-                    break;
                 case DroneMissionState.MovingToTarget:
                 case DroneMissionState.ReturningToStation:
                 case DroneMissionState.EmergencyReturn:
                 case DroneMissionState.RetreatingAfterAction:
+                case DroneMissionState.PerformingAction:
+                case DroneMissionState.HoldingPosition:
                     ApplyVerticalForce(2.0f);
                     ApplyHorizontalAndRotationalForces();
+                    break;
+                case DroneMissionState.Landing:
+                    ApplyLandingForce();
                     break;
                 case DroneMissionState.IdleAtStation:
                     _rb.AddForce(-_rb.linearVelocity, ForceMode.VelocityChange);
                     _rb.AddTorque(-_rb.angularVelocity, ForceMode.VelocityChange);
-                    // [수정] 정지 시 스무딩 변수도 리셋
                     _currentSmoothedVelocity = Vector3.zero;
                     _smoothedLookDirection = transform.forward;
-                    break;
-                case DroneMissionState.PerformingAction:
-                case DroneMissionState.HoldingPosition:
-                    ApplyVerticalForce(2.0f);
-                    ApplyHorizontalDamping();
-                     // [수정] 호버링 시 스무딩 변수 리셋
-                    _currentSmoothedVelocity = Vector3.zero;
                     break;
             }
         }
@@ -488,7 +528,7 @@ namespace JWK.Scripts.Drone
 
         private void ApplyVerticalForce(float maxForceMultiplier)
         {
-            float altError = _targetAltitudeAbs - CurrentAltitudeAbs;
+            float altError = _smoothedTargetAltitudeAbs - CurrentAltitudeAbs;
             float pForceAlt = altError * kpAltitude;
             float dForceAlt = -_rb.linearVelocity.y * kdAltitude;
             float totalVertForce = Physics.gravity.magnitude + pForceAlt + dForceAlt;
@@ -505,18 +545,28 @@ namespace JWK.Scripts.Drone
                 float upwardThrust = Mathf.Max(0, Physics.gravity.magnitude - descentRate);
                 _rb.AddForce(Vector3.up * upwardThrust, ForceMode.Acceleration);
                 
-                Vector3 horizontalVel = _rb.linearVelocity;
-                horizontalVel.y = 0;
-                _rb.AddForce(-horizontalVel * 0.2f, ForceMode.VelocityChange);
-                _rb.AddTorque(-_rb.angularVelocity * 0.2f, ForceMode.VelocityChange);
+                ApplyHorizontalDamping();
             }
         }
 
-        // ====================================================================================
-        // [핵심 수정] 수평/회전 힘 적용 로직을 스무딩을 사용하도록 변경
         private void ApplyHorizontalAndRotationalForces()
         {
-            // 1. 목표 위치와 현재 위치의 수평 벡터 계산
+            if (currentMissionState == DroneMissionState.IdleAtStation ||
+                currentMissionState == DroneMissionState.Landing ||
+                currentMissionState == DroneMissionState.TakingOff)
+            {
+                ApplyHorizontalDamping();
+                return;
+            }
+            
+            if (currentMissionState == DroneMissionState.PerformingAction ||
+                currentMissionState == DroneMissionState.HoldingPosition)
+            {
+                ApplyHorizontalDamping();
+                _currentSmoothedVelocity = Vector3.zero;
+                return;
+            }
+
             Vector3 currentPosXZ = transform.position;
             currentPosXZ.y = 0;
             Vector3 targetPosXZ = _currentTargetPosition;
@@ -524,46 +574,66 @@ namespace JWK.Scripts.Drone
             Vector3 directionToTarget = (targetPosXZ - currentPosXZ);
             float distanceToTarget = directionToTarget.magnitude;
 
-            // 2. 부드러운 회전을 위한 목표 방향 계산 (Slerp)
             Vector3 targetLookDirection = (distanceToTarget > 0.01f) ? directionToTarget.normalized : transform.forward;
             _smoothedLookDirection = Vector3.Slerp(_smoothedLookDirection, targetLookDirection, Time.fixedDeltaTime / rotationSmoothTime);
             Quaternion targetRotation = Quaternion.LookRotation(_smoothedLookDirection);
             
-            // 3. 목표에 가까워질수록 감속하는 로직
-            float effectiveMoveForce = moveForce;
+            float desiredSpeed = moveForce;
             if (distanceToTarget < decelerationStartDistanceXZ)
             {
-                effectiveMoveForce = Mathf.Lerp(moveForce * 0.2f, moveForce, distanceToTarget / decelerationStartDistanceXZ);
+                desiredSpeed = Mathf.SmoothStep(0f, moveForce, distanceToTarget / decelerationStartDistanceXZ);
             }
 
-            // 4. 부드러운 속도 변화를 위한 목표 속도 계산 (Lerp)
-            Vector3 desiredVelocityXZ = _smoothedLookDirection * effectiveMoveForce;
+            Vector3 desiredVelocityXZ = _smoothedLookDirection * desiredSpeed;
+            
             float angleToTarget = Quaternion.Angle(transform.rotation, targetRotation);
             
-            // 아직 목표를 완전히 바라보지 못했다면 이동 속도를 줄여 회전에 집중
             if (angleToTarget > turnBeforeMoveAngleThreshold)
             {
                 desiredVelocityXZ *= 0.2f;
             }
 
-            // 현재의 부드러운 속도를 목표 속도 쪽으로 점진적으로 변경
             _currentSmoothedVelocity = Vector3.Lerp(_currentSmoothedVelocity, desiredVelocityXZ, Time.fixedDeltaTime / velocitySmoothTime);
 
-            // 5. 계산된 부드러운 목표 속도에 도달하기 위한 힘 적용
             Vector3 currentVelocityXZ = _rb.linearVelocity;
             currentVelocityXZ.y = 0;
-            Vector3 forceNeededXZ = (_currentSmoothedVelocity - currentVelocityXZ) * 3.0f; // 3.0f는 힘의 강도 조절 계수
+            Vector3 forceNeededXZ = (_currentSmoothedVelocity - currentVelocityXZ) * 3.0f;
             _rb.AddForce(forceNeededXZ, ForceMode.Acceleration);
 
-            // 6. 계산된 부드러운 목표 회전을 향한 토크 적용 (PD 컨트롤러)
             float targetAngleY = targetRotation.eulerAngles.y;
             float angleErrorY = Mathf.DeltaAngle(_rb.rotation.eulerAngles.y, targetAngleY);
             float pTorque = angleErrorY * Mathf.Deg2Rad * kpRotation;
             float dTorque = -_rb.angularVelocity.y * kdRotation;
             _rb.AddTorque(Vector3.up * Mathf.Clamp(pTorque + dTorque, -maxRotationTorque, maxRotationTorque), ForceMode.Acceleration);
         }
-        // ====================================================================================
         
+        private void ApplyVisualTilt()
+        {
+            if (_rb == null || droneModelTransform == null) return;
+
+            Vector3 localVelocity = transform.InverseTransformDirection(_rb.linearVelocity);
+            float targetPitch = -Mathf.Clamp(localVelocity.z / moveForce, -1f, 1f) * maxTiltAngle;
+            float roll = Mathf.Clamp(localVelocity.x / moveForce, -1f, 1f) * maxTiltAngle;
+            Vector2 targetTilt = new Vector2(targetPitch, roll);
+
+            Vector2 springForce = (targetTilt - _visualTilt) * tiltSpringStiffness;
+
+            float dampingCoefficient = tiltDamping * 2 * Mathf.Sqrt(tiltSpringStiffness);
+            
+            Vector2 dampingForce = -_tiltVelocity * dampingCoefficient;
+
+            Vector2 acceleration = springForce + dampingForce;
+
+            _tiltVelocity += acceleration * Time.deltaTime;
+            
+            _visualTilt += _tiltVelocity * Time.deltaTime;
+
+            Quaternion finalRotation = _modelNeutralRotation * Quaternion.Euler(_visualTilt.x, 0, _visualTilt.y);
+            droneModelTransform.localRotation = finalRotation;
+            
+            droneModelTransform.localPosition = _modelNeutralPosition;
+        }
+
         public void DispatchMissionToTestTarget()
         {
             if (currentMissionState != DroneMissionState.IdleAtStation) 
