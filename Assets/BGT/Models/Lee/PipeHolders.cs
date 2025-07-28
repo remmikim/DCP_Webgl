@@ -11,18 +11,20 @@ public class PipeHolders : MonoBehaviour
 
     public Screw screwControl;
 
-    public float MoveSpeed = 0.2f; // public으로 변경하여 에디터에서 조절 가능
-    public float MoveAmount1and2 = 1.15f;
-    public float MoveAmount3and4 = 1.254f;
+    private float MoveSpeed = 0.2f; // public으로 변경하여 에디터에서 조절 가능
+    private float MoveAmount1and2 = 1.15f;
+    private float MoveAmount3and4 = 1.24f;
 
     // 각 파이프 홀더의 시작 위치와 목표 위치 변수들
     private Vector3 PH1StartPosition;    // PipeHolder1
     private Vector3 PH1TargetPosition;   // PipeHolder1 (첫 번째 목표)
     private Vector3 PH1TargetPosition2;  // PipeHolder1 (두 번째 목표)
+    private Vector3 PH1TargetPosition3;  // PipeHolder1 (세 번째 목표)
 
     private Vector3 PH2StartPosition;    // PipeHolder2
     private Vector3 PH2TargetPosition;   // PipeHolder2 (첫 번째 목표)
     private Vector3 PH2TargetPosition2;  // PipeHolder2 (두 번째 목표)
+    private Vector3 PH2TargetPosition3;  // PipeHolder2 (두 번째 목표)
 
     private Vector3 PH3StartPosition;    // PipeHolder3
     private Vector3 PH3TargetPosition;   // PipeHolder3
@@ -87,7 +89,6 @@ public class PipeHolders : MonoBehaviour
 
         // 두 번째 목표 위치 설정 (PH1, PH2만 해당)
         PH1TargetPosition2 = PH1TargetPosition + new Vector3(0, -MoveAmount1and2, 0);
-        
         PH2TargetPosition2 = PH2TargetPosition + new Vector3(0, -MoveAmount1and2, 0);
 
         // 기존 코루틴이 있다면 중지
@@ -110,7 +111,7 @@ public class PipeHolders : MonoBehaviour
         ));
 
         // 1단계 이동 완료 후 추가 동작 (예: 잠시 대기)
-        yield return new WaitForSeconds(0.5f); // 0.5초 대기 (선택 사항)
+        yield return new WaitForSeconds(0.2f); // 0.5초 대기 (선택 사항)
 
         // 2단계 이동 (PipeHolder1, 2만 해당)
         yield return StartCoroutine(MoveSpecificHoldersToSecondTarget(
@@ -176,8 +177,6 @@ public class PipeHolders : MonoBehaviour
         ph1.transform.localPosition = target1;
         ph2.transform.localPosition = target2;
     }
-
-
     /// <summary>
     /// CW 이동 중 강제 중지
     /// </summary>
@@ -212,11 +211,15 @@ public class PipeHolders : MonoBehaviour
         PH4StartPosition = PipeHolder4.transform.localPosition;
 
         // CCW 첫 번째 목표 위치 설정
+        PH1TargetPosition3 = PH1StartPosition + new Vector3(0, MoveAmount1and2, 0);
+        PH2TargetPosition3 = PH2StartPosition + new Vector3(0, MoveAmount1and2, 0);
         // CW와 반대 방향으로 이동한다고 가정
-        PH1TargetPosition = PH1StartPosition + new Vector3(0, MoveAmount1and2, 0);
-        PH2TargetPosition = PH2StartPosition + new Vector3(0, MoveAmount1and2 * 2.0f, 0);
+
+        PH1TargetPosition = PH1TargetPosition3 + new Vector3(0, -MoveAmount1and2, 0);
+        PH2TargetPosition = PH2TargetPosition3 + new Vector3(0, MoveAmount1and2, 0);
         PH3TargetPosition = PH3StartPosition + new Vector3(-MoveAmount3and4, 0, 0);
         PH4TargetPosition = PH4StartPosition + new Vector3(MoveAmount3and4, 0, 0);
+
 
         // 기존 코루틴이 있다면 중지
         if (currentMovementCoroutine != null)
@@ -233,11 +236,15 @@ public class PipeHolders : MonoBehaviour
     /// </summary>
     private IEnumerator MovePipeHoldersCCWCoroutine()
     {
+        yield return StartCoroutine(MoveSpecificHoldersToSecondTarget(
+            PipeHolder1, PH1TargetPosition3,
+            PipeHolder2, PH2TargetPosition3
+        ));
         // 모든 파이프 홀더를 첫 번째 목표 위치로 이동
         yield return StartCoroutine(MoveAllHoldersToFirstTarget(
             PH1TargetPosition, PH2TargetPosition, PH3TargetPosition, PH4TargetPosition
         ));
-
+        // 2단계 이동 (PipeHolder1, 2만 해당)
         // CCW 이동 완료 후 상태 초기화
         isPipeHoldersCCW = false;
         screwControl.DeactivateScrewCCW();

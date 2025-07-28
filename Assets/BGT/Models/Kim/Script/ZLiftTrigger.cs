@@ -1,6 +1,7 @@
 using UnityEngine;
+using System.Collections;
 
-public class ZLiftTigger : MonoBehaviour 
+public class ZLiftTrigger : MonoBehaviour
 {
     public GameObject LiftWeight;
     public GameObject CarriageFrame;
@@ -9,119 +10,242 @@ public class ZLiftTigger : MonoBehaviour
     public ChainMove CHM;
     public ChainMove CHM1;
 
-    // 이동 속도 (초당 이동 거리)
-    private float moveSpeed = 0.2f;
-    private float moveDistanceY = 5.0f;
+    // ActUtlManager 인스턴스 참조
+    public ActUtlManager actUtlManager;
 
-    // 각 Lift 시작 위치와 목표 위치 변수들
-    private Vector3 LWStartPosition;    // LiftWeight
-    private Vector3 LWTargetPosition;  // LiftWeight
+    public float moveSpeed = 0.2f;
 
-    private Vector3 CFStartPosition;    // CarriageFrame
-    private Vector3 CFTargetPosition;  // CarriageFrame
+    private float[] liftWeightMoveDistancesUp = { -1.725f, -1.269f, -0.5f, -2.5f };
+    private float[] liftWeightMoveDistancesDown = { 0.797615f, 1.0f, 0.5f, 0.5f };
 
-    private bool isZLiftCW = false;
-    private bool isZLiftCCW = false;
+    private float[] carriageFrameMoveDistancesUp = { 1.725f, 1.269f, 0.5f, 2.5f };
+    private float[] carriageFrameMoveDistancesDown = { -0.797615f, -1.0f, -0.5f, -0.5f };
 
-    void Start()
+    private Vector3 currentLWLocalTargetPosition;
+    private Vector3 currentCFLocalTargetPosition;
+
+    private bool isZLiftUpActive = false;
+    private bool isZLiftDownActive = false;
+
+    private int currentUpMoveIndex = 0;
+    private int currentDownMoveIndex = 0;
+
+    private Coroutine currentMovementCoroutine;
+
+    void Update() { }
+
+    /// <summary>
+    /// ZLift를 '위' (LiftWeight Z축 음수, CarriageFrame Z축 양수)로 이동하는 프로세스를 시작합니다.
+    /// 배열에 정의된 다음 거리만큼 이동합니다.
+    /// </summary>
+    public void ActivateZLiftUp()
     {
-        // Debug.Log(this.gameObject.name + " ZLift 스크립트 시작.");
-        // LiftWeight와 CarriageFrame에 Rigidbody가 있다면 Is Kinematic을 체크하는 것이 좋습니다.
-        // 직접 Transform.position을 제어할 때 물리 엔진의 간섭을 피할 수 있습니다.
-        if (LiftWeight != null && LiftWeight.GetComponent<Rigidbody>() != null)
+        if (isZLiftUpActive || isZLiftDownActive) return;
+
+        if (currentUpMoveIndex >= liftWeightMoveDistancesUp.Length)
         {
-            LiftWeight.GetComponent<Rigidbody>().isKinematic = true;
+            currentUpMoveIndex = 0;
+            Debug.Log("ZLiftUp 이동 사이클 완료, 인덱스 재설정.");
         }
-        if (CarriageFrame != null && CarriageFrame.GetComponent<Rigidbody>() != null)
+
+        isZLiftUpActive = true;
+        SetTargetPositionsForUpMovement();
+
+        if (currentMovementCoroutine != null)
         {
-            CarriageFrame.GetComponent<Rigidbody>().isKinematic = true;
+            StopCoroutine(currentMovementCoroutine);
         }
-    }
-
-    // Update는 매 프레임 실행될 이동 로직만 담당
-    void Update()
-    {
-        if (isZLiftCW && !isZLiftCCW)
-        {
-            if (LiftWeight != null)
-            {
-                LiftWeight.transform.localPosition = Vector3.MoveTowards(LiftWeight.transform.localPosition, LWTargetPosition, moveSpeed * Time.deltaTime);
-            }
-            if (CarriageFrame != null)
-            {
-                CarriageFrame.transform.localPosition = Vector3.MoveTowards(CarriageFrame.transform.localPosition, CFTargetPosition, moveSpeed * Time.deltaTime);
-            }
-        }
-        // CCW 이동 로직 (LiftWeight는 위로, CarriageFrame은 아래로)
-        else if (isZLiftCCW && !isZLiftCW)
-        {
-            // LiftWeight 이동 (MoveTowards 사용)
-            if (LiftWeight != null)
-            {
-                LiftWeight.transform.localPosition = Vector3.MoveTowards(LiftWeight.transform.localPosition, LWTargetPosition, moveSpeed * Time.deltaTime);
-            }
-            // CarriageFrame 이동 (MoveTowards 사용)
-            if (CarriageFrame != null)
-            {
-                CarriageFrame.transform.localPosition = Vector3.MoveTowards(CarriageFrame.transform.localPosition, CFTargetPosition, moveSpeed * Time.deltaTime);
-            }
-        }
-    }
-
-    // CW 이동을 초기화하고 시작합니다. (ActivateZLiftUp으로 변경될 수 있습니다)
-    public void ActivateZLiftUp() 
-    {
-        // 이미 다른 방향으로 움직이거나 같은 방향으로 움직이고 있다면 재시작하지 않음
-        if (isZLiftCW || isZLiftCCW) return;
-
-        isZLiftCW = true;
-
-        LWStartPosition = LiftWeight.transform.localPosition;
-        LWTargetPosition = LWStartPosition + new Vector3(0, 0,-moveDistanceY);
-
-        CFStartPosition = CarriageFrame.transform.localPosition;
-        CFTargetPosition = CFStartPosition + new Vector3(0, 0, moveDistanceY);
+        currentMovementCoroutine = StartCoroutine(MoveZLiftToTarget(true));
 
         ROT.ActivateZLiftRotationCW();
         CHM.ActiveChainCW();
         CHM1.ActiveChainCW();
-        Debug.Log("ZLiftUp 활성화. CW 이동 시작.");
+
+        // --- 수정된 부분: 움직임 시작 시 X4:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X4:0");
+        }
     }
 
-    // CW 이동을 강제로 중지합니다.
+    /// <summary>
+    /// ZLift '위'로 이동을 비활성화합니다. (수동 중단을 위한 함수)
+    /// </summary>
     public void DeactivateZLiftUp()
     {
-        // CW 이동 중일 때만 중지
-        isZLiftCW = false;
-        ROT.DeactivateZLiftRotationCW();
-        CHM.DeActiveChainCW();
-        CHM1.DeActiveChainCW();
+        if (isZLiftUpActive)
+        {
+            isZLiftUpActive = false;
+            if (currentMovementCoroutine != null)
+            {
+                StopCoroutine(currentMovementCoroutine);
+                currentMovementCoroutine = null;
+            }
+            ROT.DeactivateZLiftRotationCW();
+            CHM.DeActiveChainCW();
+            CHM1.DeActiveChainCW();
+
+            // --- 수정된 부분: 수동 비활성화 시 X6:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X4:1"); 
+            }
+            // --- 수정된 부분 끝 ---
+            Debug.Log("ZLiftUp 수동 비활성화. 이동 중지.");
+        }
     }
 
-    public void ActivateZLiftDown() 
+    /// <summary>
+    /// ZLift를 '아래' (LiftWeight Z축 양수, CarriageFrame Z축 음수)로 이동하는 프로세스를 시작합니다.
+    /// 배열에 정의된 다음 거리만큼 이동합니다.
+    /// </summary>
+    public void ActivateZLiftDown()
     {
-        // 이미 다른 방향으로 움직이거나 같은 방향으로 움직이고 있다면 재시작하지 않음
-        if (isZLiftCW || isZLiftCCW) return;
+        if (isZLiftUpActive || isZLiftDownActive) return;
 
-        isZLiftCCW = true;
-        LWStartPosition = LiftWeight.transform.localPosition;
-        LWTargetPosition = LWStartPosition + new Vector3(0, 0, moveDistanceY);
-        CFStartPosition = CarriageFrame.transform.localPosition;
-        CFTargetPosition = CFStartPosition + new Vector3(0, 0, -moveDistanceY);
+        if (currentDownMoveIndex >= liftWeightMoveDistancesDown.Length)
+        {
+            currentDownMoveIndex = 0;
+            Debug.Log("ZLiftDown 이동 사이클 완료, 인덱스 재설정.");
+        }
+
+        isZLiftDownActive = true;
+        SetTargetPositionsForDownMovement();
+
+        if (currentMovementCoroutine != null)
+        {
+            StopCoroutine(currentMovementCoroutine);
+        }
+        currentMovementCoroutine = StartCoroutine(MoveZLiftToTarget(false));
 
         ROT.ActivateZLiftRotationCCW();
         CHM.ActiveChainCCW();
         CHM1.ActiveChainCCW();
-        Debug.Log("ZLiftDown 활성화. CCW 이동 시작.");
+
+        // --- 수정된 부분: 움직임 시작 시 X6:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X5:0"); 
+        }
     }
 
-    // CCW 이동을 강제로 중지합니다.
+    /// <summary>
+    /// ZLift '아래'로 이동을 비활성화합니다. (수동 중단을 위한 함수)
+    /// </summary>
     public void DeactivateZLiftDown()
     {
-        // CCW 이동 중일 때만 중지
-        isZLiftCCW = false;
-        ROT.DeactivateZLiftRotationCCW();
-        CHM.DeActiveChainCCW();
-        CHM1.DeActiveChainCCW();
+        if (isZLiftDownActive)
+        {
+            isZLiftDownActive = false;
+            if (currentMovementCoroutine != null)
+            {
+                StopCoroutine(currentMovementCoroutine);
+                currentMovementCoroutine = null;
+            }
+            ROT.DeactivateZLiftRotationCCW();
+            CHM.DeActiveChainCCW();
+            CHM1.DeActiveChainCCW();
+
+            // --- 수정된 부분: 수동 비활성화 시 X6:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X5:1"); 
+                Debug.Log("ZLiftTrigger: PLC에 X6:0 (리프트 DOWN 수동 비활성화) 명령 전송.");
+            }
+            // --- 수정된 부분 끝 ---
+
+            Debug.Log("ZLiftDown 수동 비활성화. 이동 중지.");
+        }
+    }
+
+    /// <summary>
+    /// LiftWeight와 CarriageFrame을 현재 목표 위치(로컬 좌표)로 이동시키는 코루틴입니다.
+    /// </summary>
+    /// <param name="isUpDirection">'Up' 이동이면 true, 'Down' 이동이면 false.</param>
+    private IEnumerator MoveZLiftToTarget(bool isUpDirection)
+    {
+        bool liftWeightReached = false;
+        bool carriageFrameReached = false;
+
+        while (!liftWeightReached || !carriageFrameReached)
+        {
+            if (LiftWeight != null && !liftWeightReached)
+            {
+                LiftWeight.transform.localPosition = Vector3.MoveTowards(LiftWeight.transform.localPosition, currentLWLocalTargetPosition, moveSpeed * Time.deltaTime);
+                if (Vector3.Distance(LiftWeight.transform.localPosition, currentLWLocalTargetPosition) < 0.001f)
+                {
+                    LiftWeight.transform.localPosition = currentLWLocalTargetPosition;
+                    liftWeightReached = true;
+                    Debug.Log($"LiftWeight가 로컬 Z: {currentLWLocalTargetPosition.z}에 도착했습니다.");
+                }
+            }
+
+            if (CarriageFrame != null && !carriageFrameReached)
+            {
+                CarriageFrame.transform.localPosition = Vector3.MoveTowards(CarriageFrame.transform.localPosition, currentCFLocalTargetPosition, moveSpeed * Time.deltaTime);
+                if (Vector3.Distance(CarriageFrame.transform.localPosition, currentCFLocalTargetPosition) < 0.001f)
+                {
+                    CarriageFrame.transform.localPosition = currentCFLocalTargetPosition;
+                    carriageFrameReached = true;
+                    Debug.Log($"CarriageFrame이 로컬 Z: {currentCFLocalTargetPosition.z}에 도착했습니다.");
+                }
+            }
+
+            yield return null;
+        }
+
+        // --- 이동 완료 후 자동 비활성화 로직 ---
+        if (isUpDirection)
+        {
+            currentUpMoveIndex++;
+            isZLiftUpActive = false; // <-- 여기서 false로 바뀝니다.
+            ROT.DeactivateZLiftRotationCW();
+            CHM.DeActiveChainCW();
+            CHM1.DeActiveChainCW();
+
+            // --- 수정된 부분: 동작 완료 시 X6:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X4:1");
+            }
+            // --- 수정된 부분 끝 ---
+            Debug.Log("ZLiftUp 이동 완료 및 자동 비활성화.");
+        }
+        else
+        {
+            currentDownMoveIndex++;
+            isZLiftDownActive = false; // <-- 여기서 false로 바뀝니다.
+            ROT.DeactivateZLiftRotationCCW();
+            CHM.DeActiveChainCCW();
+            CHM1.DeActiveChainCCW();
+
+            // --- 수정된 부분: 동작 완료 시 X6:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                //actUtlManager.SendCommandToPlc("X4:1"); // 리프트 동작 완료를 PLC에 알림 (OFF)
+                actUtlManager.SendCommandToPlc("X5:1"); 
+            }
+            // --- 수정된 부분 끝 ---
+            Debug.Log("ZLiftDown 이동 완료 및 자동 비활성화.");
+        }
+        currentMovementCoroutine = null;
+    }
+
+    private void SetTargetPositionsForUpMovement()
+    {
+        float lwMoveAmountZ = liftWeightMoveDistancesUp[currentUpMoveIndex];
+        currentLWLocalTargetPosition = new Vector3(LiftWeight.transform.localPosition.x, LiftWeight.transform.localPosition.y, LiftWeight.transform.localPosition.z + lwMoveAmountZ);
+
+        float cfMoveAmountZ = carriageFrameMoveDistancesUp[currentUpMoveIndex];
+        currentCFLocalTargetPosition = new Vector3(CarriageFrame.transform.localPosition.x, CarriageFrame.transform.localPosition.y, CarriageFrame.transform.localPosition.z + cfMoveAmountZ);
+    }
+
+    private void SetTargetPositionsForDownMovement()
+    {
+        float lwMoveAmountZ = liftWeightMoveDistancesDown[currentDownMoveIndex];
+        currentLWLocalTargetPosition = new Vector3(LiftWeight.transform.localPosition.x, LiftWeight.transform.localPosition.y, LiftWeight.transform.localPosition.z + lwMoveAmountZ);
+
+        float cfMoveAmountZ = carriageFrameMoveDistancesDown[currentDownMoveIndex];
+        currentCFLocalTargetPosition = new Vector3(CarriageFrame.transform.localPosition.x, CarriageFrame.transform.localPosition.y, CarriageFrame.transform.localPosition.z + cfMoveAmountZ);
     }
 }
