@@ -6,7 +6,7 @@ public class ForkMove1 : MonoBehaviour
     public ActUtlManager actUtlManager;
 
     private float MoveSpeed = 0.2f;
-    private float MoveAmountY = 0.272f;
+    private float MoveAmountY = 0.272f + 0.4691286f;
 
     // 각 파이프 홀더의 시작 위치와 목표 위치 변수들
     private Vector3 StartPosition;   // PipeHolder1
