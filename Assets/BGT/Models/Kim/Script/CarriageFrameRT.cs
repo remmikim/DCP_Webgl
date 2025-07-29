@@ -5,6 +5,9 @@ public class CarriageFrameRT : MonoBehaviour
     // 유니티 에디터에서 조절할 회전 속도 (초당 각도)
     public float rotationSpeed = 90f; // 90f로 설정하면 2초 안에 180도 회전
 
+    // ActUtlManager 인스턴스 참조 추가
+    public ActUtlManager actUtlManager;
+
     // 회전 방향 플래그
     private bool isZLiftRotationCW = false;
     private bool isZLiftRotationCCW = false;
@@ -37,9 +40,30 @@ public class CarriageFrameRT : MonoBehaviour
             {
                 transform.rotation = targetRotation; // 정확한 목표 회전값으로 설정하여 오차 보정
                 isRotating = false; // 회전 완료 플래그 false
-                isZLiftRotationCW = false; // CW 플래그 false
-                isZLiftRotationCCW = false; // CCW 플래그 false
-                Debug.Log("180도 회전 완료!");
+
+                // 현재 활성화된 회전 방향에 따라 PLC 신호 전송
+                if (isZLiftRotationCW) // CW 회전이 완료됨
+                {
+                    isZLiftRotationCW = false;
+                    Debug.Log("CW 180도 회전 완료!");
+                    // --- 추가된 부분: CW 회전 완료 시 X12:0 신호 전송 ---
+                    if (actUtlManager != null)
+                    {
+                        actUtlManager.SendCommandToPlc("X12:1");
+                    }
+                    // --- 추가된 부분 끝 ---
+                }
+                else if (isZLiftRotationCCW) // CCW 회전이 완료됨
+                {
+                    isZLiftRotationCCW = false;
+                    Debug.Log("CCW 180도 회전 완료!");
+                    // --- 추가된 부분: CCW 회전 완료 시 X13:0 신호 전송 ---
+                    if (actUtlManager != null)
+                    {
+                        actUtlManager.SendCommandToPlc("X13:1");
+                    }
+                    // --- 추가된 부분 끝 ---
+                }
             }
         }
     }
@@ -55,16 +79,33 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 180도 시계 방향으로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(0, 0, 180f);
+        targetRotation = startRotation * Quaternion.Euler(180f, 0, 0);
         Debug.Log("CW 180도 회전 시작!");
+
+        // --- 추가된 부분: 회전 시작 시 X9:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X12:0"); 
+        }
+        // --- 추가된 부분 끝 ---
     }
 
     public void DeactivateZLiftRotationCW()
     {
         // 이 스크립트에서는 180도 회전이 완료되면 자동으로 isRotating이 false가 되므로
         // 이 Deactivate 함수가 직접적으로 회전을 멈추는 역할은 하지 않습니다.
-        // 하지만 외부 시스템과의 일관성을 위해 유지할 수 있습니다.
-        // isZLiftRotationCW = false; // 회전이 완료되면 Update에서 자동으로 false로 설정됨
+        // 하지만 외부 시스템과의 일관성을 위해 PLC 신호 전송 로직을 추가할 수 있습니다.
+        if (isRotating) // 만약 회전 중에 외부에서 Deactivate가 호출된다면
+        {
+            isRotating = false;
+            isZLiftRotationCW = false;
+            // --- 추가된 부분: 수동 비활성화 시 X9:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X12:1");
+            }
+            // --- 추가된 부분 끝 ---
+        }
     }
 
     public void ActivateZLiftRotationCCW()
@@ -78,15 +119,32 @@ public class CarriageFrameRT : MonoBehaviour
 
         startRotation = transform.rotation; // 현재 회전값을 시작점으로 저장
         // 현재 회전에서 Z축을 중심으로 -180도 (반시계 방향)로 회전하는 목표 회전값 계산
-        targetRotation = startRotation * Quaternion.Euler(0, 0, -180f);
+        targetRotation = startRotation * Quaternion.Euler(-180f, 0, 0);
         Debug.Log("CCW 180도 회전 시작!");
+
+        // --- 추가된 부분: 회전 시작 시 X9:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X13:0"); 
+        }
+        // --- 추가된 부분 끝 ---
     }
 
     public void DeactivateZLiftRotationCCW()
     {
         // 이 스크립트에서는 180도 회전이 완료되면 자동으로 isRotating이 false가 되므로
         // 이 Deactivate 함수가 직접적으로 회전을 멈추는 역할은 하지 않습니다.
-        // 하지만 외부 시스템과의 일관성을 위해 유지할 수 있습니다.
-        // isZLiftRotationCCW = false; // 회전이 완료되면 Update에서 자동으로 false로 설정됨
+        // 하지만 외부 시스템과의 일관성을 위해 PLC 신호 전송 로직을 추가할 수 있습니다.
+        if (isRotating) // 만약 회전 중에 외부에서 Deactivate가 호출된다면
+        {
+            isRotating = false;
+            isZLiftRotationCCW = false;
+            // --- 추가된 부분: 수동 비활성화 시 X9:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X13:1"); 
+            }
+            // --- 추가된 부분 끝 ---
+        }
     }
 }

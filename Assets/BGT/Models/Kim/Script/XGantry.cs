@@ -8,16 +8,18 @@ public class XGantry : MonoBehaviour
     public XGantryRotaion RotaionObject;
     public Chain1 chainIntance;
 
+    // ActUtlManager 인스턴스 참조 추가 (새롭게 추가)
+    public ActUtlManager actUtlManager;
+
     // 이동 속도 (초당 이동 거리)
     public float moveSpeed = 0.2f; // 인스펙터에서 쉽게 조절할 수 있도록 public으로 설정
 
     // 로컬 Y축 이동 거리들 (델타 값)
     // 오른쪽 이동 (Y축 음수 방향)을 위한 이동 거리들 (예: -3.0f면 현재 위치에서 -3.0만큼 이동)
-    private float[] moveDistancesRight = {-0.123f,-0.86f+0.123f, -0.96f, -0.48f, -0.96f, -0.48f }; // 오른쪽 Y8
+    private float[] moveDistancesRight = { -0.529f, -1.484753f+0.721753f, -0.263f, -0.48f, -0.96f, -0.48f }; // 오른쪽 Y8
     // 왼쪽 이동 (Y축 양수 방향)을 위한 이동 거리들 (예: 0.75f면 현재 위치에서 +0.75만큼 이동)
-    private float[] moveDistancesLeft = {0.86f + 0.123f + 0.05f, 0.26f, 0.96f, 0.48f, 0.96f, 0.48f }; // 왼쪽 Y9
+    private float[] moveDistancesLeft = { 1.135f, 0.26f, 0.96f, 0.48f, 0.96f, 0.48f }; // 왼쪽 Y9
 
-    
     // 현재 활성 이동을 위한 최종 목표 위치 (로컬 좌표)
     private Vector3 currentLocalTargetPosition;
 
@@ -67,13 +69,18 @@ public class XGantry : MonoBehaviour
         currentMovementCoroutine = StartCoroutine(MoveGantryToTarget(true)); // '오른쪽' 이동(Y 감소)을 위해 true 전달
 
         // RotaionObject와 chainIntance 제어는 실제 '오른쪽' 방향 로직에 따라 검토될 수 있습니다.
-        RotaionObject.ActivateZLiftRotationCW(); // CW 회전이 '오른쪽'과 연결된다고 가정
-        chainIntance.ActiveChainCW(); // ActiveChainCW가 '오른쪽'과 연결된다고 가정
-        Debug.Log($"XGantry 오른쪽 이동 활성화. 로컬 Y: {XGantryMoving.transform.localPosition.y} 에서 {currentLocalTargetPosition.y} 로 이동 중.");
+        RotaionObject.ActivateZLiftRotationCCW(); // CW 회전이 '오른쪽'과 연결된다고 가정
+        chainIntance.ActiveChainCCW(); // ActiveChainCW가 '오른쪽'과 연결된다고 가정
+
+        // --- 추가된 부분: 움직임 시작 시 X7:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X8:0");
+        }
     }
 
     /// <summary>
-    /// '오른쪽' 이동을 비활성화합니다.
+    /// '오른쪽' 이동을 비활성화합니다. (수동 중단을 위한 함수)
     /// </summary>
     public void DeactivateXGantryMovingRight()
     {
@@ -86,8 +93,15 @@ public class XGantry : MonoBehaviour
                 StopCoroutine(currentMovementCoroutine);
                 currentMovementCoroutine = null; // 참조 지우기
             }
-            RotaionObject.DeactivateZLiftRotationCW(); // DeactivateZLiftRotationCW가 '오른쪽'과 연결된다고 가정
-            chainIntance.DeActiveChainCW(); // DeActiveChainCW가 '오른쪽'과 연결된다고 가정
+            RotaionObject.DeactivateZLiftRotationCCW(); // DeactivateZLiftRotationCW가 '오른쪽'과 연결된다고 가정
+            chainIntance.DeActiveChainCCW(); // DeActiveChainCW가 '오른쪽'과 연결된다고 가정
+
+            // --- 추가된 부분: 수동 비활성화 시 X7:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X8:1");
+            }
+            // --- 추가된 부분 끝 ---
             Debug.Log("XGantry 오른쪽 이동 비활성화. 이동 중지.");
         }
     }
@@ -119,13 +133,18 @@ public class XGantry : MonoBehaviour
         currentMovementCoroutine = StartCoroutine(MoveGantryToTarget(false)); // '왼쪽' 이동(Y 증가)을 위해 false 전달
 
         // RotaionObject와 chainIntance 제어는 실제 '왼쪽' 방향 로직에 따라 검토될 수 있습니다.
-        RotaionObject.ActivateZLiftRotationCCW(); // CCW 회전이 '왼쪽'과 연결된다고 가정
-        chainIntance.ActiveChainCCW(); // ActiveChainCCW가 '왼쪽'과 연결된다고 가정
-        Debug.Log($"XGantry 왼쪽 이동 활성화. 로컬 Y: {XGantryMoving.transform.localPosition.y} 에서 {currentLocalTargetPosition.y} 로 이동 중.");
+        RotaionObject.ActivateZLiftRotationCW(); // CCW 회전이 '왼쪽'과 연결된다고 가정
+        chainIntance.ActiveChainCW(); // ActiveChainCCW가 '왼쪽'과 연결된다고 가정
+
+        // --- 추가된 부분: 움직임 시작 시 X7:1 신호 전송 ---
+        if (actUtlManager != null)
+        {
+            actUtlManager.SendCommandToPlc("X9:0");
+        }
     }
 
     /// <summary>
-    /// '왼쪽' 이동을 비활성화합니다.
+    /// '왼쪽' 이동을 비활성화합니다. (수동 중단을 위한 함수)
     /// </summary>
     public void DeactivateXGantryMovingLeft()
     {
@@ -138,8 +157,15 @@ public class XGantry : MonoBehaviour
                 StopCoroutine(currentMovementCoroutine);
                 currentMovementCoroutine = null; // 참조 지우기
             }
-            RotaionObject.DeactivateZLiftRotationCCW(); // DeactivateZLiftRotationCCW가 '왼쪽'과 연결된다고 가정
-            chainIntance.DeActiveChainCCW(); // DeActiveChainCCW가 '왼쪽'과 연결된다고 가정
+            RotaionObject.DeactivateZLiftRotationCW(); // DeactivateZLiftRotationCCW가 '왼쪽'과 연결된다고 가정
+            chainIntance.DeActiveChainCW(); // DeActiveChainCCW가 '왼쪽'과 연결된다고 가정
+
+            // --- 추가된 부분: 수동 비활성화 시 X7:0 신호 전송 ---
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X9:1");
+            }
+            // --- 추가된 부분 끝 ---
             Debug.Log("XGantry 왼쪽 이동 비활성화. 이동 중지.");
         }
     }
@@ -188,18 +214,28 @@ public class XGantry : MonoBehaviour
             }
         }
 
-        // 플래그를 비활성화하고 관련 액션을 중지합니다. (새로운 Activate 호출이 오지 않는 한 플래그는 false 상태)
+        // 플래그를 비활성화하고 관련 액션을 중지합니다.
         if (isRightDirection)
         {
             isMovingRight = false;
-            RotaionObject.DeactivateZLiftRotationCW();
-            chainIntance.DeActiveChainCW();
+            RotaionObject.DeactivateZLiftRotationCCW();
+            chainIntance.DeActiveChainCCW();
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X8:1");
+                Debug.Log("XGantry: PLC에 X8:1 (이동 완료) 명령 전송.");
+            }
         }
         else
         {
             isMovingLeft = false;
-            RotaionObject.DeactivateZLiftRotationCCW();
-            chainIntance.DeActiveChainCCW();
+            RotaionObject.DeactivateZLiftRotationCW();
+            chainIntance.DeActiveChainCW();
+            if (actUtlManager != null)
+            {
+                actUtlManager.SendCommandToPlc("X9:1"); // 갠트리 동작 완료를 PLC에 알림 (OFF)
+                Debug.Log("XGantry: PLC에 X9:1 (이동 완료) 명령 전송.");
+            }
         }
         currentMovementCoroutine = null; // 코루틴 참조 지우기
     }
