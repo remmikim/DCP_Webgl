@@ -1,0 +1,262 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+deprecations.ts:9  ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ deprecations.ts:9
+deprecations.ts:9  ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ deprecations.ts:9
+:5173/favicon.ico:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+react-dom.development.js:86  Warning: Removing a style property during rerender (marginBottom) when a conflicting property is set (margin) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.
+    at div
+    at div
+    at div
+    at Dashboard (http://localhost:5173/src/pages/Dashboard.tsx:26:40)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=6b0c44e5:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=6b0c44e5:4558:5)
+    at main
+    at div
+    at Layout (http://localhost:5173/src/components/layout/Layout.tsx:21:19)
+    at App
+    at ToastProvider (http://localhost:5173/src/components/common/ToastNotification.tsx:20:33)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=6b0c44e5:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=6b0c44e5:5247:5)
+printWarning @ react-dom.development.js:86
+2PlcDetail.tsx:76 Unity 로드 상태 초기화 - Custom Event 방식 사용
+PlcDetail.tsx:52 🔥 Unity로 Y 디바이스 데이터 전송 - Y 디바이스 수: 9
+PlcDetail.tsx:53 📊 전송된 Y 디바이스들:
+PlcDetail.tsx:55   📡 Y10: OFF (Y10)
+PlcDetail.tsx:55   📡 Y11: OFF (Y11)
+PlcDetail.tsx:55   📡 Y9: OFF (Y9)
+PlcDetail.tsx:55   📡 Y8: ON (Y8)
+PlcDetail.tsx:55   📡 Y0B: OFF (Y0B)
+PlcDetail.tsx:55   📡 Y0A: OFF (Y0A)
+PlcDetail.tsx:55   📡 Y6: OFF (Y6)
+PlcDetail.tsx:55   📡 Y2: OFF (Y2)
+PlcDetail.tsx:55   📡 Y4: OFF (Y4)
+PlcDetail.tsx:57 📤 Unity JSON: {
+"devices.Y10": { "value": false },
+"devices.Y11": { "value": false },
+"devices.Y9": { "value": false },
+"devices.Y8": { "value": true },
+"devices.Y0B": { "value": false },
+"devices.Y0A": { "value": false },
+"devices.Y6": { "value": false },
+"devices.Y2": { "value": false },
+"devices.Y4": { "value": false }
+}
+useDeviceMapping.ts:53 Device mapping loaded: Object
+useDeviceMapping.ts:53 Device mapping loaded: Object
+Build.loader.js:1  Config option "companyName" is missing or empty. Falling back to default value: "Unity". Consider updating your WebGL template to include the missing config option.
+e @ Build.loader.js:1
+Build.loader.js:1  Config option "productName" is missing or empty. Falling back to default value: "WebGL Player". Consider updating your WebGL template to include the missing config option.
+e @ Build.loader.js:1
+Build.loader.js:1  Config option "productVersion" is missing or empty. Falling back to default value: "1.0". Consider updating your WebGL template to include the missing config option.
+e @ Build.loader.js:1
+Build.framework.js:9 [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+Build.framework.js:9     "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+Build.framework.js:9     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+Build.framework.js:9     "memorysetup-temp-allocator-size-audio-worker=65536"
+
+Build.framework.js:9     "memorysetup-temp-allocator-size-background-worker=32768"
+
+Build.framework.js:9     "memorysetup-bucket-allocator-granularity=16"
+
+Build.framework.js:9     "memorysetup-bucket-allocator-bucket-count=8"
+
+Build.framework.js:9     "memorysetup-bucket-allocator-block-size=4194304"
+
+Build.framework.js:9     "memorysetup-bucket-allocator-block-count=1"
+
+Build.framework.js:9     "memorysetup-main-allocator-block-size=16777216"
+
+Build.framework.js:9     "memorysetup-thread-allocator-block-size=16777216"
+
+Build.framework.js:9     "memorysetup-gfx-main-allocator-block-size=16777216"
+
+Build.framework.js:9     "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+Build.framework.js:9     "memorysetup-cache-allocator-block-size=4194304"
+
+Build.framework.js:9     "memorysetup-typetree-allocator-block-size=2097152"
+
+Build.framework.js:9     "memorysetup-profiler-bucket-allocator-granularity=16"
+
+Build.framework.js:9     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+Build.framework.js:9     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+Build.framework.js:9     "memorysetup-profiler-bucket-allocator-block-count=1"
+
+Build.framework.js:9     "memorysetup-profiler-allocator-block-size=16777216"
+
+Build.framework.js:9     "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+Build.framework.js:9     "memorysetup-temp-allocator-size-main=4194304"
+
+Build.framework.js:9     "memorysetup-job-temp-allocator-block-size=2097152"
+
+Build.framework.js:9     "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+Build.framework.js:9     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+Build.framework.js:9 Input System module state changed to: Initialized.
+
+Build.framework.js:9 [Physics::Module] Initialized fallback backend.
+
+Build.framework.js:9 [Physics::Module] Id: 0xdecafbad
+
+Build.framework.js:9 Loading player data from data.unity3d
+
+Build.framework.js:9 Initialize engine version: 6000.1.5f1 (923722cbbcfc)
+
+Build.framework.js:9 [Subsystems] Discovering subsystems at path UnitySubsystems
+
+Build.framework.js:9 Renderer: WebKit WebGL
+
+Build.framework.js:9 Vendor:   WebKit
+
+Build.framework.js:9 Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+Build.framework.js:9 GLES:     3
+
+Build.framework.js:9  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_render_snorm EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_provoking_vertex WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_render_snorm GL_EXT_
+
+Build.framework.js:9 texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_provoking_vertex GL_WEBGL_stencil_texturing
+
+6WebGL: INVALID_ENUM: getInternalformatParameter: invalid internalformat
+Build.framework.js:9 OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+Build.framework.js:9 [Physics::Module] Selected backend.
+
+Build.framework.js:9 [Physics::Module] Name: PhysX
+
+Build.framework.js:9 [Physics::Module] Id: 0xf2b8ea05
+
+Build.framework.js:9 [Physics::Module] SDK Version: 4.1.2
+
+Build.framework.js:9 [Physics::Module] Integration Version: 1.0.0
+
+Build.framework.js:9 [Physics::Module] Threading Mode: Single-Threaded
+
+Build.framework.js:9 ERROR: Shader 
+Build.framework.js:9 Hidden/CoreSRP/CoreCopy shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+Build.framework.js:9 ERROR: Shader 
+Build.framework.js:9 Hidden/VoxelizeShader shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+Build.framework.js:9 ERROR: Shader 
+Build.framework.js:9 Hidden/Universal Render Pipeline/StencilDitherMaskSeed shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+Build.framework.js:9 ERROR: Shader 
+Build.framework.js:9 Hidden/Universal/HDRDebugView shader is not supported on this GPU (none of subshaders/fallbacks are suitable)
+
+Build.framework.js:9 Input Manager initialize...
+
+Build.framework.js:9 Input System initialize...
+
+Build.framework.js:9 UnloadTime: 0.800000 ms
+
+Build.framework.js:9  Bombs Parent가 할당되지 않았습니다!
+
+_JS_Log_Dump @ Build.framework.js:9
+Build.framework.js:9 Audio context resumed after 0.906 seconds.
+DigitalTwinView.tsx:24 [React] Unity 로드 완료.
+DigitalTwinView.tsx:31 [Unity Send] 전체 디바이스 데이터 전송: {"devices":[{"address":"D0","description":"D0","value":false,"timestamp":1753767903522,"name":"D0","status":"offline","type":"D"},{"address":"Y10","description":"Y10","value":false,"timestamp":1753435618172,"name":"Y10","status":"offline","type":"Y"},{"address":"Y11","description":"Y11","value":false,"timestamp":1753435611568,"name":"Y11","status":"offline","type":"Y"},{"address":"X0","description":"X0","value":false,"timestamp":1753767963546,"name":"X0","status":"offline","type":"X"},{"address":"Y9","description":"Y9","value":false,"timestamp":1753435599574,"name":"Y9","status":"offline","type":"Y"},{"address":"Y8","description":"Y8","value":true,"timestamp":1753783689253,"name":"Y8","status":"offline","type":"Y"},{"address":"Y0B","description":"Y0B","value":false,"timestamp":1753435593075,"name":"Y0B","status":"offline","type":"Y"},{"address":"Y0A","description":"Y0A","value":false,"timestamp":1753435612277,"name":"Y0A","status":"offline","type":"Y"},{"address":"Y6","description":"Y6","value":false,"timestamp":1753783694753,"name":"Y6","status":"offline","type":"Y"},{"address":"Y2","description":"Y2","value":false,"timestamp":1753783687085,"name":"Y2","status":"offline","type":"Y"},{"address":"Y4","description":"Y4","value":false,"timestamp":1753435598594,"name":"Y4","status":"offline","type":"Y"}]}
+Build.framework.js:9 SendMessage: object GameManager not found!
+
+Build.loader.js:1 [UnityCache] 'http://localhost:5173/Build/Build.data' successfully downloaded and stored in the browser cache
+Build.framework.js:9 🚀 WebManager: 초기화 시작
+
+Build.framework.js:9 WebManager: 디바이스 상태 초기화 완료
+
+Build.framework.js:9 WebDataBridge: PLC 데이터 리스너 설정 시작
+Build.framework.js:9 WebDataBridge: 이벤트 리스너 설정 완료
+Build.framework.js:9 WebDataBridge: Unity 브리지 초기화
+Build.framework.js:9 🌐 WebGL 환경에서 JavaScript 브리지 설정 완료
+
+Build.framework.js:9 ✅ WebManager: 웹 데이터 연결 완료 - 실제 웹페이지 데이터 대기 중
+
+Build.framework.js:9 총 136개의 체인 링크가 할당되었습니다.
+
+Build.framework.js:9 초기 체인 링크 배치에 따른 총 유효 경로 길이: 2.310017 유닛.
+
+Build.framework.js:9 총 137개의 체인 링크가 할당되었습니다.
+
+Build.framework.js:9 초기 체인 링크 배치에 따른 총 유효 경로 길이: 5.776871 유닛.
+
+Build.framework.js:9 총 137개의 체인 링크가 할당되었습니다.
+
+Build.framework.js:9 초기 체인 링크 배치에 따른 총 유효 경로 길이: 5.776871 유닛.
+
+Build.framework.js:9  Collider on Trugger does not have 'Is Trigger' checked. Please check it.
+
+_JS_Log_Dump @ Build.framework.js:9
+Build.framework.js:9  Collider on Trigger does not have 'Is Trigger' checked. Please check it.
+
+_JS_Log_Dump @ Build.framework.js:9
+Build.framework.js:9 RenderGraph is now enabled.
+
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+DigitalTwinView.tsx:31 [Unity Send] 전체 디바이스 데이터 전송: {"devices":[{"address":"Y9","description":"Y9","value":false,"timestamp":1753435599574,"name":"Y9","status":"offline","type":"Y"},{"address":"Y11","description":"Y11","value":false,"timestamp":1753435611568,"name":"Y11","status":"offline","type":"Y"},{"address":"Y4","description":"Y4","value":false,"timestamp":1753435598594,"name":"Y4","status":"offline","type":"Y"},{"address":"Y0B","description":"Y0B","value":false,"timestamp":1753435593075,"name":"Y0B","status":"offline","type":"Y"},{"address":"Y6","description":"Y6","value":false,"timestamp":1753783694753,"name":"Y6","status":"offline","type":"Y"},{"address":"D0","description":"D0","value":false,"timestamp":1753767903522,"name":"D0","status":"offline","type":"D"},{"address":"Y2","description":"Y2","value":true,"timestamp":1753783687085,"name":"Y2","status":"offline","type":"Y"},{"address":"Y8","description":"Y8","value":true,"timestamp":1753783689253,"name":"Y8","status":"offline","type":"Y"},{"address":"Y0A","description":"Y0A","value":false,"timestamp":1753435612277,"name":"Y0A","status":"offline","type":"Y"},{"address":"Y10","description":"Y10","value":false,"timestamp":1753435618172,"name":"Y10","status":"offline","type":"Y"},{"address":"X0","description":"X0","value":false,"timestamp":1753767963546,"name":"X0","status":"offline","type":"X"}]}
+Build.framework.js:9 SendMessage: object GameManager not found!
+
+Build.framework.js:9 SendMessage: object WebManager not found!
+
+Build.framework.js:9 WebDataBridge: PLC 데이터를 Unity로 전송: {"devices.Y9":{"value":false},"devices.Y11":{"value":false},"devices.Y4":{"value":false},"devices.Y0B":{"value":false},"devices.Y6":{"value":false},"devices.Y2":{"value":true},"devices.Y8":{"value":true},"devices.Y0A":{"value":false},"devices.Y10":{"value":false}}
+PlcDetail.tsx:52 🔥 Unity로 Y 디바이스 데이터 전송 - Y 디바이스 수: 9
+PlcDetail.tsx:53 📊 전송된 Y 디바이스들:
+PlcDetail.tsx:55   📡 Y9: OFF (Y9)
+PlcDetail.tsx:55   📡 Y11: OFF (Y11)
+PlcDetail.tsx:55   📡 Y4: OFF (Y4)
+PlcDetail.tsx:55   📡 Y0B: OFF (Y0B)
+PlcDetail.tsx:55   📡 Y6: OFF (Y6)
+PlcDetail.tsx:55   📡 Y2: ON (Y2)
+PlcDetail.tsx:55   📡 Y8: ON (Y8)
+PlcDetail.tsx:55   📡 Y0A: OFF (Y0A)
+PlcDetail.tsx:55   📡 Y10: OFF (Y10)
+PlcDetail.tsx:57 📤 Unity JSON: {
+"devices.Y9": { "value": false },
+"devices.Y11": { "value": false },
+"devices.Y4": { "value": false },
+"devices.Y0B": { "value": false },
+"devices.Y6": { "value": false },
+"devices.Y2": { "value": true },
+"devices.Y8": { "value": true },
+"devices.Y0A": { "value": false },
+"devices.Y10": { "value": false }
+}
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn more
+        Don't show again
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생
+Build.framework.js:9 WebDataBridge: PLC 데이터 요청
+Build.framework.js:9 WebDataBridge: Unity 데이터 요청 이벤트 발생

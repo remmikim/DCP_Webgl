@@ -21,7 +21,8 @@ public class WebManager : MonoBehaviour
     
     // 디바이스 상태 저장
     private Dictionary<string, bool> deviceStates = new Dictionary<string, bool>();
-    private Dictionary<string, bool> previousDeviceStates = new Dictionary<string, bool>();
+    private Dictionary<string, bool?> previousDeviceStates = new Dictionary<string, bool?>();
+    private bool isFirstDataReceived = false; // 첫 데이터 수신 플래그
     
     // Firebase 연결 상태
     private bool isConnected = false;
@@ -52,28 +53,52 @@ public class WebManager : MonoBehaviour
 #if UNITY_WEBGL && !UNITY_EDITOR
         SetupPlcDataListener();
         InitializeUnityBridge();
-        Debug.Log("🌐 WebGL 환경에서 JavaScript 브리지 설정 완료");
+        
+        // 초기 데이터 즉시 요청
+        Invoke("RequestInitialPlcData", 0.5f); // 0.5초 후 초기 데이터 요청
+        Invoke("RequestInitialPlcData", 1.0f); // 1초 후 재요청
+        Invoke("RequestInitialPlcData", 2.0f); // 2초 후 재요청
+        Debug.Log("🌐 WebGL 환경에서 JavaScript 브리지 설정 완료 - 초기 데이터 요청 예약 (0.5s, 1s, 2s)");
 #else
         Debug.Log("🖥️ 에디터 환경에서 실행 중 - JavaScript 브리지 비활성화");
+        // 에디터에서 테스트용으로 강제 데이터 설정
+        Invoke("ForceInitialDeviceStates", 1.0f);
 #endif
         
         isConnected = true;
-        Debug.Log("✅ WebManager: 웹 데이터 연결 완료 - 실제 웹페이지 데이터 대기 중");
+        Debug.Log("✅ WebManager: 웹 데이터 연결 완료 - 초기 웹페이지 데이터 요청 준비");
     }
     
+
     /// <summary>
-    /// 테스트용 더미 데이터 생성 (에디터에서만 사용)
+    /// 초기 PLC 데이터 요청 (WebGL에서 호출)
     /// </summary>
-    [ContextMenu("Test Web Data")]
-    private void SendTestData()
+    private void RequestInitialPlcData()
     {
-        Debug.Log("🧪 WebManager: 테스트 데이터 생성");
-        string testData = @"{
-            ""devices.Y0"": { ""value"": true },
-            ""devices.Y1"": { ""value"": false },
-            ""devices.Y2"": { ""value"": true }
-        }";
-        ReceiveWebData(testData);
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Debug.Log("🔄 WebManager: 초기 PLC 데이터 요청");
+        RequestPlcData();
+#endif
+    }
+
+    /// <summary>
+    /// 강제로 초기 디바이스 상태 설정 (에디터/테스트용)
+    /// </summary>
+    private void ForceInitialDeviceStates()
+    {
+        Debug.Log("🔧 WebManager: 강제 초기 디바이스 상태 설정 시작");
+        
+        // 모든 디바이스를 false로 강제 설정하여 웹에서 받은 데이터와 다르게 만듦
+        string[] deviceAddresses = { "Y0", "Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7", "Y8", "Y9", "YA", "YB", "YC", "YD", "Y10", "Y11" };
+        
+        foreach (string deviceAddress in deviceAddresses)
+        {
+            deviceStates[deviceAddress] = false; // 모든 디바이스를 false로 설정
+            previousDeviceStates[deviceAddress] = null; // 이전 상태는 null로 유지
+            Debug.Log($"🔧 강제 설정: {deviceAddress} = false (previous = null)");
+        }
+        
+        Debug.Log("🔧 WebManager: 강제 초기 디바이스 상태 설정 완료 - 웹에서 데이터 수신시 변경 감지됨");
     }
 
     void Update()
@@ -105,14 +130,18 @@ public class WebManager : MonoBehaviour
     private void InitializeDeviceStates()
     {
         // Y 디바이스 초기 상태 설정 (Y0~YF)
+        // deviceStates는 초기화하지 않고, previousDeviceStates만 null로 설정
+        // 이렇게 하면 웹에서 받은 첫 데이터가 무조건 "변경된 것"으로 인식됨
+        deviceStates.Clear();
+        previousDeviceStates.Clear();
+        
         for (int i = 0; i < 16; i++)
         {
             string deviceKey = $"Y{i:X}";
-            deviceStates[deviceKey] = false;
-            previousDeviceStates[deviceKey] = false;
+            previousDeviceStates[deviceKey] = null; // null로 초기화하여 첫 수신시 무조건 동작
         }
         
-        Debug.Log("WebManager: 디바이스 상태 초기화 완료");
+        Debug.Log("WebManager: 디바이스 상태 초기화 완료 - 첫 웹 데이터 수신시 모든 상태 적용됨");
     }
 
     /// <summary>
@@ -125,11 +154,18 @@ public class WebManager : MonoBehaviour
         {
             Debug.Log($"📨 WebManager: 웹 데이터 수신 - 길이: {jsonData.Length}");
             Debug.Log($"📨 수신된 JSON: {jsonData}");
+            Debug.Log($"📨 첫 번째 데이터 수신: {!isFirstDataReceived}");
             
             // JSON 파싱 및 디바이스 상태 업데이트
             ParseWebData(jsonData);
             
-            // 상태 변경된 디바이스들 처리
+            if (!isFirstDataReceived)
+            {
+                isFirstDataReceived = true;
+                Debug.Log("🚀 초기 디바이스 상태 적용 시작");
+            }
+            
+            // 상태 변경된 디바이스들 처리 (첫 로딩 시에도 즉시 처리)
             ProcessDeviceChanges();
             
             Debug.Log("✅ WebManager: 웹 데이터 처리 완료");
@@ -149,22 +185,37 @@ public class WebManager : MonoBehaviour
     {
         try
         {
+            Debug.Log($"🔍 WebManager: JSON 파싱 시작 - 원본 데이터: {jsonData}");
+            
             // 간단한 JSON 파싱 - "devices.Y0": { "value": true } 형태
             string[] lines = jsonData.Split(new char[] { '\n', '\r', ',' }, StringSplitOptions.RemoveEmptyEntries);
             
+            Debug.Log($"🔍 분할된 라인 수: {lines.Length}");
+            
+            int deviceLineCount = 0;
             foreach (string line in lines)
             {
                 string trimmed = line.Trim();
+                Debug.Log($"🔍 라인 처리: [{trimmed}]");
                 
                 if (trimmed.Contains("\"devices.Y") && trimmed.Contains("\"value\""))
                 {
+                    deviceLineCount++;
+                    Debug.Log($"🔍 디바이스 라인 발견 #{deviceLineCount}: {trimmed}");
                     ParseDeviceLine(trimmed);
                 }
+                else
+                {
+                    Debug.Log($"🔍 디바이스 라인 아님: {trimmed}");
+                }
             }
+            
+            Debug.Log($"🔍 WebManager: JSON 파싱 완료 - 처리된 디바이스 라인: {deviceLineCount}개");
         }
         catch (Exception e)
         {
-            Debug.LogError($"WebManager: 웹 데이터 파싱 오류: {e.Message}");
+            Debug.LogError($"❌ WebManager: 웹 데이터 파싱 오류: {e.Message}");
+            Debug.LogError($"❌ 스택 트레이스: {e.StackTrace}");
         }
     }
 
@@ -176,36 +227,42 @@ public class WebManager : MonoBehaviour
     {
         try
         {
+            Debug.Log($"🔍 디바이스 라인 파싱 시작: {line}");
+            
             // "devices.Y0" 추출
             int devicesIndex = line.IndexOf("\"devices.Y");
-            if (devicesIndex == -1) return;
+            if (devicesIndex == -1) 
+            {
+                Debug.LogWarning($"🔍 devices.Y 찾을 수 없음: {line}");
+                return;
+            }
             
             int endQuoteIndex = line.IndexOf("\"", devicesIndex + 1);
-            if (endQuoteIndex == -1) return;
+            if (endQuoteIndex == -1) 
+            {
+                Debug.LogWarning($"🔍 끝 따옴표 찾을 수 없음: {line}");
+                return;
+            }
             
             string deviceKey = line.Substring(devicesIndex + 1, endQuoteIndex - devicesIndex - 1);
             string deviceAddress = deviceKey.Replace("devices.", "");
             
+            Debug.Log($"🔍 추출된 디바이스 주소: {deviceAddress}");
+            
             // value 값 추출
             bool deviceValue = ExtractValueFromLine(line);
             
-            // 이전 상태 저장
-            if (deviceStates.ContainsKey(deviceAddress))
-            {
-                previousDeviceStates[deviceAddress] = deviceStates[deviceAddress];
-                deviceStates[deviceAddress] = deviceValue;
-            }
-            else
-            {
-                previousDeviceStates[deviceAddress] = false;
-                deviceStates[deviceAddress] = deviceValue;
-            }
+            Debug.Log($"🔍 추출된 디바이스 값: {deviceValue}");
             
-            Debug.Log($"WebManager: {deviceAddress} 상태 업데이트: {previousDeviceStates[deviceAddress]} → {deviceValue}");
+            // 현재 상태만 업데이트 (이전 상태는 ProcessDeviceChanges에서 관리)
+            deviceStates[deviceAddress] = deviceValue;
+            
+            Debug.Log($"✅ WebManager: {deviceAddress} 파싱 완료 - 값: {deviceValue}");
         }
         catch (Exception e)
         {
-            Debug.LogError($"WebManager: 디바이스 라인 파싱 오류: {e.Message} - Line: {line}");
+            Debug.LogError($"❌ WebManager: 디바이스 라인 파싱 오류: {e.Message} - Line: {line}");
+            Debug.LogError($"❌ 스택 트레이스: {e.StackTrace}");
         }
     }
 
@@ -233,12 +290,27 @@ public class WebManager : MonoBehaviour
         {
             string deviceAddress = deviceState.Key;
             bool currentValue = deviceState.Value;
-            bool previousValue = previousDeviceStates.ContainsKey(deviceAddress) ? previousDeviceStates[deviceAddress] : false;
+            bool? previousValue = previousDeviceStates.ContainsKey(deviceAddress) ? previousDeviceStates[deviceAddress] : null;
             
-            // 상태가 변경된 경우에만 처리
-            if (currentValue != previousValue)
+            // 첫 번째 수신이거나 상태가 변경된 경우 처리
+            if (previousValue == null || currentValue != previousValue)
             {
+                if (previousValue == null)
+                {
+                    Debug.Log($"🔥 WebManager: 초기 디바이스 설정 (웹 데이터 기반) - {deviceAddress}: {currentValue}");
+                }
+                else
+                {
+                    Debug.Log($"🔄 WebManager: 디바이스 상태 변경 - {deviceAddress}: {previousValue} → {currentValue}");
+                }
+                
+                // 무조건 디바이스 명령 실행 (초기든 변경이든)
                 ProcessDeviceCommand(deviceAddress, currentValue);
+                previousDeviceStates[deviceAddress] = currentValue; // 상태 업데이트
+            }
+            else
+            {
+                Debug.Log($"⏸️ WebManager: 디바이스 상태 변경 없음 - {deviceAddress}: {currentValue}");
             }
         }
     }
@@ -415,24 +487,6 @@ public class WebManager : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR
-    /// <summary>
-    /// 에디터에서 테스트용 더미 데이터
-    /// </summary>
-    [ContextMenu("Test Web Data")]
-    private void TestWebData()
-    {
-        string testData = @"
-        {
-            ""devices.Y0"": { ""value"": true },
-            ""devices.Y1"": { ""value"": false },
-            ""devices.Y2"": { ""value"": true },
-            ""devices.Y3"": { ""value"": false }
-        }";
-        
-        ReceiveWebData(testData);
-    }
-#endif
 
     void OnDestroy()
     {
